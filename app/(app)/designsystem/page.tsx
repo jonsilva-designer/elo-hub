@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Acoes } from './_secoes/acoes'
 import { Exibicao } from './_secoes/exibicao'
+import { Formulario } from './_secoes/formulario'
 import { Fundamentos } from './_secoes/fundamentos'
 import { Marca } from './_secoes/marca'
 import { Retorno } from './_secoes/retorno'
@@ -31,6 +32,7 @@ export default function PaginaDesignSystem() {
       >
         <div className="space-y-8">
           <Acoes />
+          <Formulario />
           <Exibicao />
           <Retorno />
         </div>

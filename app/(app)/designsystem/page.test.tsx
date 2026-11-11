@@ -33,7 +33,7 @@ describe('página /designsystem', () => {
 
   it('mostra os subtítulos de Componentes na ordem', () => {
     renderizar()
-    expect(titulos(3)).toEqual(['Ações', 'Exibição', 'Retorno'])
+    expect(titulos(3)).toEqual(['Ações', 'Formulário', 'Exibição', 'Retorno'])
   })
 
   it('marca como provisórias as linhas de Azul-marinho e Dourado', () => {
