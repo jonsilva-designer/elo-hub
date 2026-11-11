@@ -78,3 +78,30 @@ describe("formatarPercentual", () => {
     expect(formatarPercentual(null)).toBe(VAZIO);
   });
 });
+
+describe("entradas de borda", () => {
+  it("não finitos viram VAZIO", () => {
+    expect(formatarNumero(NaN)).toBe(VAZIO);
+    expect(formatarReal(Infinity)).toBe(VAZIO);
+    expect(formatarReal(-Infinity)).toBe(VAZIO);
+    expect(formatarPercentual(0 / 0)).toBe(VAZIO);
+  });
+  it("zero negativo vira zero", () => {
+    expect(formatarReal(-0)).toBe("R$ 0,00");
+    expect(formatarNumero(-0)).toBe("0");
+    expect(formatarPercentual(-0)).toBe("0%");
+  });
+  it("data de calendário impossível vira VAZIO", () => {
+    expect(formatarData("2026-13-45")).toBe(VAZIO);
+    expect(formatarData("2026-02-30")).toBe(VAZIO);
+    expect(formatarData("2028-02-29")).toBe("29/02/2028");
+  });
+  it("data e hora sem fuso é horário de Brasília, sem depender da máquina", () => {
+    expect(formatarData("2026-11-09T01:00:00")).toBe("09/11/2026");
+    expect(formatarDataCurta("2026-11-09T23:59")).toBe("09/11");
+    expect(formatarData("2026-11-09T01:00:00.123")).toBe("09/11/2026");
+    expect(formatarData("2026-13-45T01:00:00")).toBe(VAZIO);
+    expect(formatarData("2026-11-12T01:30:00Z")).toBe("11/11/2026");
+    expect(formatarData("2026-11-12T01:30:00-03:00")).toBe("12/11/2026");
+  });
+});

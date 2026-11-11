@@ -1,7 +1,8 @@
 export const VAZIO = "—";
 
 const FUSO = "America/Sao_Paulo";
-const DATA_CALENDARIO = /^(\d{4})-(\d{2})-(\d{2})$/;
+// AAAA-MM-DD, com ou sem hora, mas sem sufixo de fuso (Z ou ±HH:MM).
+const DATA_SEM_FUSO = /^(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)?$/;
 
 const dataCompleta = new Intl.DateTimeFormat("pt-BR", {
   timeZone: FUSO,
@@ -26,16 +27,32 @@ const percentual = new Intl.NumberFormat("pt-BR", {
 
 type EntradaData = string | Date | null | undefined;
 
+type Partes = { ano: string; mes: string; dia: string };
+
+// Extrai e valida a data de calendário de um texto sem fuso. null se não casar.
+function partesSemFuso(texto: string): Partes | "invalida" | null {
+  const m = DATA_SEM_FUSO.exec(texto);
+  if (!m) return null;
+  const [, ano, mes, dia] = m;
+  const d = new Date(Date.UTC(Number(ano), Number(mes) - 1, Number(dia)));
+  const ok =
+    d.getUTCFullYear() === Number(ano) &&
+    d.getUTCMonth() === Number(mes) - 1 &&
+    d.getUTCDate() === Number(dia);
+  return ok ? { ano, mes, dia } : "invalida";
+}
+
 function formatarComIntl(
   valor: EntradaData,
   intl: Intl.DateTimeFormat,
-  doCalendario: (ano: string, mes: string, dia: string) => string,
+  doCalendario: (p: Partes) => string,
 ): string {
   if (valor === null || valor === undefined) return VAZIO;
   if (typeof valor === "string") {
-    // Data AAAA-MM-DD é data de calendário: não passa por Date nem muda de dia.
-    const partes = DATA_CALENDARIO.exec(valor);
-    if (partes) return doCalendario(partes[1], partes[2], partes[3]);
+    // Sem fuso = horário de Brasília: usa as partes do texto, sem Date local.
+    const partes = partesSemFuso(valor);
+    if (partes === "invalida") return VAZIO;
+    if (partes) return doCalendario(partes);
   }
   const data = valor instanceof Date ? valor : new Date(valor);
   if (Number.isNaN(data.getTime())) return VAZIO;
@@ -43,23 +60,31 @@ function formatarComIntl(
 }
 
 export function formatarData(valor: EntradaData): string {
-  return formatarComIntl(valor, dataCompleta, (a, m, d) => `${d}/${m}/${a}`);
+  return formatarComIntl(valor, dataCompleta, ({ ano, mes, dia }) => `${dia}/${mes}/${ano}`);
 }
 
 export function formatarDataCurta(valor: EntradaData): string {
-  return formatarComIntl(valor, dataCurta, (_a, m, d) => `${d}/${m}`);
+  return formatarComIntl(valor, dataCurta, ({ mes, dia }) => `${dia}/${mes}`);
+}
+
+function finito(valor: number | null | undefined): number | null {
+  if (valor === null || valor === undefined || !Number.isFinite(valor)) {
+    return null;
+  }
+  return valor === 0 ? 0 : valor; // normaliza -0
 }
 
 export function formatarReal(valor: number | null | undefined): string {
-  return valor === null || valor === undefined ? VAZIO : real.format(valor);
+  const n = finito(valor);
+  return n === null ? VAZIO : real.format(n);
 }
 
 export function formatarNumero(valor: number | null | undefined): string {
-  return valor === null || valor === undefined ? VAZIO : numero.format(valor);
+  const n = finito(valor);
+  return n === null ? VAZIO : numero.format(n);
 }
 
 export function formatarPercentual(fracao: number | null | undefined): string {
-  return fracao === null || fracao === undefined
-    ? VAZIO
-    : percentual.format(fracao);
+  const n = finito(fracao);
+  return n === null ? VAZIO : percentual.format(n);
 }
