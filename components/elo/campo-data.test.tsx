@@ -20,6 +20,33 @@ describe('CampoData', () => {
     expect(onChange).toHaveBeenLastCalledWith(null)
   })
 
+  it('colar uma data AAAA-MM-DD vira dd/mm/aaaa', async () => {
+    const onChange = vi.fn()
+    render(<CampoData id="d" valor={null} onChange={onChange} />)
+    await userEvent.click(screen.getByRole('textbox'))
+    await userEvent.paste('2026-11-09')
+    expect(screen.getByRole('textbox')).toHaveValue('09/11/2026')
+    expect(onChange).toHaveBeenLastCalledWith('2026-11-09')
+  })
+
+  it('ano fora de 1900 a 2100 entrega null', async () => {
+    const onChange = vi.fn()
+    render(<CampoData id="d" valor={null} onChange={onChange} />)
+    await userEvent.type(screen.getByRole('textbox'), '09110202')
+    expect(onChange).toHaveBeenLastCalledWith(null)
+  })
+
+  it('apagar atravessa a barra', async () => {
+    render(<CampoData id="d" valor={null} onChange={() => {}} />)
+    const campo = screen.getByRole('textbox')
+    await userEvent.type(campo, '091')
+    expect(campo).toHaveValue('09/1')
+    await userEvent.keyboard('{Backspace}')
+    expect(campo).toHaveValue('09')
+    await userEvent.keyboard('{Backspace}')
+    expect(campo).toHaveValue('0')
+  })
+
   it('mostra o valor recebido em dd/mm/aaaa', () => {
     render(<CampoData id="d" valor="2026-11-09" onChange={() => {}} />)
     expect(screen.getByRole('textbox')).toHaveValue('09/11/2026')
@@ -29,7 +56,7 @@ describe('CampoData', () => {
     render(<CampoData id="d" valor="2026-11-09" onChange={() => {}} />)
     await userEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }))
     const dialogo = await screen.findByRole('dialog')
-    expect(within(dialogo).getByText(/novembro 2026/i)).toBeInTheDocument()
+    expect(within(dialogo).getByText(/novembro de 2026/i)).toBeInTheDocument()
   })
 
   it('escolher um dia do calendário entrega AAAA-MM-DD', async () => {

@@ -35,6 +35,29 @@ describe('CampoValor', () => {
     expect(onChange).toHaveBeenLastCalledWith(null)
   })
 
+  it('só pontuação ou letras entregam null', async () => {
+    const onChange = vi.fn()
+    render(<CampoValor id="v" valor={null} onChange={onChange} />)
+    const campo = screen.getByRole('textbox')
+    await userEvent.type(campo, '.')
+    expect(onChange).toHaveBeenLastCalledWith(null)
+    await userEvent.clear(campo)
+    await userEvent.type(campo, '...')
+    expect(onChange).toHaveBeenLastCalledWith(null)
+    await userEvent.clear(campo)
+    await userEvent.type(campo, 'abc')
+    expect(campo).toHaveValue('')
+    expect(onChange).toHaveBeenLastCalledWith(null)
+  })
+
+  it('não aceita sinal de menos', async () => {
+    const onChange = vi.fn()
+    render(<CampoValor id="v" valor={null} onChange={onChange} />)
+    await userEvent.type(screen.getByRole('textbox'), '-5')
+    expect(screen.getByRole('textbox')).toHaveValue('5')
+    expect(onChange).toHaveBeenLastCalledWith(5)
+  })
+
   it('mostra zero como 0,00', () => {
     render(<CampoValor id="v" valor={0} onChange={() => {}} />)
     expect(screen.getByRole('textbox')).toHaveValue('0,00')

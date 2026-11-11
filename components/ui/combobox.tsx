@@ -223,7 +223,7 @@ function ComboboxChips({
     <ComboboxPrimitive.Chips
       data-slot="combobox-chips"
       className={cn(
-        "flex min-h-8 flex-wrap items-center gap-1 rounded-md border border-input bg-card bg-clip-padding px-2.5 py-1 text-sm transition-colors has-aria-invalid:border-destructive has-has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1",
+        "flex min-h-8 flex-wrap items-center gap-1 rounded-md border border-input bg-card bg-clip-padding px-2.5 py-1 text-sm transition-colors has-aria-invalid:border-destructive has-data-[slot=combobox-chip]:px-1",
         className
       )}
       {...props}
@@ -239,7 +239,10 @@ function ComboboxChip({
   ...props
 }: ComboboxPrimitive.Chip.Props & {
   showRemove?: boolean
-  /** Nome acessível do botão de remover, por exemplo "Remover Bruno". */
+  /**
+   * Personalização da ELO, mantida por acessibilidade: nome do botão de remover, por exemplo
+   * "Remover Bruno". Reaplicar se o arquivo for regerado pelo shadcn.
+   */
   rotuloRemover?: string
 }) {
   return (

@@ -12,7 +12,7 @@ const doisDecimais = new Intl.NumberFormat('pt-BR', {
 /** Texto no formato brasileiro (`1.234,5`) como número. Vazio ou inválido vira null. */
 function lerValor(texto: string): number | null {
   const limpo = texto.trim()
-  if (!limpo) return null
+  if (!/\d/.test(limpo)) return null
   if ((limpo.match(/,/g) ?? []).length > 1) return null
   const n = Number(limpo.replace(/\./g, '').replace(',', '.'))
   return Number.isFinite(n) ? n : null
@@ -52,7 +52,6 @@ export function CampoValor({
         type="text"
         inputMode="decimal"
         autoComplete="off"
-        placeholder="0,00"
         disabled={disabled}
         value={texto}
         className="font-mono tabular-nums"

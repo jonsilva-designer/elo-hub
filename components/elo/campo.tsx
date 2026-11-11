@@ -1,7 +1,15 @@
 'use client'
 
 import { useId, type ReactNode } from 'react'
-import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field'
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from '@/components/ui/field'
 
 /** Atributos que o `Campo` entrega ao controle de dentro. */
 export type AtributosDeCampo = {
@@ -14,18 +22,26 @@ export type AtributosDeCampo = {
  * Rótulo, controle, ajuda e erro de um campo de formulário.
  * O controle recebe o id e os atributos de acessibilidade por função filha.
  * O erro aparece abaixo do campo, em vermelho, e nunca só pela cor (padrão 7).
+ *
+ * `horizontal`: para caixa de seleção, com o controle antes e o texto ao lado (um só rótulo).
+ * `grupo`: para um conjunto de opções, com o rótulo como legenda de um `fieldset`.
+ * O elemento com o nome do grupo tem o id `<id>-rotulo`, para o `aria-labelledby` do controle.
  */
 export function Campo({
   rotulo,
   ajuda,
   erro,
   obrigatorio,
+  horizontal,
+  grupo,
   children,
 }: {
   rotulo: string
   ajuda?: string
   erro?: string
   obrigatorio?: boolean
+  horizontal?: boolean
+  grupo?: boolean
   children: (props: AtributosDeCampo) => ReactNode
 }) {
   const id = useId()
@@ -37,23 +53,24 @@ export function Campo({
   if (descritoPor) props['aria-describedby'] = descritoPor
   if (erro) props['aria-invalid'] = true
 
-  return (
-    <Field>
-      <FieldLabel id={`${id}-rotulo`} htmlFor={id} className="text-[13px] font-medium text-foreground">
-        <span>
-          {rotulo}
-          {obrigatorio ? (
-            <>
-              {' '}
-              <span aria-hidden="true" className="text-destructive">
-                *
-              </span>
-              <span className="sr-only">(obrigatório)</span>
-            </>
-          ) : null}
-        </span>
-      </FieldLabel>
-      {children(props)}
+  const textoDoRotulo = (
+    <span>
+      {rotulo}
+      {obrigatorio ? (
+        <>
+          {' '}
+          <span aria-hidden="true" className="text-destructive">
+            *
+          </span>
+          <span className="sr-only">(obrigatório)</span>
+        </>
+      ) : null}
+    </span>
+  )
+  const classeDoRotulo = 'text-[13px] font-medium text-foreground'
+
+  const ajudaEErro = (
+    <>
       {ajuda ? (
         <FieldDescription id={idAjuda} className="text-xs">
           {ajuda}
@@ -64,6 +81,42 @@ export function Campo({
           {erro}
         </FieldError>
       ) : null}
+    </>
+  )
+
+  if (grupo) {
+    return (
+      <FieldSet className="gap-2">
+        <FieldLegend id={`${id}-rotulo`} variant="label" className={`mb-0 ${classeDoRotulo}`}>
+          {textoDoRotulo}
+        </FieldLegend>
+        {children(props)}
+        {ajudaEErro}
+      </FieldSet>
+    )
+  }
+
+  if (horizontal) {
+    return (
+      <Field orientation="horizontal" className="items-start">
+        {children(props)}
+        <FieldContent>
+          <FieldLabel id={`${id}-rotulo`} htmlFor={id} className="text-[13px] font-normal text-foreground">
+            {textoDoRotulo}
+          </FieldLabel>
+          {ajudaEErro}
+        </FieldContent>
+      </Field>
+    )
+  }
+
+  return (
+    <Field>
+      <FieldLabel id={`${id}-rotulo`} htmlFor={id} className={classeDoRotulo}>
+        {textoDoRotulo}
+      </FieldLabel>
+      {children(props)}
+      {ajudaEErro}
     </Field>
   )
 }

@@ -1,9 +1,10 @@
 'use client'
 
-// Locale do próprio react-day-picker: é o date-fns ptBR mais os textos de acessibilidade em português.
-import { ptBR } from 'react-day-picker/locale'
+import { format } from 'date-fns'
 import { CalendarDays } from 'lucide-react'
 import { useState } from 'react'
+// Locale do próprio react-day-picker: é o date-fns ptBR mais os textos de acessibilidade em português.
+import { ptBR } from 'react-day-picker/locale'
 import { Calendar } from '@/components/ui/calendar'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -46,17 +47,25 @@ function brParaIso(texto: string): string | null {
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(texto)
   if (!m) return null
   const iso = `${m[3]}-${m[2]}-${m[1]}`
+  const ano = Number(m[3])
+  if (ano < 1900 || ano > 2100) return null
   return dataLocal(iso) ? iso : null
 }
 
 function aplicarMascara(bruto: string): string {
+  // Data colada como AAAA-MM-DD: reescreve em dd/mm/aaaa.
+  const colada = ISO.exec(bruto.trim())
+  if (colada) return `${colada[3]}/${colada[2]}/${colada[1]}`
   const d = bruto.replace(/\D/g, '').slice(0, 8)
   if (d.length <= 2) return d
   if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`
   return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`
 }
 
-/** Campo de data com máscara `dd/mm/aaaa` e calendário. O valor é `AAAA-MM-DD`. */
+/**
+ * Campo de data com máscara `dd/mm/aaaa` e calendário. O valor é `AAAA-MM-DD`.
+ * `onChange(null)` significa campo vazio ou data inválida (incompleta, inexistente ou fora de 1900 a 2100).
+ */
 export function CampoData({
   valor,
   onChange,
@@ -107,6 +116,7 @@ export function CampoData({
             <Calendar
               mode="single"
               locale={ptBR}
+              formatters={{ formatCaption: (mes) => format(mes, "LLLL 'de' y", { locale: ptBR }) }}
               selected={selecionada ?? undefined}
               defaultMonth={selecionada ?? undefined}
               onSelect={(d) => {
