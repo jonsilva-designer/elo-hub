@@ -1,1 +1,131 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+    --radius-2xl: 12px;
+    --radius-3xl: 12px;
+    --radius-4xl: 12px;
+    --shadow-flutuante: 0 1px 2px rgb(24 47 79 / .10), 0 10px 28px rgb(24 47 79 / .12);
+}
+
+:root {
+    /* Cores do padrão visual (docs/padrao-visual.md, seção 4.1) */
+    --elo-azul-marinho: #182F4F;
+    --elo-dourado: #BD903F;
+    --elo-dourado-suave: #E9DBC0;
+    --elo-dourado-escuro: #8C6A2C;
+    --elo-papel: #FAF8F4;
+    --elo-branco: #FFFFFF;
+    --elo-tinta: #1B2533;
+    --elo-texto-secundario: #5D6878;
+    --elo-borda: #E7E1D6;
+    --elo-divisoria: #EEE9DF;
+    --elo-borda-campo: #948D80;
+    --elo-secundario: #F1ECE2;
+    --elo-suave: #F3EFE8;
+    --elo-alerta: #A23B2A;
+    --elo-crit-critica-fundo: #F7E3DF;
+    --elo-crit-critica-texto: #8E2A1C;
+    --elo-crit-alta-fundo: #F7EBD6;
+    --elo-crit-alta-texto: #8A5A12;
+    --elo-crit-moderada-fundo: #E4EAF3;
+    --elo-crit-moderada-texto: #2C4A73;
+    --elo-crit-baixa-fundo: #EEF0F3;
+    --elo-crit-baixa-texto: #5D6878;
+    --elo-status-neutro: #8C8578;
+    --elo-status-em-curso: #3B6EA8;
+    --elo-status-atencao: #C08A1E;
+    --elo-status-suspenso-texto: #8A5A12;
+    --elo-status-concluido: #2E7D5B;
+    --elo-status-problema: #C0392B;
+    --elo-status-fechado: #B5AEA2;
+    --elo-lateral-texto: #C9D3E1;
+    --elo-lateral-texto-fraco: #9FB0C7;
+
+    /* Tema do shadcn apontando para as cores acima */
+    --background: var(--elo-papel);
+    --foreground: var(--elo-tinta);
+    --card: var(--elo-branco);
+    --card-foreground: var(--elo-tinta);
+    --popover: var(--elo-branco);
+    --popover-foreground: var(--elo-tinta);
+    --primary: var(--elo-azul-marinho);
+    --primary-foreground: var(--elo-branco);
+    --secondary: var(--elo-secundario);
+    --secondary-foreground: var(--elo-azul-marinho);
+    --muted: var(--elo-suave);
+    --muted-foreground: var(--elo-texto-secundario);
+    --accent: var(--elo-secundario);
+    --accent-foreground: var(--elo-azul-marinho);
+    --destructive: var(--elo-alerta);
+    --border: var(--elo-borda);
+    --input: var(--elo-borda-campo);
+    --ring: var(--elo-azul-marinho);
+    --sidebar: var(--elo-azul-marinho);
+    --sidebar-foreground: var(--elo-lateral-texto);
+    --sidebar-primary: var(--elo-dourado);
+    --sidebar-primary-foreground: var(--elo-azul-marinho);
+    --sidebar-accent: color-mix(in srgb, var(--elo-dourado) 16%, transparent);
+    --sidebar-accent-foreground: var(--elo-branco);
+    --sidebar-border: color-mix(in srgb, var(--elo-branco) 10%, transparent);
+    --sidebar-ring: var(--elo-dourado);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground text-sm;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+
+/* Foco visível igual em todo o sistema. Fora de camada e com !important
+   para vencer o outline-none e o anel dos componentes do shadcn. */
+:where(a, button, input, select, textarea, [tabindex], [role]):focus-visible {
+    outline: 2px solid var(--ring) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+/* Dentro da lateral o foco é dourado */
+:where([data-sidebar], [data-slot="sidebar"]) :where(a, button, input, select, textarea, [tabindex], [role]):focus-visible {
+    outline-color: var(--sidebar-ring) !important;
+}
