@@ -21,4 +21,10 @@ describe('seção Formulário', () => {
     render(<Formulario />)
     for (const g of screen.getAllByRole('radiogroup')) expect(g).toHaveAccessibleName(/\S/)
   })
+
+  it('o grupo de opção única com erro é marcado como inválido', () => {
+    render(<Formulario />)
+    const grupo = screen.getByText('Escolha o porte').closest('fieldset')!.querySelector('[role="radiogroup"]')
+    expect(grupo).toHaveAttribute('aria-invalid', 'true')
+  })
 })

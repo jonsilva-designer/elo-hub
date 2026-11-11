@@ -76,12 +76,14 @@ function Portes({
   valor,
   onChange,
   disabled,
+  invalido,
   descritoPor,
 }: {
   id: string
   valor: string
   onChange?: (v: string) => void
   disabled?: boolean
+  invalido?: true
   descritoPor?: string
 }) {
   return (
@@ -89,6 +91,7 @@ function Portes({
       id={id}
       aria-labelledby={`${id}-rotulo`}
       aria-describedby={descritoPor}
+      aria-invalid={invalido}
       value={valor}
       onValueChange={onChange}
       disabled={disabled}
@@ -291,7 +294,7 @@ export function Formulario() {
           </Celula>
           <Celula legenda="Com erro">
             <Campo rotulo="Porte da empresa" grupo erro="Escolha o porte">
-              {(p) => <Portes id={p.id} valor="" descritoPor={p['aria-describedby']} />}
+              {(p) => <Portes id={p.id} valor="" invalido={p['aria-invalid']} descritoPor={p['aria-describedby']} />}
             </Campo>
           </Celula>
           <Celula legenda="Desabilitado">

@@ -128,6 +128,12 @@
     box-shadow: none !important;
 }
 
+/* Itens de lista, menu e dias do calendário ficam dentro de contêineres com rolagem ou corte:
+   o contorno com afastamento de fora seria cortado. Neles o contorno vai por dentro, com a mesma cor e largura. */
+:where([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="gridcell"] button):focus-visible {
+    outline-offset: -2px !important;
+}
+
 /* Dentro da lateral o foco é dourado */
 :where([data-sidebar], [data-slot="sidebar"]) :where(a, button, input, select, textarea, [tabindex], [role]):not([role="menu"], [role="dialog"], [role="alertdialog"], [role="listbox"]):focus-visible {
     outline-color: var(--sidebar-ring) !important;

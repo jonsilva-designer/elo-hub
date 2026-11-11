@@ -23,7 +23,7 @@ export function CampoArquivo({
   const [nome, setNome] = useState<string | null>(null)
 
   return (
-    <div className="flex min-w-0 items-center gap-2">
+    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
       <input
         {...props}
         ref={entrada}
@@ -53,8 +53,9 @@ export function CampoArquivo({
         Escolher arquivo
       </span>
       <span
+        title={nome ?? undefined}
         className={cn(
-          'min-w-0 truncate text-sm',
+          'min-w-0 max-w-full truncate text-sm',
           nome ? 'text-foreground' : 'text-muted-foreground',
           disabled && 'opacity-50',
         )}
