@@ -66,3 +66,18 @@ describe("IndicadorPrioridade", () => {
     expect(el.querySelectorAll('[data-preenchida="true"]')).toHaveLength(cheias);
   });
 });
+
+describe("mesma altura", () => {
+  it("as três etiquetas têm borda de 1px", () => {
+    const { container } = render(
+      <>
+        <EtiquetaStatus status="Ativo" />
+        <EtiquetaCriticidade criticidade="Alta" />
+        <EtiquetaPlanejamento />
+      </>,
+    );
+    const etiquetas = container.querySelectorAll(":scope > span");
+    expect(etiquetas).toHaveLength(3);
+    etiquetas.forEach((el) => expect(el).toHaveClass("border"));
+  });
+});

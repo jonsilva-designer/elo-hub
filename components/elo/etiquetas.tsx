@@ -6,7 +6,7 @@ import {
   type TomDeStatus,
 } from "@/lib/design/status";
 
-const BASE = "inline-flex items-center rounded-sm px-1.5 py-0.5 text-xs font-medium whitespace-nowrap";
+const BASE = "inline-flex items-center border rounded-sm px-1.5 py-0.5 text-xs font-medium whitespace-nowrap";
 
 const PONTO_POR_TOM: Record<Exclude<TomDeStatus, "suspenso">, string> = {
   neutro: "bg-[var(--elo-status-neutro)]",
@@ -34,7 +34,7 @@ export function EtiquetaStatus({ status }: { status: string }) {
       data-tom={tom}
       className={cn(
         BASE,
-        "gap-1.5 border border-border bg-[var(--elo-branco)]",
+        "gap-1.5 border-border bg-[var(--elo-branco)]",
         TEXTO_POR_TOM[tom],
       )}
     >
@@ -56,10 +56,10 @@ export function EtiquetaStatus({ status }: { status: string }) {
 }
 
 const CRITICIDADE: Record<Criticidade, string> = {
-  Crítica: "bg-[var(--elo-crit-critica-fundo)] text-[var(--elo-crit-critica-texto)]",
-  Alta: "bg-[var(--elo-crit-alta-fundo)] text-[var(--elo-crit-alta-texto)]",
-  Moderada: "bg-[var(--elo-crit-moderada-fundo)] text-[var(--elo-crit-moderada-texto)]",
-  Baixa: "bg-[var(--elo-crit-baixa-fundo)] text-[var(--elo-crit-baixa-texto)]",
+  Crítica: "border-transparent bg-[var(--elo-crit-critica-fundo)] text-[var(--elo-crit-critica-texto)]",
+  Alta: "border-transparent bg-[var(--elo-crit-alta-fundo)] text-[var(--elo-crit-alta-texto)]",
+  Moderada: "border-transparent bg-[var(--elo-crit-moderada-fundo)] text-[var(--elo-crit-moderada-texto)]",
+  Baixa: "border-transparent bg-[var(--elo-crit-baixa-fundo)] text-[var(--elo-crit-baixa-texto)]",
 };
 
 export function EtiquetaCriticidade({ criticidade }: { criticidade: Criticidade }) {
@@ -75,7 +75,7 @@ export function EtiquetaPlanejamento() {
     <span
       className={cn(
         BASE,
-        "border border-dashed border-[var(--elo-azul-marinho)] bg-[var(--elo-branco)] text-[var(--elo-azul-marinho)]",
+        "border-dashed border-[var(--elo-azul-marinho)] bg-[var(--elo-branco)] text-[var(--elo-azul-marinho)]",
       )}
     >
       Planejamento

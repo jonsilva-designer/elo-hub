@@ -22,6 +22,7 @@ describe("tomDoStatus", () => {
 
   it("ignora maiúsculas e espaços nas pontas", () => {
     expect(tomDoStatus(" concluída ")).toBe("concluido");
+    expect(tomDoStatus("CONCLUÍDA")).toBe("concluido");
     expect(tomDoStatus("EM ANDAMENTO")).toBe("em-curso");
   });
 
