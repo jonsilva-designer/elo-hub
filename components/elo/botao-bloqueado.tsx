@@ -9,12 +9,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 export function BotaoBloqueado({
   motivo,
   ...props
-}: React.ComponentProps<typeof Button> & { motivo: string }) {
+}: Omit<React.ComponentProps<typeof Button>, 'disabled'> & { motivo: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
           {...props}
+          disabled={false}
           aria-disabled="true"
           onClick={(evento) => evento.preventDefault()}
         />

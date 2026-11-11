@@ -22,6 +22,18 @@ describe('ConfirmarAcao', () => {
     expect(onConfirmar).toHaveBeenCalledTimes(1)
   })
 
+  it('sem descricao não emite erro nem aviso no console', async () => {
+    const erro = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const aviso = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    montar()
+    await userEvent.click(screen.getByRole('button', { name: 'Abrir' }))
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+    expect(erro).not.toHaveBeenCalled()
+    expect(aviso).not.toHaveBeenCalled()
+    erro.mockRestore()
+    aviso.mockRestore()
+  })
+
   it('Cancelar fecha sem confirmar', async () => {
     const onConfirmar = montar()
     await userEvent.click(screen.getByRole('button', { name: 'Abrir' }))

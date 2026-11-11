@@ -29,4 +29,27 @@ describe('BotaoBloqueado', () => {
     expect(screen.getByRole('button', { name: 'Encerrar' })).toHaveFocus()
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Há atividades abertas')
   })
+
+  it('mostra o motivo ao passar o mouse', async () => {
+    render(
+      <TooltipProvider>
+        <BotaoBloqueado motivo="Há atividades abertas">Encerrar</BotaoBloqueado>
+      </TooltipProvider>,
+    )
+    await userEvent.hover(screen.getByRole('button', { name: 'Encerrar' }))
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Há atividades abertas')
+  })
+
+  it('não repassa disabled ao botão, que continua focável', async () => {
+    const propsForcadas = { disabled: true } as unknown as Record<string, never>
+    render(
+      <TooltipProvider>
+        <BotaoBloqueado motivo="Há atividades abertas" {...propsForcadas}>Encerrar</BotaoBloqueado>
+      </TooltipProvider>,
+    )
+    const botao = screen.getByRole('button', { name: 'Encerrar' })
+    expect(botao).not.toBeDisabled()
+    await userEvent.tab()
+    expect(botao).toHaveFocus()
+  })
 })

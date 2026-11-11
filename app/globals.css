@@ -118,14 +118,17 @@
 }
 
 /* Foco visível igual em todo o sistema. Fora de camada e com !important
-   para vencer o outline-none e o anel dos componentes do shadcn. */
-:where(a, button, input, select, textarea, [tabindex], [role]):focus-visible {
+   para vencer o outline-none e o anel dos componentes do shadcn.
+   Menus, janelas e listas flutuantes ficam de fora: o Radix foca o próprio
+   contêiner por código e o Tab nunca chega nele, então o contorno só
+   atrapalharia e apagaria a sombra. Os itens e botões dentro deles mantêm o foco. */
+:where(a, button, input, select, textarea, [tabindex], [role]):not([role="menu"], [role="dialog"], [role="alertdialog"], [role="listbox"]):focus-visible {
     outline: 2px solid var(--ring) !important;
     outline-offset: 2px !important;
     box-shadow: none !important;
 }
 
 /* Dentro da lateral o foco é dourado */
-:where([data-sidebar], [data-slot="sidebar"]) :where(a, button, input, select, textarea, [tabindex], [role]):focus-visible {
+:where([data-sidebar], [data-slot="sidebar"]) :where(a, button, input, select, textarea, [tabindex], [role]):not([role="menu"], [role="dialog"], [role="alertdialog"], [role="listbox"]):focus-visible {
     outline-color: var(--sidebar-ring) !important;
 }
