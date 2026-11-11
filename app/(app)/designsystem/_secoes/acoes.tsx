@@ -35,7 +35,7 @@ export function Acoes() {
         <Button disabled>Salvar</Button>
       </Exemplo>
       <Exemplo rotulo="Bloqueado com motivo">
-        <BotaoBloqueado variant="outline" motivo="Há atividades abertas">
+        <BotaoBloqueado motivo="Há atividades abertas">
           Encerrar plano
         </BotaoBloqueado>
       </Exemplo>

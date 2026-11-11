@@ -1,16 +1,21 @@
-import type { Criticidade, Prioridade } from '@/lib/design/status'
+import { STATUS_POR_TOM, type Criticidade, type Prioridade, type TomDeStatus } from '@/lib/design/status'
 
 /** Dados fictícios da página /designsystem. Datas sempre em texto fixo. */
 
-export const STATUS_POR_TOM = [
-  { tom: 'Neutro', status: ['Prospect', 'Proposta', 'Planejado', 'Não iniciada', 'Nova', 'Em análise', 'Em elaboração', 'Não aplicável', 'Superado'] },
-  { tom: 'Em curso', status: ['Em contratação', 'Em andamento', 'Em triagem', 'Em atendimento', 'Aberto'] },
-  { tom: 'Atenção', status: ['Em espera', 'Aguardando retorno', 'Próximo do vencimento'] },
-  { tom: 'Suspenso', status: ['Suspenso'] },
-  { tom: 'Concluído ou ativo', status: ['Ativo', 'Vigente', 'Concluído', 'Concluída', 'Resolvida'] },
-  { tom: 'Problema', status: ['Vencido'] },
-  { tom: 'Fechado', status: ['Inativo', 'Encerrado', 'Encerrada', 'Cancelado', 'Cancelada'] },
-]
+const ROTULO_DO_TOM: Record<TomDeStatus, string> = {
+  neutro: 'Neutro',
+  'em-curso': 'Em curso',
+  atencao: 'Atenção',
+  suspenso: 'Suspenso',
+  concluido: 'Concluído ou ativo',
+  problema: 'Problema',
+  fechado: 'Fechado',
+}
+
+/** Grupos de status por tom, derivados da tabela de lib/design/status.ts. */
+export const GRUPOS_DE_STATUS = (Object.entries(STATUS_POR_TOM) as [TomDeStatus, readonly string[]][]).map(
+  ([tom, status]) => ({ tom: ROTULO_DO_TOM[tom], status }),
+)
 
 export const CRITICIDADES: Criticidade[] = ['Baixa', 'Moderada', 'Alta', 'Crítica']
 export const PRIORIDADES: Prioridade[] = ['Baixa', 'Média', 'Alta']

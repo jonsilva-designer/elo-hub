@@ -10,7 +10,9 @@ export type TomDeStatus =
 export type Criticidade = "Baixa" | "Moderada" | "Alta" | "Crítica";
 export type Prioridade = "Baixa" | "Média" | "Alta";
 
-const POR_TOM: Record<Exclude<TomDeStatus, "neutro">, string[]> = {
+/** Status de cada tom (padrão visual 4.6). Fonte única: a página /designsystem lê daqui. */
+export const STATUS_POR_TOM: Readonly<Record<TomDeStatus, readonly string[]>> = {
+  neutro: ["Prospect", "Proposta", "Planejado", "Não iniciada", "Nova", "Em análise", "Em elaboração", "Não aplicável", "Superado"],
   "em-curso": ["Em contratação", "Em andamento", "Em triagem", "Em atendimento", "Aberto"],
   atencao: ["Em espera", "Aguardando retorno", "Próximo do vencimento"],
   suspenso: ["Suspenso"],
@@ -22,7 +24,7 @@ const POR_TOM: Record<Exclude<TomDeStatus, "neutro">, string[]> = {
 const normalizar = (s: string) => s.trim().toLocaleLowerCase("pt-BR");
 
 const TOM_POR_STATUS = new Map<string, TomDeStatus>(
-  (Object.entries(POR_TOM) as [TomDeStatus, string[]][]).flatMap(([tom, lista]) =>
+  (Object.entries(STATUS_POR_TOM) as [TomDeStatus, readonly string[]][]).flatMap(([tom, lista]) =>
     lista.map((s) => [normalizar(s), tom] as const),
   ),
 );

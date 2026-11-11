@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { STATUS_POR_TOM } from '@/lib/design/status'
 import Pagina from './page'
 
 function renderizar() {
@@ -49,5 +50,12 @@ describe('página /designsystem', () => {
     const texto = container.textContent ?? ''
     expect(texto).not.toMatch(/\p{Extended_Pictographic}/u)
     expect(texto).not.toContain('Cleo')
+  })
+
+  it('mostra todos os status da tabela de tons', () => {
+    renderizar()
+    for (const s of Object.values(STATUS_POR_TOM).flat()) {
+      expect(screen.getAllByText(s).length).toBeGreaterThan(0)
+    }
   })
 })

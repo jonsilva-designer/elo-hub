@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: 'Padrão visual | Plataforma ELO' }
 
 export default function PaginaDesignSystem() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <main className="mx-auto min-w-0 w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <header className="space-y-1 border-b border-[var(--elo-dourado-suave)] pb-4">
         <h1 className="text-[26px] font-semibold tracking-[-0.02em] text-[var(--elo-azul-marinho)]">
           Padrão visual

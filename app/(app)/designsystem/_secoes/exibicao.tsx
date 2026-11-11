@@ -11,7 +11,7 @@ import {
   ESCOPO_EXEMPLO,
   NUMEROS_EXEMPLO,
   PRIORIDADES,
-  STATUS_POR_TOM,
+  GRUPOS_DE_STATUS,
 } from '../exemplos'
 import { Exemplo, Subsecao } from './secao'
 
@@ -28,7 +28,7 @@ export function Exibicao() {
   const n = NUMEROS_EXEMPLO
   return (
     <Subsecao titulo="Exibição">
-      {STATUS_POR_TOM.map(({ tom, status }) => (
+      {GRUPOS_DE_STATUS.map(({ tom, status }) => (
         <Exemplo key={tom} rotulo={`Status, ${tom.toLocaleLowerCase('pt-BR')}`}>
           {status.map((s) => (
             <EtiquetaStatus key={s} status={s} />
