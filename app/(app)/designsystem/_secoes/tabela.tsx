@@ -77,7 +77,7 @@ export function Tabela() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={SEM_VALOR_FILTRO}>Todas</SelectItem>
+                  <SelectItem value={SEM_VALOR_FILTRO}>Todas as vigências</SelectItem>
                   {VIGENCIAS.map((v) => (
                     <SelectItem key={v} value={v}>
                       {v}

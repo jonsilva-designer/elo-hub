@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
-import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useMemo, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import { Num } from '@/components/elo/num'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -11,7 +11,11 @@ export type Coluna<T> = {
   id: string
   titulo: string
   celula: (linha: T) => ReactNode
-  ordenarPor?: (linha: T) => string | number
+  /**
+   * Valor usado para ordenar a coluna. Texto compara em pt-BR e número compara como número.
+   * `undefined`, `null`, texto vazio e `NaN` ficam sempre por último, nos dois sentidos.
+   */
+  ordenarPor?: (linha: T) => string | number | null | undefined
   alinhar?: 'esquerda' | 'direita'
 }
 
@@ -27,6 +31,12 @@ const CLASSE_DESTAQUE: Record<Destaque, string> = {
 const ICONE = { size: 16, strokeWidth: 1.6, 'aria-hidden': true } as const
 
 type Ordem = { coluna: string; sentido: 'ascending' | 'descending' }
+
+type Valor = string | number | null | undefined
+
+function ausente(v: Valor) {
+  return v === null || v === undefined || v === '' || (typeof v === 'number' && Number.isNaN(v))
+}
 
 function comparar(a: string | number, b: string | number) {
   if (typeof a === 'number' && typeof b === 'number') return a - b
@@ -52,10 +62,12 @@ export function TabelaDados<T>({
 }) {
   const [ordem, setOrdem] = useState<Ordem | null>(null)
   const [pagina, setPagina] = useState(1)
-  // Mudou a quantidade de linhas (por exemplo, depois de filtrar): volta à primeira página.
-  const [totalAnterior, setTotalAnterior] = useState(linhas.length)
-  if (totalAnterior !== linhas.length) {
-    setTotalAnterior(linhas.length)
+  // Mudou o conjunto de linhas (por exemplo, depois de filtrar): volta à primeira página.
+  // A assinatura usa as chaves, e não a identidade do array, para não zerar a página a cada render do pai.
+  const assinatura = linhas.map(chave).join('\u0000')
+  const [assinaturaAnterior, setAssinaturaAnterior] = useState(assinatura)
+  if (assinaturaAnterior !== assinatura) {
+    setAssinaturaAnterior(assinatura)
     setPagina(1)
   }
 
@@ -64,7 +76,12 @@ export function TabelaDados<T>({
     if (!ordem || !coluna?.ordenarPor) return linhas
     const valor = coluna.ordenarPor
     const fator = ordem.sentido === 'ascending' ? 1 : -1
-    return [...linhas].sort((a, b) => fator * comparar(valor(a), valor(b)))
+    return [...linhas].sort((a, b) => {
+      const va = valor(a)
+      const vb = valor(b)
+      if (ausente(va) || ausente(vb)) return Number(ausente(va)) - Number(ausente(vb))
+      return fator * comparar(va as string | number, vb as string | number)
+    })
   }, [linhas, colunas, ordem])
 
   if (linhas.length === 0) return <>{vazio}</>
@@ -80,6 +97,13 @@ export function TabelaDados<T>({
         : { coluna: id, sentido: 'ascending' },
     )
     setPagina(1)
+  }
+
+  function aoClicar(e: MouseEvent<HTMLTableRowElement>, linha: T) {
+    // Cliques que vêm de botões, links e campos dentro da célula não abrem a linha.
+    const controle = (e.target as HTMLElement).closest('a,button,input,select,textarea,[role=button]')
+    if (controle && e.currentTarget.contains(controle)) return
+    aoClicarLinha?.(linha)
   }
 
   function aoTeclar(e: KeyboardEvent<HTMLTableRowElement>, linha: T) {
@@ -106,10 +130,7 @@ export function TabelaDados<T>({
                       type="button"
                       aria-label={`Ordenar por ${c.titulo}`}
                       onClick={() => ordenar(c.id)}
-                      className={cn(
-                        'inline-flex items-center gap-1 rounded-sm font-semibold hover:text-foreground',
-                        direita && 'flex-row-reverse',
-                      )}
+                      className="inline-flex items-center gap-1 rounded-sm align-middle font-semibold leading-4 hover:text-foreground"
                     >
                       {c.titulo}
                       <Seta {...ICONE} className={sentido ? undefined : 'opacity-60'} />
@@ -130,7 +151,7 @@ export function TabelaDados<T>({
                 key={chave(linha)}
                 data-destaque={marca ?? undefined}
                 tabIndex={aoClicarLinha ? 0 : undefined}
-                onClick={aoClicarLinha ? () => aoClicarLinha(linha) : undefined}
+                onClick={aoClicarLinha ? (e) => aoClicar(e, linha) : undefined}
                 onKeyDown={aoClicarLinha ? (e) => aoTeclar(e, linha) : undefined}
                 className={cn(
                   aoClicarLinha && 'cursor-pointer hover:bg-[var(--elo-papel)]',
@@ -150,12 +171,12 @@ export function TabelaDados<T>({
       {totalPaginas > 1 ? (
         <nav
           aria-label="Paginação"
-          className="flex items-center justify-between gap-3 border-t border-[color:var(--elo-divisoria)] px-4 py-2.5"
+          className="flex flex-wrap items-center justify-between gap-2 border-t border-[color:var(--elo-divisoria)] px-4 py-2.5"
         >
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs whitespace-nowrap text-muted-foreground">
             Página <Num>{atual}</Num> de <Num>{totalPaginas}</Num>
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2">
             <Button variant="outline" disabled={atual <= 1} onClick={() => setPagina(atual - 1)}>
               Página anterior
             </Button>

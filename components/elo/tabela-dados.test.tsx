@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { TabelaDados, type Coluna } from './tabela-dados'
@@ -126,19 +126,87 @@ describe('TabelaDados', () => {
     expect(screen.getByText(/^Página +de/)).toHaveTextContent('Página 1 de 3')
   })
 
-  it('com menos linhas, a página atual não passa da última', async () => {
+  it('se a quantidade por página muda, a página atual não passa da última', async () => {
+    const u = userEvent.setup()
+    const linhas = muitas(25)
+    const { rerender } = render(
+      <TabelaDados colunas={COLUNAS} linhas={linhas} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />,
+    )
+    await u.click(screen.getByRole('button', { name: 'Próxima página' }))
+    await u.click(screen.getByRole('button', { name: 'Próxima página' }))
+    expect(screen.getByText(/^Página\s+de/)).toHaveTextContent('Página 3 de 3')
+    rerender(<TabelaDados colunas={COLUNAS} linhas={linhas} chave={(l) => l.id} porPagina={20} vazio={VAZIO} />)
+    expect(screen.getByText(/^Página\s+de/)).toHaveTextContent('Página 2 de 2')
+  })
+
+  it('com menos linhas, volta à página 1 e some a paginação quando cabe numa página', async () => {
     const u = userEvent.setup()
     const { rerender } = render(
       <TabelaDados colunas={COLUNAS} linhas={muitas(25)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />,
     )
     await u.click(screen.getByRole('button', { name: 'Próxima página' }))
-    await u.click(screen.getByRole('button', { name: 'Próxima página' }))
-    expect(screen.getByText(/^Página +de/)).toHaveTextContent('Página 3 de 3')
     rerender(<TabelaDados colunas={COLUNAS} linhas={muitas(12)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />)
-    expect(screen.getByText(/^Página +de/)).toHaveTextContent(/Página (1|2) de 2/)
+    expect(screen.getByText(/^Página\s+de/)).toHaveTextContent('Página 1 de 2')
     rerender(<TabelaDados colunas={COLUNAS} linhas={muitas(5)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />)
-    expect(screen.queryByText(/^Página +de/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/^Página\s+de/)).not.toBeInTheDocument()
     expect(screen.getAllByRole('row')).toHaveLength(6)
+  })
+
+  it('outras linhas com a mesma quantidade também voltam à página 1', async () => {
+    const u = userEvent.setup()
+    const { rerender } = render(
+      <TabelaDados colunas={COLUNAS} linhas={muitas(25)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />,
+    )
+    await u.click(screen.getByRole('button', { name: 'Próxima página' }))
+    expect(screen.getByText(/^Página\s+de/)).toHaveTextContent('Página 2 de 3')
+    const outras = muitas(25).map((l) => ({ ...l, id: `x${l.id}` }))
+    rerender(<TabelaDados colunas={COLUNAS} linhas={outras} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />)
+    expect(screen.getByText(/^Página\s+de/)).toHaveTextContent('Página 1 de 3')
+  })
+
+  it('o Espaço na linha tem o comportamento padrão cancelado', () => {
+    render(
+      <TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} aoClicarLinha={() => {}} vazio={VAZIO} />,
+    )
+    const linha = screen.getAllByRole('row')[1]
+    expect(fireEvent.keyDown(linha, { key: ' ' })).toBe(false)
+  })
+
+  it('clique em botão dentro da célula não aciona a linha', async () => {
+    const u = userEvent.setup()
+    const aoClicar = vi.fn()
+    const aoBotao = vi.fn()
+    const colunas: Coluna<Contrato>[] = [
+      ...COLUNAS,
+      { id: 'acao', titulo: 'Ação', celula: (l) => <button onClick={() => aoBotao(l.id)}>Abrir {l.id}</button> },
+    ]
+    render(<TabelaDados colunas={colunas} linhas={CONTRATOS} chave={(l) => l.id} aoClicarLinha={aoClicar} vazio={VAZIO} />)
+    await u.click(screen.getByRole('button', { name: 'Abrir a' }))
+    expect(aoBotao).toHaveBeenCalledWith('a')
+    expect(aoClicar).not.toHaveBeenCalled()
+  })
+
+  it('valores ausentes na ordenação ficam sempre por último', async () => {
+    const u = userEvent.setup()
+    type L = { id: string; v: number | null | undefined | string }
+    const linhas: L[] = [
+      { id: 'vazio', v: '' },
+      { id: 'dois', v: 2 },
+      { id: 'nulo', v: null },
+      { id: 'um', v: 1 },
+      { id: 'nan', v: NaN },
+      { id: 'indef', v: undefined },
+    ]
+    const colunas: Coluna<L>[] = [
+      { id: 'id', titulo: 'Id', celula: (l) => l.id },
+      { id: 'v', titulo: 'V', celula: () => null, ordenarPor: (l) => l.v as number },
+    ]
+    render(<TabelaDados colunas={colunas} linhas={linhas} chave={(l) => l.id} vazio={VAZIO} />)
+    const ids = () => clientesNaOrdem().slice(0, 2)
+    await u.click(screen.getByRole('button', { name: 'Ordenar por V' }))
+    expect(ids()).toEqual(['um', 'dois'])
+    await u.click(screen.getByRole('button', { name: 'Ordenar por V' }))
+    expect(ids()).toEqual(['dois', 'um'])
   })
 
   it('com uma página só, não há paginação', () => {

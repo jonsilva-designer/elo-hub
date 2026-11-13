@@ -5,8 +5,8 @@ import { Formulario } from './_secoes/formulario'
 import { Fundamentos } from './_secoes/fundamentos'
 import { Marca } from './_secoes/marca'
 import { Retorno } from './_secoes/retorno'
-import { Tabela } from './_secoes/tabela'
 import { Secao } from './_secoes/secao'
+import { Tabela } from './_secoes/tabela'
 import { Tipografia } from './_secoes/tipografia'
 
 // O layout raiz não usa modelo de título: o sufixo vai completo aqui.
