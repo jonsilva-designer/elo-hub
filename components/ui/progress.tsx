@@ -16,6 +16,7 @@ function Progress({
         "relative flex h-2 w-full items-center overflow-x-hidden rounded-sm bg-[var(--elo-divisoria)]",
         className
       )}
+      value={value}
       {...props}
     >
       <ProgressPrimitive.Indicator

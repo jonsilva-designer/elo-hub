@@ -38,6 +38,7 @@ export function EstadoVazio({
   )
 }
 
+// Recebe uma função: só pode ser usado a partir de um componente de cliente.
 /** Falha ao buscar os dados, com botão para tentar de novo. */
 export function ErroCarregamento({
   mensagem = 'Não foi possível carregar.',

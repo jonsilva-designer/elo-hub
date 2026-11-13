@@ -75,10 +75,11 @@ export function Exibicao() {
         <Numero legenda="Valor vazio">{formatarReal(null)}</Numero>
       </Exemplo>
       <Exemplo
+        largo
         rotulo="Indicadores"
         nota="No produto, cada cartão leva à lista já filtrada. Aqui o link volta para esta linha."
       >
-        <div id="indicadores" className="w-full">
+        <div id="indicadores" data-demo>
           <GradeIndicadores>
             <CartaoIndicador
               rotulo="Clientes ativos"
@@ -128,13 +129,13 @@ export function Exibicao() {
           </GradeIndicadores>
         </div>
       </Exemplo>
-      <Exemplo rotulo="Indicador zerado, sem link">
-        <div className="w-full sm:max-w-xs">
+      <Exemplo largo rotulo="Indicador zerado, sem link">
+        <GradeIndicadores>
           <CartaoIndicador rotulo="Demandas sem triagem" valor={0} detalhe="nenhuma pendente" />
-        </div>
+        </GradeIndicadores>
       </Exemplo>
-      <Exemplo rotulo="Painel e lista de campos">
-        <div className="w-full">
+      <Exemplo largo rotulo="Painel e lista de campos">
+        <div data-demo>
           <Painel
             titulo="Dados do contrato"
             contagem={<><Num>6</Num> campos</>}

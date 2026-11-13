@@ -12,11 +12,11 @@ function renderizar() {
   )
 }
 
-// Ignora os títulos dos exemplos de Painel (regiões nomeadas), que também são h2.
+// Ignora os títulos dos componentes em demonstração (marcados com data-demo), que também são h2.
 const titulos = (nivel: number) =>
   screen
     .getAllByRole('heading', { level: nivel })
-    .filter((h) => !h.closest('[aria-labelledby]'))
+    .filter((h) => !h.closest('[data-demo]'))
     .map((h) => h.textContent)
 
 describe('página /designsystem', () => {

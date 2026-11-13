@@ -8,6 +8,8 @@ describe('ProgressoAtividades', () => {
     expect(container).toHaveTextContent('3 de 8 concluídas')
     const barra = screen.getByRole('progressbar', { name: 'Atividades concluídas' })
     expect(barra).toHaveAttribute('aria-valuenow', '38')
+    expect(barra).not.toHaveAttribute('data-state', 'indeterminate')
+    expect(barra).toHaveAttribute('data-state', 'loading')
     expect(barra).toHaveAttribute('aria-valuemin', '0')
     expect(barra).toHaveAttribute('aria-valuemax', '100')
   })
@@ -22,5 +24,16 @@ describe('ProgressoAtividades', () => {
   it('limita as concluídas ao total', () => {
     render(<ProgressoAtividades concluidas={12} total={8} />)
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100')
+  })
+
+  it('limita concluídas negativas a zero', () => {
+    render(<ProgressoAtividades concluidas={-2} total={8} />)
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0')
+  })
+
+  it('total negativo mostra Sem atividades', () => {
+    const { container } = render(<ProgressoAtividades concluidas={1} total={-3} />)
+    expect(container).toHaveTextContent('Sem atividades')
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
   })
 })

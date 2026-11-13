@@ -1,5 +1,4 @@
 import { useId, type ReactNode } from 'react'
-import { cn } from '@/lib/utils'
 
 /** Painel do produto: título, contagem e ação no cabeçalho, divisória e conteúdo. Só borda, sem sombra. */
 export function Painel({
@@ -17,9 +16,9 @@ export function Painel({
   return (
     <section
       aria-labelledby={id}
-      className={cn('min-w-0 rounded-xl border border-border bg-card')}
+      className="min-w-0 rounded-xl border border-border bg-card"
     >
-      <div className="flex items-center gap-3 border-b border-[var(--elo-divisoria)] px-5 py-3">
+      <div className="flex items-center gap-3 border-b border-[color:var(--elo-divisoria)] px-5 py-3">
         <h2 id={id} className="text-sm font-bold text-primary">
           {titulo}
         </h2>

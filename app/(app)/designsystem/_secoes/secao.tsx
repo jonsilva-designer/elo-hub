@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 /** Quadro branco com borda e sem sombra: cartões só têm borda (padrão 4.5). */
-export function Quadro({ children, className }: { children: ReactNode; className?: string }) {
+export function Quadro({ children, className, ...resto }: ComponentProps<'div'>) {
   return (
     // min-w-0: sem isso, uma tabela larga dentro do painel alargaria a página em vez de rolar.
-    <div className={cn('min-w-0 rounded-xl border border-border bg-card p-5 sm:p-6', className)}>
+    <div className={cn('min-w-0 rounded-xl border border-border bg-card p-5 sm:p-6', className)} {...resto}>
       {children}
     </div>
   )
@@ -59,12 +59,27 @@ export function Subsecao({ titulo, children }: { titulo: string; children: React
 export function Exemplo({
   rotulo,
   nota,
+  largo = false,
   children,
 }: {
   rotulo: string
   nota?: ReactNode
+  /**
+   * Linha larga: o rótulo fica em cima em qualquer largura, o conteúdo usa a linha toda
+   * e a nota vai abaixo. Serve para grades, painéis e tabelas.
+   */
+  largo?: boolean
   children: ReactNode
 }) {
+  if (largo) {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="text-xs text-muted-foreground">{rotulo}</div>
+        <div className="min-w-0">{children}</div>
+        {nota ? <div className="text-xs text-muted-foreground">{nota}</div> : null}
+      </div>
+    )
+  }
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4">
       <div className="text-xs text-muted-foreground sm:w-44 sm:shrink-0">{rotulo}</div>

@@ -25,7 +25,8 @@ export function ExibicaoEstados() {
         </div>
       </Exemplo>
       <Exemplo rotulo="Carregando">
-        <Quadro className="w-full space-y-3">
+        <Quadro className="w-full space-y-3" role="status" aria-busy="true">
+          <span className="sr-only">Carregando</span>
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-2/3" />

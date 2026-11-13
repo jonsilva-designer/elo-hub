@@ -16,9 +16,6 @@ export function ProgressoAtividades({ concluidas, total }: { concluidas: number;
       <Progress
         value={percentual}
         aria-label="Atividades concluídas"
-        aria-valuenow={percentual}
-        aria-valuemin={0}
-        aria-valuemax={100}
       />
     </div>
   )
