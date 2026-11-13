@@ -12,7 +12,10 @@ class ResizeObserverFalso {
   disconnect() {}
 }
 globalThis.ResizeObserver ??= ResizeObserverFalso as unknown as typeof ResizeObserver
-Element.prototype.hasPointerCapture ??= () => false
-Element.prototype.setPointerCapture ??= () => {}
-Element.prototype.releasePointerCapture ??= () => {}
-Element.prototype.scrollIntoView ??= () => {}
+// Os testes de ambiente node (lint, proxy) não têm DOM.
+if (typeof Element !== 'undefined') {
+  Element.prototype.hasPointerCapture ??= () => false
+  Element.prototype.setPointerCapture ??= () => {}
+  Element.prototype.releasePointerCapture ??= () => {}
+  Element.prototype.scrollIntoView ??= () => {}
+}

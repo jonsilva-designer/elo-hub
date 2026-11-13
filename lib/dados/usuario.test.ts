@@ -5,6 +5,6 @@ describe('obterUsuarioAtual', () => {
   it('é assíncrona, como a leitura da sessão que vai substituí-la', async () => {
     const resultado = obterUsuarioAtual()
     expect(resultado).toBeInstanceOf(Promise)
-    expect(await resultado).toEqual({ nome: 'Helena Prado', perfil: 'Administrador' })
+    expect(await resultado).toMatchObject({ nome: 'Helena Prado', perfil: 'Administrador' })
   })
 })

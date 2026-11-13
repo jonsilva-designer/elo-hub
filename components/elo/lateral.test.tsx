@@ -12,7 +12,20 @@ vi.mock('next/navigation', () => ({
   },
 }))
 
-const helena: Usuario = { nome: 'Helena Prado', perfil: 'Administrador' }
+const helena: Usuario = {
+  id: 'usr-helena',
+  nome: 'Helena Prado',
+  email: 'helena.prado@elogovernance.com.br',
+  perfil: 'Administrador',
+  status: 'Ativo',
+}
+const rafael: Usuario = {
+  id: 'usr-rafael',
+  nome: 'Rafael Souza',
+  email: 'rafael.souza@elogovernance.com.br',
+  perfil: 'Equipe',
+  status: 'Ativo',
+}
 
 describe('Lateral', () => {
   beforeEach(() => {
@@ -57,7 +70,7 @@ describe('Lateral', () => {
   })
 
   it('Equipe não vê Configurações', () => {
-    render(<Lateral usuario={{ nome: 'Marcos Lima', perfil: 'Equipe' }} />)
+    render(<Lateral usuario={rafael} />)
     expect(screen.queryByRole('link', { name: 'Configurações' })).not.toBeInTheDocument()
   })
 

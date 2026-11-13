@@ -28,7 +28,13 @@ vi.mock('next/link', () => ({
   ),
 }))
 
-const helena = { nome: 'Helena Prado', perfil: 'Administrador' as const }
+const helena = {
+  id: 'usr-helena',
+  nome: 'Helena Prado',
+  email: 'helena.prado@elogovernance.com.br',
+  perfil: 'Administrador' as const,
+  status: 'Ativo' as const,
+}
 
 describe('BarraTopo', () => {
   it('tem o atributo data-sidebar na barra (foco dourado sobre o azul-marinho)', () => {
