@@ -2,27 +2,13 @@
 
 import { useState } from 'react'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
+import { escreverValorEmReais, lerValorEmReais } from '@/lib/formato'
 import type { AtributosDeCampo } from './campo'
 
-const doisDecimais = new Intl.NumberFormat('pt-BR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
-
-/** Texto no formato brasileiro (`1.234,5`) como número. Vazio ou inválido vira null. */
-function lerValor(texto: string): number | null {
-  const limpo = texto.trim()
-  if (!/\d/.test(limpo)) return null
-  if ((limpo.match(/,/g) ?? []).length > 1) return null
-  const n = Number(limpo.replace(/\./g, '').replace(',', '.'))
-  return Number.isFinite(n) ? n : null
-}
-
-function formatar(valor: number | null): string {
-  return valor === null ? '' : doisDecimais.format(valor)
-}
-
-/** Campo de valor em reais. Aceita o formato brasileiro e formata com duas casas ao sair. */
+/**
+ * Campo de valor em reais. Aceita o formato brasileiro e formata com duas casas ao sair.
+ * O número entregue já vem arredondado a centavos, igual ao que o campo mostra.
+ */
 export function CampoValor({
   valor,
   onChange,
@@ -33,13 +19,13 @@ export function CampoValor({
   onChange: (valor: number | null) => void
   disabled?: boolean
 } & AtributosDeCampo) {
-  const [texto, setTexto] = useState(formatar(valor))
+  const [texto, setTexto] = useState(escreverValorEmReais(valor))
   const [anterior, setAnterior] = useState(valor)
 
   // Valor trocado de fora: reescreve o texto, a menos que ele já represente esse valor.
   if (valor !== anterior) {
     setAnterior(valor)
-    if (valor !== lerValor(texto)) setTexto(formatar(valor))
+    if (valor !== lerValorEmReais(texto)) setTexto(escreverValorEmReais(valor))
   }
 
   return (
@@ -58,11 +44,11 @@ export function CampoValor({
         onChange={(e) => {
           const novo = e.target.value.replace(/[^\d.,]/g, '')
           setTexto(novo)
-          onChange(lerValor(novo))
+          onChange(lerValorEmReais(novo))
         }}
         onBlur={() => {
-          const n = lerValor(texto)
-          if (n !== null) setTexto(formatar(n))
+          const n = lerValorEmReais(texto)
+          if (n !== null) setTexto(escreverValorEmReais(n))
         }}
       />
     </InputGroup>

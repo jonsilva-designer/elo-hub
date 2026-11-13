@@ -9,6 +9,7 @@ import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatarData, formatarReal } from '@/lib/formato'
+import { normalizarBusca } from '@/lib/texto'
 import { CONTRATOS_EXEMPLO, VIGENCIAS, type ContratoDaLista } from '../exemplos'
 import { Exemplo, Subsecao } from './secao'
 
@@ -29,11 +30,6 @@ const COLUNAS: Coluna<ContratoDaLista>[] = [
 
 const SEM_VALOR_FILTRO = 'todas'
 
-/** Tira acento e caixa, para a busca achar "sao lucas" em "Clínica São Lucas". */
-function normalizar(texto: string) {
-  return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR')
-}
-
 function destaqueDoContrato(c: ContratoDaLista) {
   if (c.vigencia === 'Próximo do vencimento') return 'atencao'
   if (c.vigencia === 'Vencido') return 'problema'
@@ -50,10 +46,10 @@ export function Tabela() {
   const [vigencia, setVigencia] = useState(SEM_VALOR_FILTRO)
 
   const linhas = useMemo(() => {
-    const termo = normalizar(busca.trim())
+    const termo = normalizarBusca(busca.trim())
     return CONTRATOS_EXEMPLO.filter(
       (c) =>
-        normalizar(c.cliente).includes(termo) && (vigencia === SEM_VALOR_FILTRO || c.vigencia === vigencia),
+        normalizarBusca(c.cliente).includes(termo) && (vigencia === SEM_VALOR_FILTRO || c.vigencia === vigencia),
     )
   }, [busca, vigencia])
 

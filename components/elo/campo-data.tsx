@@ -8,6 +8,7 @@ import { ptBR } from 'react-day-picker/locale'
 import { Calendar } from '@/components/ui/calendar'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { dataExiste } from '@/lib/formato'
 import type { AtributosDeCampo } from './campo'
 
 const ISO = /^(\d{4})-(\d{2})-(\d{2})$/
@@ -23,10 +24,10 @@ export function dataLocal(texto: string): Date | null {
   const ano = Number(m[1])
   const mes = Number(m[2])
   const dia = Number(m[3])
+  if (!dataExiste(ano, mes, dia)) return null
   const d = new Date(ano, mes - 1, dia)
   d.setFullYear(ano) // anos abaixo de 100 não viram 19xx
-  const existe = d.getFullYear() === ano && d.getMonth() === mes - 1 && d.getDate() === dia
-  return existe ? d : null
+  return d
 }
 
 /** Date local como `AAAA-MM-DD`, pelas partes locais (sem passar por UTC). */

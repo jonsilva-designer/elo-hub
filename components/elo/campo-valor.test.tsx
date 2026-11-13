@@ -58,6 +58,33 @@ describe('CampoValor', () => {
     expect(onChange).toHaveBeenLastCalledWith(5)
   })
 
+  it('o número entregue é o mesmo que o campo mostra ao sair: 12,345 vira 12,35', async () => {
+    const onChange = vi.fn()
+    render(<CampoValor id="v" valor={null} onChange={onChange} />)
+    const campo = screen.getByRole('textbox')
+    await userEvent.type(campo, '12,345')
+    expect(onChange).toHaveBeenLastCalledWith(12.35)
+    await userEvent.tab()
+    expect(campo).toHaveValue('12,35')
+  })
+
+  it('ponto com duas casas e sem vírgula é decimal, sem multiplicar por 100', async () => {
+    const onChange = vi.fn()
+    render(<CampoValor id="v" valor={null} onChange={onChange} />)
+    const campo = screen.getByRole('textbox')
+    await userEvent.type(campo, '1234.56')
+    expect(onChange).toHaveBeenLastCalledWith(1234.56)
+    await userEvent.tab()
+    expect(campo).toHaveValue('1.234,56')
+  })
+
+  it('ponto com três casas é milhar', async () => {
+    const onChange = vi.fn()
+    render(<CampoValor id="v" valor={null} onChange={onChange} />)
+    await userEvent.type(screen.getByRole('textbox'), '1.234')
+    expect(onChange).toHaveBeenLastCalledWith(1234)
+  })
+
   it('mostra zero como 0,00', () => {
     render(<CampoValor id="v" valor={0} onChange={() => {}} />)
     expect(screen.getByRole('textbox')).toHaveValue('0,00')

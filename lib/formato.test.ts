@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   VAZIO,
+  dataExiste,
+  escreverValorEmReais,
   formatarData,
   formatarDataCurta,
   formatarNumero,
   formatarPercentual,
   formatarReal,
+  lerValorEmReais,
 } from "@/lib/formato";
 
 describe("formatarData", () => {
@@ -103,5 +106,68 @@ describe("entradas de borda", () => {
     expect(formatarData("2026-13-45T01:00:00")).toBe(VAZIO);
     expect(formatarData("2026-11-12T01:30:00Z")).toBe("11/11/2026");
     expect(formatarData("2026-11-12T01:30:00-03:00")).toBe("12/11/2026");
+  });
+});
+
+describe("lerValorEmReais", () => {
+  it("formato brasileiro, com milhar e vírgula", () => {
+    expect(lerValorEmReais("1.234,56")).toBe(1234.56);
+    expect(lerValorEmReais("1.234,5")).toBe(1234.5);
+    expect(lerValorEmReais("48500")).toBe(48500);
+  });
+  it("arredonda para centavos, e o número é o mesmo que o campo mostra", () => {
+    expect(lerValorEmReais("12,345")).toBe(12.35);
+    expect(escreverValorEmReais(lerValorEmReais("12,345"))).toBe("12,35");
+    expect(lerValorEmReais("12,344")).toBe(12.34);
+    expect(lerValorEmReais("0,005")).toBe(0.01);
+  });
+  it("um só ponto seguido de uma ou duas casas, sem vírgula, é a vírgula decimal", () => {
+    expect(lerValorEmReais("1234.56")).toBe(1234.56);
+    expect(lerValorEmReais("1234.5")).toBe(1234.5);
+  });
+  it("ponto seguido de três algarismos é separador de milhar", () => {
+    expect(lerValorEmReais("1.234")).toBe(1234);
+    expect(lerValorEmReais("1.234.567")).toBe(1234567);
+  });
+  it("vazio, só pontuação, letras, sinal ou duas vírgulas viram null", () => {
+    expect(lerValorEmReais("")).toBeNull();
+    expect(lerValorEmReais("  ")).toBeNull();
+    expect(lerValorEmReais("...")).toBeNull();
+    expect(lerValorEmReais("abc")).toBeNull();
+    expect(lerValorEmReais("-5")).toBeNull();
+    expect(lerValorEmReais("1,2,3")).toBeNull();
+  });
+});
+
+describe("escreverValorEmReais", () => {
+  it("duas casas, milhar e sem o símbolo", () => {
+    expect(escreverValorEmReais(48500)).toBe("48.500,00");
+    expect(escreverValorEmReais(0)).toBe("0,00");
+    expect(escreverValorEmReais(-0)).toBe("0,00");
+  });
+  it("sem valor fica vazio, para o campo", () => {
+    expect(escreverValorEmReais(null)).toBe("");
+    expect(escreverValorEmReais(undefined)).toBe("");
+    expect(escreverValorEmReais(NaN)).toBe("");
+  });
+});
+
+describe("dataExiste", () => {
+  it("dias que existem", () => {
+    expect(dataExiste(2026, 11, 9)).toBe(true);
+    expect(dataExiste(2028, 2, 29)).toBe(true);
+    expect(dataExiste(2026, 12, 31)).toBe(true);
+  });
+  it("dias e meses que não existem", () => {
+    expect(dataExiste(2026, 2, 29)).toBe(false);
+    expect(dataExiste(2026, 2, 30)).toBe(false);
+    expect(dataExiste(2026, 4, 31)).toBe(false);
+    expect(dataExiste(2026, 13, 1)).toBe(false);
+    expect(dataExiste(2026, 0, 10)).toBe(false);
+    expect(dataExiste(2026, 1, 0)).toBe(false);
+  });
+  it("anos abaixo de 100 não viram 19xx", () => {
+    expect(dataExiste(50, 1, 1)).toBe(true);
+    expect(formatarData("0050-01-01")).toBe("01/01/0050");
   });
 });
