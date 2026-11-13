@@ -21,6 +21,11 @@ describe('CartaoIndicador', () => {
     expect(screen.getByText('1.234')).toBeInTheDocument()
   })
 
+  it('detalhe zero aparece', () => {
+    render(<CartaoIndicador rotulo="Demandas abertas" valor={5} detalhe={0} />)
+    expect(screen.getByText('0')).toBeInTheDocument()
+  })
+
   it('sem href não é link', () => {
     render(<CartaoIndicador rotulo="Clientes ativos" valor={18} detalhe="na carteira" />)
     expect(screen.queryByRole('link')).not.toBeInTheDocument()

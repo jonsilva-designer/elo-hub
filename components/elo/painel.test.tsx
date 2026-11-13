@@ -15,4 +15,53 @@ describe('Painel', () => {
     expect(screen.getByRole('button', { name: 'Ver todos' })).toBeInTheDocument()
     expect(screen.getByText('conteúdo')).toBeInTheDocument()
   })
+
+  it('a contagem fica à direita do cabeçalho, junto da ação e antes dela', () => {
+    render(
+      <Painel titulo="Alertas" contagem="3 itens" acao={<button>Ver todos</button>}>
+        <p>conteúdo</p>
+      </Painel>,
+    )
+    const contagem = screen.getByText('3 itens')
+    const direita = contagem.parentElement as HTMLElement
+    expect(direita).toHaveClass('ml-auto')
+    const botao = screen.getByRole('button', { name: 'Ver todos' })
+    expect(direita).toContainElement(botao)
+    expect(contagem.compareDocumentPosition(botao) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('contagem zero aparece', () => {
+    render(
+      <Painel titulo="Alertas" contagem={0}>
+        <p>conteúdo</p>
+      </Painel>,
+    )
+    expect(screen.getByRole('region', { name: 'Alertas' })).toHaveTextContent('0')
+    expect(screen.getByText('0')).toHaveClass('text-muted-foreground')
+  })
+
+  it('o corpo tem respiro por padrão', () => {
+    render(
+      <Painel titulo="Alertas">
+        <p>conteúdo</p>
+      </Painel>,
+    )
+    expect(screen.getByText('conteúdo').parentElement).toHaveClass('p-5')
+  })
+
+  it('semRespiro tira o respiro do corpo, para tabela ou lista de borda a borda', () => {
+    render(
+      <Painel titulo="Contratos" semRespiro>
+        <table>
+          <tbody>
+            <tr>
+              <td>linha</td>
+            </tr>
+          </tbody>
+        </table>
+      </Painel>,
+    )
+    const corpo = screen.getByRole('table').parentElement as HTMLElement
+    expect(corpo.className.split(' ').filter((c) => /^p[xytrbl]?-/.test(c))).toEqual([])
+  })
 })

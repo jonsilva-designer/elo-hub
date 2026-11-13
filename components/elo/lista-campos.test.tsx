@@ -18,4 +18,22 @@ describe('ListaCampos', () => {
     expect(dds[0]).toHaveTextContent('Grupo Horizonte Agro')
     expect(dds[1]).toHaveTextContent('—')
   })
+
+  it('undefined, texto vazio e só espaços também mostram o traço; zero continua zero', () => {
+    const { container } = render(
+      <ListaCampos
+        itens={[
+          { rotulo: 'A', valor: undefined },
+          { rotulo: 'B', valor: '' },
+          { rotulo: 'C', valor: '   ' },
+          { rotulo: 'D', valor: 0 },
+        ]}
+      />,
+    )
+    const dds = container.querySelectorAll('dd')
+    expect(dds[0]).toHaveTextContent('—')
+    expect(dds[1]).toHaveTextContent('—')
+    expect(dds[2]).toHaveTextContent('—')
+    expect(dds[3]).toHaveTextContent(/^0$/)
+  })
 })

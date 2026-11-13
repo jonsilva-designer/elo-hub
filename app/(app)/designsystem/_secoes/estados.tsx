@@ -3,13 +3,13 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Campo } from '@/components/elo/campo'
-import { AcessoNegado, ErroCarregamento, EstadoVazio } from '@/components/elo/estados'
+import { AcessoNegado, Carregando, ErroCarregamento, EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
+import { Painel } from '@/components/elo/painel'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { CONTRATOS_EXEMPLO, type ContratoDaLista } from '../exemplos'
 import { Exemplo, Linhas, Quadro, Secao, Subtitulo } from './secao'
@@ -79,7 +79,7 @@ function abrirContrato(c: ContratoDaLista) {
   toast(`Abre a página do contrato ${c.numero}`)
 }
 
-/** Tabela de uma linha clicável, com a borda do painel. `className` força o estado da linha. */
+/** Tabela de uma linha clicável, num painel sem respiro. `className` força o estado da linha. */
 function LinhaDeTabela({
   contrato,
   destaque,
@@ -90,15 +90,17 @@ function LinhaDeTabela({
   className?: string
 }) {
   return (
-    <div className={cn('overflow-hidden rounded-xl border border-border', className)}>
-      <TabelaDados
-        colunas={COLUNAS}
-        linhas={[contrato]}
-        chave={(c) => c.numero}
-        aoClicarLinha={abrirContrato}
-        destaque={destaque ? () => destaque : undefined}
-        vazio={null}
-      />
+    <div data-demo className={className}>
+      <Painel titulo="Contratos" semRespiro>
+        <TabelaDados
+          colunas={COLUNAS}
+          linhas={[contrato]}
+          chave={(c) => c.numero}
+          aoClicarLinha={abrirContrato}
+          destaque={destaque ? () => destaque : undefined}
+          vazio={null}
+        />
+      </Painel>
     </div>
   )
 }
@@ -121,9 +123,6 @@ function EstadoDePagina({ legenda, nota, children }: { legenda: string; nota?: s
     </Quadro>
   )
 }
-
-/** Larguras dos blocos cinza da lista carregando, no formato de uma linha de contrato. */
-const LINHAS_CARREGANDO = ['w-3/5', 'w-2/5', 'w-1/2', 'w-2/3']
 
 export function EstadosDeInterface() {
   return (
@@ -238,16 +237,7 @@ export function EstadosDeInterface() {
               <ErroCarregamento onTentarDeNovo={() => {}} />
             </EstadoDePagina>
             <EstadoDePagina legenda="Carregando">
-              <div role="status" aria-busy="true" className="space-y-4 py-2">
-                <span className="sr-only">Carregando</span>
-                {LINHAS_CARREGANDO.map((largura) => (
-                  <div key={largura} className="flex items-center gap-4">
-                    <Skeleton className="h-4 w-24 shrink-0" />
-                    <Skeleton className={cn('h-4', largura)} />
-                    <Skeleton className="ml-auto h-4 w-16 shrink-0" />
-                  </div>
-                ))}
-              </div>
+              <Carregando />
             </EstadoDePagina>
             <EstadoDePagina
               legenda="Sem permissão"

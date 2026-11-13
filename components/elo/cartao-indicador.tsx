@@ -30,7 +30,8 @@ export function CartaoIndicador({
       <span className="mt-2 block font-mono text-3xl font-medium tabular-nums text-primary">
         {formatarNumero(valor)}
       </span>
-      {detalhe ? (
+      {/* `!= null`: um detalhe zero também aparece. */}
+      {detalhe != null ? (
         <span className="mt-1 block text-[13px] text-muted-foreground">{detalhe}</span>
       ) : null}
     </>

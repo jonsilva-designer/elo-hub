@@ -6,6 +6,7 @@ import { BarraFiltros } from '@/components/elo/barra-filtros'
 import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
+import { Painel } from '@/components/elo/painel'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatarData, formatarReal } from '@/lib/formato'
@@ -83,33 +84,48 @@ export function Tabela() {
               </Select>
             }
           />
-          <div className="overflow-hidden rounded-xl border border-border">
-            <TabelaDados
-              colunas={COLUNAS}
-              linhas={linhas}
-              chave={(c) => c.numero}
-              aoClicarLinha={abrirContrato}
-              destaque={destaqueDoContrato}
-              porPagina={5}
-              vazio={vazio}
-            />
+          {/* A tabela fica num painel sem respiro: as linhas vão de borda a borda. */}
+          <div data-demo>
+            <Painel
+              titulo="Contratos"
+              contagem={
+                <>
+                  <Num>{linhas.length}</Num> {linhas.length === 1 ? 'contrato' : 'contratos'}
+                </>
+              }
+              semRespiro
+            >
+              <TabelaDados
+                colunas={COLUNAS}
+                linhas={linhas}
+                chave={(c) => c.numero}
+                aoClicarLinha={abrirContrato}
+                destaque={destaqueDoContrato}
+                porPagina={5}
+                vazio={vazio}
+              />
+            </Painel>
           </div>
         </div>
       </Exemplo>
       <Exemplo largo rotulo="Tabela vazia">
-        <div className="overflow-hidden rounded-xl border border-border">
-          <TabelaDados colunas={COLUNAS} linhas={[]} chave={(c) => c.numero} vazio={vazio} />
+        <div data-demo>
+          <Painel titulo="Contratos" semRespiro>
+            <TabelaDados colunas={COLUNAS} linhas={[]} chave={(c) => c.numero} vazio={vazio} />
+          </Painel>
         </div>
       </Exemplo>
       <Exemplo largo rotulo="Sem linha clicável">
-        <div className="overflow-hidden rounded-xl border border-border">
-          <TabelaDados
-            colunas={COLUNAS}
-            linhas={CONTRATOS_EXEMPLO.slice(0, 3)}
-            chave={(c) => c.numero}
-            destaque={destaqueDoContrato}
-            vazio={vazio}
-          />
+        <div data-demo>
+          <Painel titulo="Contratos" semRespiro>
+            <TabelaDados
+              colunas={COLUNAS}
+              linhas={CONTRATOS_EXEMPLO.slice(0, 3)}
+              chave={(c) => c.numero}
+              destaque={destaqueDoContrato}
+              vazio={vazio}
+            />
+          </Painel>
         </div>
       </Exemplo>
     </Subsecao>
