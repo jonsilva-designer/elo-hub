@@ -37,3 +37,18 @@ export const NUMEROS_EXEMPLO = {
 
 export const MENSAGEM_AVISO =
   'A data de término é anterior à data de início. Deseja salvar mesmo assim?'
+
+export const INDICADORES_EXEMPLO = {
+  clientes: 18,
+  contratos: { vigentes: 24, proximos: 3, vencidos: 1 },
+  atividades: { abertas: 67, atrasadas: 5, proximas: 8 },
+  demandas: { abertas: 9, criticas: 2, semTriagem: 3 },
+}
+
+export const CONTRATO_EXEMPLO = {
+  cliente: 'Grupo Horizonte Agro',
+  numero: 'CT-2026-031',
+  inicio: '2026-03-01',
+  termino: '2027-02-28',
+  valor: 48500,
+}

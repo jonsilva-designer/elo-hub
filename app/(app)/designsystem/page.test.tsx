@@ -12,8 +12,12 @@ function renderizar() {
   )
 }
 
+// Ignora os títulos dos exemplos de Painel (regiões nomeadas), que também são h2.
 const titulos = (nivel: number) =>
-  screen.getAllByRole('heading', { level: nivel }).map((h) => h.textContent)
+  screen
+    .getAllByRole('heading', { level: nivel })
+    .filter((h) => !h.closest('[aria-labelledby]'))
+    .map((h) => h.textContent)
 
 describe('página /designsystem', () => {
   it('mostra o título da página', () => {
@@ -43,6 +47,13 @@ describe('página /designsystem', () => {
     expect(linhaDe(/^Azul-marinho/)).toHaveTextContent('provisória')
     expect(linhaDe(/^Dourado(?! (suave|escuro))/)).toHaveTextContent('provisória')
     expect(linhaDe(/^Papel/)).not.toHaveTextContent('provisória')
+  })
+
+  it('mostra os quatro indicadores', () => {
+    renderizar()
+    for (const r of ['Clientes ativos', 'Contratos vigentes', 'Atividades abertas', 'Demandas abertas']) {
+      expect(screen.getByText(r)).toBeInTheDocument()
+    }
   })
 
   it('não tem emoji nem o nome da cliente', () => {

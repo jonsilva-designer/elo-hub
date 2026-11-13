@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { Num } from '@/components/elo/num'
 import { CORES } from '@/lib/design/cores'
-import { Painel, Secao } from './secao'
+import { Quadro, Secao } from './secao'
 import { ValorDaCor } from './valor-da-cor'
 
 export function Marca() {
@@ -25,7 +25,7 @@ export function Marca() {
         </figure>
       </div>
 
-      <Painel className="p-0 sm:p-0">
+      <Quadro className="p-0 sm:p-0">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <thead>
@@ -60,7 +60,7 @@ export function Marca() {
             </tbody>
           </table>
         </div>
-      </Painel>
+      </Quadro>
     </Secao>
   )
 }

@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-/** Painel branco com borda e sem sombra: cartões só têm borda (padrão 4.5). */
-export function Painel({ children, className }: { children: ReactNode; className?: string }) {
+/** Quadro branco com borda e sem sombra: cartões só têm borda (padrão 4.5). */
+export function Quadro({ children, className }: { children: ReactNode; className?: string }) {
   return (
     // min-w-0: sem isso, uma tabela larga dentro do painel alargaria a página em vez de rolar.
     <div className={cn('min-w-0 rounded-xl border border-border bg-card p-5 sm:p-6', className)}>
@@ -33,12 +33,12 @@ export function Secao({
   )
 }
 
-/** Painel de linhas `Exemplo`, separadas por divisória. É o único jeito de separar linhas na página. */
+/** Quadro de linhas `Exemplo`, separadas por divisória. É o único jeito de separar linhas na página. */
 export function Linhas({ children }: { children: ReactNode }) {
   return (
-    <Painel className="divide-y divide-[color:var(--elo-divisoria)] [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
+    <Quadro className="divide-y divide-[color:var(--elo-divisoria)] [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
       {children}
-    </Painel>
+    </Quadro>
   )
 }
 

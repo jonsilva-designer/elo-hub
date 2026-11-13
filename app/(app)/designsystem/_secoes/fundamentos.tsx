@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { Num } from '@/components/elo/num'
 import { cn } from '@/lib/utils'
-import { Painel, Secao } from './secao'
+import { Quadro, Secao } from './secao'
 
 const CANTOS = [
   { px: '4px', classe: 'rounded-sm', uso: 'Etiquetas' },
@@ -56,7 +56,7 @@ export function Fundamentos() {
       titulo="Cantos, espaçamento, sombras e ícones"
       descricao="Cantos de quatro tamanhos, espaçamento em múltiplos de quatro, sombra só no que flutua e ícones Lucide de traço fino."
     >
-      <Painel className="space-y-8">
+      <Quadro className="space-y-8">
         <Grupo titulo="Cantos">
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {CANTOS.map((c) => (
@@ -111,7 +111,7 @@ export function Fundamentos() {
             ))}
           </ul>
         </Grupo>
-      </Painel>
+      </Quadro>
     </Secao>
   )
 }
