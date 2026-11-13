@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { Acoes } from './_secoes/acoes'
 import { Exibicao } from './_secoes/exibicao'
 import { Formulario } from './_secoes/formulario'
 import { Fundamentos } from './_secoes/fundamentos'
 import { Marca } from './_secoes/marca'
+import { Navegacao } from './_secoes/navegacao'
 import { Retorno } from './_secoes/retorno'
 import { Secao } from './_secoes/secao'
 import { Tabela } from './_secoes/tabela'
@@ -14,15 +16,11 @@ export const metadata: Metadata = { title: 'Padrão visual | Plataforma ELO' }
 
 export default function PaginaDesignSystem() {
   return (
-    <main className="mx-auto min-w-0 w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-      <header className="space-y-1 border-b border-[var(--elo-dourado-suave)] pb-4">
-        <h1 className="text-[26px] font-semibold tracking-[-0.02em] text-[var(--elo-azul-marinho)]">
-          Padrão visual
-        </h1>
-        <p className="text-[13px] text-muted-foreground">
-          Cores, tipografia e componentes da Plataforma ELO, com dados fictícios.
-        </p>
-      </header>
+    <div className="w-full min-w-0 max-w-6xl">
+      <CabecalhoPagina
+        titulo="Padrão visual"
+        contexto="Cores, tipografia e componentes da Plataforma ELO, com dados fictícios."
+      />
 
       <Marca />
       <Tipografia />
@@ -36,9 +34,10 @@ export default function PaginaDesignSystem() {
           <Formulario />
           <Exibicao />
           <Tabela />
+          <Navegacao />
           <Retorno />
         </div>
       </Secao>
-    </main>
+    </div>
   )
 }
