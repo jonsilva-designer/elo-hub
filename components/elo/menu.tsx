@@ -1,9 +1,11 @@
 'use client'
 
-import { Palette } from 'lucide-react'
+import { LogOut, Palette } from 'lucide-react'
 import Link from 'next/link'
+import { sair } from '@/lib/acesso/acoes'
 import type { Usuario } from '@/lib/dados/tipos'
 import { cn } from '@/lib/utils'
+import { BotaoIcone } from './botao-icone'
 import { itemAtivo, itensDoPerfil } from './navegacao'
 
 // Pressionado: um passo mais forte que o passar o mouse, nos tons da lateral (padrão 7).
@@ -12,8 +14,14 @@ const BASE_ITEM =
 const ITEM_ATIVO =
   "bg-sidebar-accent font-semibold text-sidebar-accent-foreground before:absolute before:top-2 before:bottom-2 before:left-0 before:w-[3px] before:rounded-sm before:bg-sidebar-primary before:content-['']"
 
+// Botões discretos sobre o azul-marinho: passar o mouse e pressionar usam os tons da lateral,
+// e não o fundo claro do botão discreto. Pressionado é um passo mais forte que passar o mouse.
+export const SOBRE_A_LATERAL =
+  'text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent not-disabled:not-aria-disabled:active:bg-sidebar-accent-active aria-expanded:bg-sidebar-accent'
+
 type PropsMenu = {
-  usuario: Usuario
+  /** `null` enquanto o usuário não chegou (espera do Suspense): sem nome, perfil nem Sair. */
+  usuario: Usuario | null
   /** Endereço da página, para marcar o item atual. `null` não marca nenhum (rota ainda desconhecida). */
   rotaAtual: string | null
   aoNavegar?: () => void
@@ -23,7 +31,7 @@ const ativo = (rotaAtual: string | null, href: string) => rotaAtual !== null && 
 
 /** Lista de links do menu principal, usada pela lateral e pela gaveta do celular. */
 export function Menu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
-  const itens = itensDoPerfil(usuario.perfil)
+  const itens = itensDoPerfil(usuario?.perfil ?? null)
   const grupos = [null, 'Carteira', 'Apoio'] as const
 
   return (
@@ -61,7 +69,7 @@ export function Menu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
   )
 }
 
-/** Rodapé do menu: link do padrão visual e o usuário. Compartilhado pela lateral e pela gaveta. */
+/** Rodapé do menu: link do padrão visual, o usuário e Sair. Compartilhado pela lateral e pela gaveta. */
 export function RodapeMenu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
   const atual = ativo(rotaAtual, '/designsystem')
   return (
@@ -75,10 +83,17 @@ export function RodapeMenu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
         <Palette className="size-4 shrink-0" aria-hidden="true" />
         Padrão visual
       </Link>
-      <div className="mx-2.5 px-3">
-        <div className="text-[13px] font-semibold text-sidebar-accent-foreground">{usuario.nome}</div>
-        <div className="text-xs text-lateral-texto-fraco">{usuario.perfil}</div>
-      </div>
+      {usuario ? (
+        <div className="mx-2.5 flex items-center justify-between gap-2 pl-3">
+          <div className="min-w-0">
+            <div className="truncate text-[13px] font-semibold text-sidebar-accent-foreground">{usuario.nome}</div>
+            <div className="text-xs text-lateral-texto-fraco">{usuario.perfil}</div>
+          </div>
+          <form action={sair}>
+            <BotaoIcone type="submit" rotulo="Sair" icone={LogOut} size="icon-sm" className={SOBRE_A_LATERAL} />
+          </form>
+        </div>
+      ) : null}
     </div>
   )
 }

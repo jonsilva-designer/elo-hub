@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Perfil } from '@/lib/dados/tipos'
-import { cookiesFalsos, destinoDe, limparCookies } from '@/lib/testes/next-falso'
-import { entrar, entrarComoPerfil } from './acoes'
+import { cookiesFalsos, destinoDe, entrarComo, limparCookies } from '@/lib/testes/next-falso'
+import { entrar, entrarComoPerfil, sair } from './acoes'
 import { ESTADO_INICIAL_ENTRAR } from './estados'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -91,6 +91,14 @@ describe('entrarComoPerfil (botões do protótipo)', () => {
 
   it('um perfil forjado não grava cookie e volta ao login', async () => {
     expect(await destinoDe(entrarComoPerfil('Root' as Perfil, '/inicio'))).toBe('/login')
+    expect(sessao()).toBeUndefined()
+  })
+})
+
+describe('sair', () => {
+  it('apaga a sessão e vai ao login (F01)', async () => {
+    entrarComo('usr-helena')
+    expect(await destinoDe(sair())).toBe('/login')
     expect(sessao()).toBeUndefined()
   })
 })

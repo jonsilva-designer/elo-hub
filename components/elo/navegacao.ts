@@ -44,6 +44,7 @@ export function itemAtivo(pathname: string, href: string): boolean {
   return pathname === base || pathname.startsWith(`${base}/`)
 }
 
-export function itensDoPerfil(perfil: Perfil): typeof ITENS_MENU {
+/** Sem perfil (`null`, enquanto o usuário não chegou), só os itens comuns aos dois perfis. */
+export function itensDoPerfil(perfil: Perfil | null): typeof ITENS_MENU {
   return ITENS_MENU.filter((i) => !i.somenteAdmin || perfil === 'Administrador')
 }

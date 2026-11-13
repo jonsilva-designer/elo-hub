@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { gravarSessao } from '@/lib/dados/sessao'
+import { apagarSessao, gravarSessao } from '@/lib/dados/sessao'
 import type { Perfil } from '@/lib/dados/tipos'
 import { encontrarUsuarioPorEmail, obterExemplosDoPrototipo } from '@/lib/dados/usuarios'
 import type { EstadoEntrar } from './estados'
@@ -42,4 +42,10 @@ export async function entrarComoPerfil(perfil: Perfil, destino: string): Promise
 
   await gravarSessao(usuario.id)
   redirect(destinoSeguro(destino))
+}
+
+/** Botão Sair, no rodapé da lateral e da gaveta. */
+export async function sair(): Promise<void> {
+  await apagarSessao()
+  redirect('/login')
 }

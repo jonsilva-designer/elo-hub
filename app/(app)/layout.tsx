@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { BarraTopo, BarraTopoEstatica } from '@/components/elo/barra-topo'
 import { Lateral, LateralEstatica } from '@/components/elo/lateral'
-import { obterUsuarioAtual } from '@/lib/dados/usuario'
+import { obterUsuarioAtual } from '@/lib/dados/sessao'
 
 // Escondido até receber o foco do teclado; então aparece no canto, por cima da tela.
 const PULAR_PARA_O_CONTEUDO =
@@ -13,11 +13,11 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
       <a href="#conteudo" className={PULAR_PARA_O_CONTEUDO}>
         Pular para o conteúdo
       </a>
-      <Suspense>
+      <Suspense fallback={<LateralEstatica usuario={null} />}>
         <LateralDoUsuario />
       </Suspense>
       <div className="min-w-0 flex-1">
-        <Suspense>
+        <Suspense fallback={<BarraTopoEstatica usuario={null} />}>
           <BarraTopoDoUsuario />
         </Suspense>
         <main id="conteudo" tabIndex={-1} className="px-6 py-6 lg:px-8">
@@ -31,8 +31,9 @@ export default function LayoutApp({ children }: { children: React.ReactNode }) {
 // Com o cacheComponents, o usePathname do menu suspende em rota dinâmica que o generateStaticParams
 // não cobre (docs do Next, use-pathname, "Cache Components"); sem Suspense a build falha. Enquanto
 // a rota não é conhecida, aparece a mesma estrutura sem o item atual marcado.
-// O usuário é lido dentro do Suspense de fora: quando vier da sessão (cookies(), assíncrono),
-// a leitura não segura o conteúdo da página.
+// O usuário vem da sessão (cookies()) e é lido dentro do Suspense de fora, para não segurar o conteúdo
+// da página. Enquanto ele não chega, aparecem a lateral e a barra sem o usuário, e não um vazio.
+// Sem sessão, obterUsuarioAtual() manda ao login.
 
 async function LateralDoUsuario() {
   const usuario = await obterUsuarioAtual()

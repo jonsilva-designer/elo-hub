@@ -23,6 +23,9 @@ describe('itensDoPerfil', () => {
   it('Administrador vê Configurações', () => {
     expect(itensDoPerfil('Administrador').map((i) => i.rotulo)).toContain('Configurações')
   })
+  it('sem usuário, mostra só os itens comuns aos dois perfis', () => {
+    expect(itensDoPerfil(null)).toEqual(itensDoPerfil('Equipe'))
+  })
   it('mantém a ordem da tabela', () => {
     expect(ITENS_MENU.map((i) => i.rotulo)).toEqual([
       'Início',

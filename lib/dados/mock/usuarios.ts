@@ -33,6 +33,3 @@ export const VINCULOS: Vinculo[] = [
   { usuarioId: 'usr-rafael', clienteId: 'cli-rede-norte' },
   { usuarioId: 'usr-marcos', clienteId: 'cli-montareal' },
 ]
-
-/** Usuário fixo das telas até a sessão entrar no layout (Tarefa 7 da parte 1). */
-export const USUARIO_EXEMPLO: Usuario = USUARIOS[0]

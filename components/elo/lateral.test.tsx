@@ -1,7 +1,14 @@
-import { render, screen, within } from '@testing-library/react'
+import { render as renderizar, screen, within } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Usuario } from '@/lib/dados/tipos'
 import { Lateral, LateralEstatica } from './lateral'
+
+vi.mock('@/lib/acesso/acoes', () => ({ sair: vi.fn() }))
+
+// O botão Sair tem dica, que precisa do TooltipProvider; no app ele vem do layout raiz.
+const render = (ui: ReactElement) => renderizar(ui, { wrapper: TooltipProvider })
 
 // `pathname: null` faz o usePathname falhar: prova que a versão estática não lê o endereço.
 const rota = vi.hoisted(() => ({ pathname: '/clientes/12' as string | null }))
@@ -74,6 +81,18 @@ describe('Lateral', () => {
     expect(screen.queryByRole('link', { name: 'Configurações' })).not.toBeInTheDocument()
   })
 
+  it.each([
+    ['Administrador', helena],
+    ['Equipe', rafael],
+  ])('com o perfil %s, mostra o nome, o perfil e o botão Sair (CA-01.2)', (perfil, usuario) => {
+    render(<Lateral usuario={usuario} />)
+    expect(screen.getByText(usuario.nome)).toBeInTheDocument()
+    expect(screen.getByText(perfil)).toBeInTheDocument()
+    const sair = screen.getByRole('button', { name: 'Sair' })
+    expect(sair).toHaveAttribute('type', 'submit')
+    expect(sair.closest('form')).not.toBeNull()
+  })
+
   it('o logo não é forçado a carregar: no celular a lateral fica escondida', () => {
     render(<Lateral usuario={helena} />)
     const logo = screen.getByAltText('ELO HUB')
@@ -94,6 +113,16 @@ describe('Lateral', () => {
 describe('LateralEstatica', () => {
   beforeEach(() => {
     rota.pathname = null
+  })
+
+  it('sem usuário, mostra a lateral com os itens comuns, sem nome, perfil nem Sair', () => {
+    render(<LateralEstatica usuario={null} />)
+    expect(screen.getByRole('link', { name: 'Início' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Clientes' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Padrão visual' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Configurações' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Sair' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Helena Prado')).not.toBeInTheDocument()
   })
 
   it('é a mesma lateral sem ler o endereço e sem marcar a página atual', () => {

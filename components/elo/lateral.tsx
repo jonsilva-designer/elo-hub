@@ -6,6 +6,7 @@ import type { Usuario } from '@/lib/dados/tipos'
 import { Menu, RodapeMenu } from './menu'
 
 type Props = { usuario: Usuario }
+type PropsEstatica = { usuario: Usuario | null }
 
 /** Lateral flutuante, a 12px das bordas. Abaixo de 1024px dá lugar à barra do celular. */
 export function Lateral({ usuario }: Props) {
@@ -16,11 +17,11 @@ export function Lateral({ usuario }: Props) {
  * A mesma lateral, sem ler o endereço e sem item marcado. É a espera do Suspense do layout
  * enquanto a rota não é conhecida (rota dinâmica fora do `generateStaticParams`).
  */
-export function LateralEstatica({ usuario }: Props) {
+export function LateralEstatica({ usuario }: PropsEstatica) {
   return <CorpoLateral usuario={usuario} rotaAtual={null} />
 }
 
-function CorpoLateral({ usuario, rotaAtual }: Props & { rotaAtual: string | null }) {
+function CorpoLateral({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: string | null }) {
   return (
     <aside
       data-sidebar

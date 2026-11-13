@@ -1,9 +1,25 @@
-import { render, screen } from '@testing-library/react'
+import { render as renderizar, screen } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import LayoutApp from './layout'
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/designsystem' }))
+vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
+vi.mock('next/navigation', async () => ({
+  ...(await import('@/lib/testes/next-falso')).moduloNavigation,
+  usePathname: () => '/designsystem',
+}))
+vi.mock('@/lib/acesso/acoes', () => ({ sair: vi.fn() }))
+
+// O botão Sair tem dica, que precisa do TooltipProvider; no app ele vem do layout raiz.
+const render = (ui: ReactElement) => renderizar(ui, { wrapper: TooltipProvider })
+
+beforeEach(() => {
+  limparCookies()
+  entrarComo('usr-helena')
+})
 
 describe('layout das telas com menu', () => {
   it('o primeiro Tab chega ao link "Pular para o conteúdo", que aponta para o conteúdo', async () => {

@@ -8,14 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import type { Usuario } from '@/lib/dados/tipos'
 import { cn } from '@/lib/utils'
-import { Menu, RodapeMenu } from './menu'
-
-// Botões discretos sobre o azul-marinho: passar o mouse e pressionar usam os tons da lateral,
-// e não o fundo claro do botão discreto. Pressionado é um passo mais forte que passar o mouse.
-const SOBRE_A_LATERAL =
-  'text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent not-disabled:not-aria-disabled:active:bg-sidebar-accent-active aria-expanded:bg-sidebar-accent'
+import { Menu, RodapeMenu, SOBRE_A_LATERAL } from './menu'
 
 type Props = { usuario: Usuario }
+type PropsEstatica = { usuario: Usuario | null }
 
 /** Barra do celular (abaixo de 1024px) com o botão que abre a gaveta do menu. */
 export function BarraTopo({ usuario }: Props) {
@@ -26,11 +22,11 @@ export function BarraTopo({ usuario }: Props) {
  * A mesma barra, sem ler o endereço: na gaveta, nenhum item fica marcado. É a espera do
  * Suspense do layout enquanto a rota não é conhecida (rota dinâmica fora do `generateStaticParams`).
  */
-export function BarraTopoEstatica({ usuario }: Props) {
+export function BarraTopoEstatica({ usuario }: PropsEstatica) {
   return <CorpoBarraTopo usuario={usuario} rotaAtual={null} />
 }
 
-function CorpoBarraTopo({ usuario, rotaAtual }: Props & { rotaAtual: string | null }) {
+function CorpoBarraTopo({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: string | null }) {
   const [aberta, setAberta] = useState(false)
   const fechar = () => setAberta(false)
 

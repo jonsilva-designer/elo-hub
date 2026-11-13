@@ -1,7 +1,14 @@
-import { render, screen } from '@testing-library/react'
+import { render as renderizar, screen } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { BarraTopo, BarraTopoEstatica } from './barra-topo'
+
+vi.mock('@/lib/acesso/acoes', () => ({ sair: vi.fn() }))
+
+// O botão Sair tem dica, que precisa do TooltipProvider; no app ele vem do layout raiz.
+const render = (ui: ReactElement) => renderizar(ui, { wrapper: TooltipProvider })
 
 // Com `ligada`, ler o endereço falha: prova que a versão estática não chama o usePathname.
 const rotaQueFalha = vi.hoisted(() => ({ ligada: false }))
@@ -56,6 +63,7 @@ describe('BarraTopo', () => {
     expect(screen.getByRole('navigation', { name: 'Menu principal' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Contratos' })).toBeInTheDocument()
     expect(screen.getByText('Helena Prado')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sair' })).toHaveAttribute('type', 'submit')
   })
 
   it('fecha ao clicar em um link', async () => {
