@@ -20,3 +20,19 @@ export function destinoSeguro(destino: unknown): string {
   if (caminho === '/login') return '/inicio'
   return destino
 }
+
+/** Rotas que abrem sem sessão: as telas de acesso e os formulários do site (parte 9). */
+const ROTAS_ABERTAS = ['/login', '/recuperar-senha', '/definir-senha', '/site']
+
+const ehAberta = (caminho: string) => ROTAS_ABERTAS.some((r) => caminho === r || caminho.startsWith(`${r}/`))
+
+/**
+ * O que o proxy faz com a requisição: o endereço para onde redirecionar, ou null para seguir.
+ * Só confere se o cookie existe (checagem otimista); quem valida a sessão é lib/dados.
+ * Não manda /login ao Início: a página de login decide isso, e um cookie inválido não vira laço.
+ */
+export function decidirRota(caminho: string, busca: string, temCookie: boolean): string | null {
+  if (caminho === '/') return temCookie ? '/inicio' : '/login'
+  if (ehAberta(caminho) || temCookie) return null
+  return `/login?destino=${encodeURIComponent(caminho + busca)}`
+}
