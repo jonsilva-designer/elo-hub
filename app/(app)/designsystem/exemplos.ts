@@ -52,3 +52,30 @@ export const CONTRATO_EXEMPLO = {
   termino: '2027-02-28',
   valor: 48500,
 }
+
+export type ContratoDaLista = {
+  numero: string
+  cliente: string
+  status: string
+  vigencia: 'Vigente' | 'Próximo do vencimento' | 'Vencido'
+  termino: string
+  valor: number
+}
+
+export const VIGENCIAS: ContratoDaLista['vigencia'][] = ['Vigente', 'Próximo do vencimento', 'Vencido']
+
+/** Contratos fictícios da tabela. Datas em texto fixo. */
+export const CONTRATOS_EXEMPLO: ContratoDaLista[] = [
+  { numero: 'CT-2026-031', cliente: 'Grupo Horizonte Agro', status: 'Ativo', vigencia: 'Vigente', termino: '2027-02-28', valor: 48500 },
+  { numero: 'CT-2026-027', cliente: 'Transportes Serra Azul', status: 'Ativo', vigencia: 'Próximo do vencimento', termino: '2026-12-15', valor: 32000 },
+  { numero: 'CT-2025-114', cliente: 'Clínica São Lucas', status: 'Encerrado', vigencia: 'Vencido', termino: '2026-10-31', valor: 18900 },
+  { numero: 'CT-2026-019', cliente: 'Cooperativa Vale Verde', status: 'Suspenso', vigencia: 'Vigente', termino: '2027-05-20', valor: 76250 },
+  { numero: 'CT-2026-022', cliente: 'Indústria Pedra Branca', status: 'Ativo', vigencia: 'Vigente', termino: '2027-08-31', valor: 124000 },
+  { numero: 'CT-2025-098', cliente: 'Escola Novo Caminho', status: 'Ativo', vigencia: 'Próximo do vencimento', termino: '2026-12-02', valor: 21400 },
+  { numero: 'CT-2026-035', cliente: 'Mercado Bom Preço', status: 'Ativo', vigencia: 'Vigente', termino: '2027-03-15', valor: 15800 },
+  { numero: 'CT-2025-087', cliente: 'Laboratório Aurora', status: 'Encerrado', vigencia: 'Vencido', termino: '2026-09-30', valor: 41300 },
+  { numero: 'CT-2026-040', cliente: 'Construtora Alvorada', status: 'Ativo', vigencia: 'Vigente', termino: '2027-11-30', valor: 98700 },
+  { numero: 'CT-2026-012', cliente: 'Hotel Mirante do Vale', status: 'Suspenso', vigencia: 'Próximo do vencimento', termino: '2026-12-20', valor: 27600 },
+  { numero: 'CT-2026-044', cliente: 'Padaria Pão de Ouro', status: 'Ativo', vigencia: 'Vigente', termino: '2027-06-30', valor: 9800 },
+  { numero: 'CT-2026-048', cliente: 'Farmácia Saúde Plena', status: 'Ativo', vigencia: 'Vigente', termino: '2027-09-10', valor: 13250 },
+]

@@ -5,6 +5,7 @@ import { Formulario } from './_secoes/formulario'
 import { Fundamentos } from './_secoes/fundamentos'
 import { Marca } from './_secoes/marca'
 import { Retorno } from './_secoes/retorno'
+import { Tabela } from './_secoes/tabela'
 import { Secao } from './_secoes/secao'
 import { Tipografia } from './_secoes/tipografia'
 
@@ -34,6 +35,7 @@ export default function PaginaDesignSystem() {
           <Acoes />
           <Formulario />
           <Exibicao />
+          <Tabela />
           <Retorno />
         </div>
       </Secao>
