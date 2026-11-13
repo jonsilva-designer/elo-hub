@@ -26,3 +26,11 @@ export type Cliente = {
 }
 
 export type Vinculo = { usuarioId: string; clienteId: string }
+
+/** Os perfis de exemplo do bloco "Protótipo" do login. */
+export type ExemplosDoPrototipo = {
+  administrador: Usuario
+  equipe: Usuario
+  clientesDaEquipe: number
+  emailInativo: string
+}
