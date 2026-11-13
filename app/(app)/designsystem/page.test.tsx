@@ -164,7 +164,13 @@ describe('seção Estrutura da tela', () => {
   it('explica a lateral, o cabeçalho de página e a barra do celular', () => {
     renderizar()
     const s = within(secao('Estrutura da tela'))
-    for (const rotulo of ['Lateral', 'Cabeçalho de página', 'Barra do celular', 'Moldura das páginas públicas']) {
+    for (const rotulo of [
+      'Lateral',
+      'Cabeçalho de página',
+      'Barra do celular',
+      'Moldura de acesso',
+      'Moldura dos formulários do site',
+    ]) {
       expect(s.getByText(rotulo, { exact: true })).toBeInTheDocument()
     }
     expect(s.getByText(/Padrão visual/)).toBeInTheDocument()
@@ -173,14 +179,30 @@ describe('seção Estrutura da tela', () => {
     expect(barra).toHaveTextContent('Esc')
   })
 
-  it('mostra a moldura pública com um login de exemplo que não envia nada', () => {
+  /** O bloco do exemplo com o rótulo dado: o rótulo, o conteúdo e a nota. */
+  const exemplo = (rotulo: string) =>
+    within(within(secao('Estrutura da tela')).getByText(rotulo, { exact: true }).parentElement as HTMLElement)
+
+  it('mostra a moldura de acesso com um login de exemplo que não envia nada', () => {
     renderizar()
-    const s = within(secao('Estrutura da tela'))
-    expect(s.getByAltText('ELO HUB')).toBeInTheDocument()
-    expect(s.getByLabelText('E-mail')).toHaveAttribute('type', 'email')
-    expect(s.getByLabelText('Senha')).toHaveAttribute('type', 'password')
-    expect(s.getByRole('button', { name: 'Entrar' })).toHaveAttribute('type', 'button')
-    expect(s.getByText(/não têm a lateral/)).toBeInTheDocument()
+    const e = exemplo('Moldura de acesso')
+    const demo = e.getByRole('heading', { level: 1, name: 'Entrar' }).closest('[data-demo]')
+    expect(demo).not.toBeNull()
+    expect(e.getByLabelText('E-mail')).toHaveAttribute('type', 'email')
+    expect(e.getByLabelText('Senha')).toHaveAttribute('type', 'password')
+    expect(e.getByRole('button', { name: 'Entrar' })).toHaveAttribute('type', 'button')
+    expect((demo as HTMLElement).querySelector('img[alt=""]')).not.toBeNull()
+    expect(e.getByText(/não têm a lateral/)).toBeInTheDocument()
+  })
+
+  it('mostra a moldura dos formulários do site, no cartão, sem enviar nada', () => {
+    renderizar()
+    const e = exemplo('Moldura dos formulários do site')
+    expect(e.getByAltText('ELO HUB')).toBeInTheDocument()
+    expect(e.getByLabelText('Nome')).toBeInTheDocument()
+    expect(e.getByLabelText('E-mail')).toHaveAttribute('type', 'email')
+    expect(e.getByRole('button', { name: 'Enviar' })).toHaveAttribute('type', 'button')
+    expect(e.getByText(/cartão branco/)).toBeInTheDocument()
   })
 
   it('a lateral e a barra do celular saíram de Navegação', () => {

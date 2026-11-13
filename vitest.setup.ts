@@ -1,6 +1,12 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { afterEach, vi } from 'vitest'
+
+// O import estático da imagem gera o blurDataURL na build do Next, e não no Vitest. Sem ele,
+// o next/image com placeholder="blur" acusa erro. Vale para todo teste que mostre uma tela de acesso.
+vi.mock('@/components/elo/imagens/elos-login.webp', () => ({
+  default: { src: '/elos-login.webp', width: 1800, height: 2000, blurDataURL: 'data:image/webp;base64,AA' },
+}))
 
 // Sem globals do Vitest, a limpeza automática do Testing Library não roda.
 afterEach(() => cleanup())

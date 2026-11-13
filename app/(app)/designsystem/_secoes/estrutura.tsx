@@ -3,6 +3,7 @@
 import { Menu as IconeMenu } from 'lucide-react'
 import Image from 'next/image'
 import { Campo } from '@/components/elo/campo'
+import { MolduraAcesso } from '@/components/elo/moldura-acesso'
 import { MolduraPublica } from '@/components/elo/moldura-publica'
 import { Num } from '@/components/elo/num'
 import { Button } from '@/components/ui/button'
@@ -43,7 +44,7 @@ export function Estrutura() {
   return (
     <Secao
       titulo="Estrutura da tela"
-      descricao="O que envolve as telas: a lateral, o cabeçalho de página, a barra do celular e a moldura das páginas públicas."
+      descricao="O que envolve as telas: a lateral, o cabeçalho de página, a barra do celular e as molduras das telas de acesso e dos formulários do site."
     >
       <Linhas>
         <Exemplo rotulo="Lateral">
@@ -87,20 +88,45 @@ export function Estrutura() {
 
         <Exemplo
           largo
-          rotulo="Moldura das páginas públicas"
-          nota="As páginas públicas (entrar, recuperar a senha e os formulários do site) não têm a lateral. O exemplo não envia nada."
+          rotulo="Moldura de acesso"
+          nota="As telas de acesso (entrar, recuperar a senha e definir a senha) não têm a lateral. A imagem aparece em tela larga e deitada. No celular e no tablet em pé, fica só o formulário. O exemplo não envia nada."
+        >
+          <div data-demo className="h-[600px] overflow-hidden rounded-xl border border-border">
+            <MolduraAcesso
+              className="h-full min-h-0"
+              titulo="Entrar"
+              descricao="Acesse a Plataforma ELO com seu e-mail e senha."
+            >
+              {/* Só demonstração: não há formulário nem envio, e o botão não é de envio. */}
+              <div className="space-y-4">
+                <Campo rotulo="E-mail">
+                  {(p) => <Input {...p} type="email" autoComplete="off" placeholder="nome@elogovernance.com.br" />}
+                </Campo>
+                <Campo rotulo="Senha">{(p) => <Input {...p} type="password" autoComplete="off" />}</Campo>
+                <Button type="button" className="w-full">
+                  Entrar
+                </Button>
+              </div>
+            </MolduraAcesso>
+          </div>
+        </Exemplo>
+
+        <Exemplo
+          largo
+          rotulo="Moldura dos formulários do site"
+          nota="Os formulários do site não têm a lateral e ficam num cartão branco. O exemplo não envia nada."
         >
           <div data-demo className="overflow-hidden rounded-xl border border-border">
             <MolduraPublica className="min-h-0">
               {/* Só demonstração: não há formulário nem envio, e o botão não é de envio. */}
               <div className="space-y-5">
-                <p className="text-lg font-semibold text-primary">Entrar</p>
+                <p className="text-lg font-semibold text-primary">Formulário de diagnóstico</p>
+                <Campo rotulo="Nome">{(p) => <Input {...p} autoComplete="off" />}</Campo>
                 <Campo rotulo="E-mail">
                   {(p) => <Input {...p} type="email" autoComplete="off" placeholder="nome@empresa.com.br" />}
                 </Campo>
-                <Campo rotulo="Senha">{(p) => <Input {...p} type="password" autoComplete="off" />}</Campo>
                 <Button type="button" className="w-full">
-                  Entrar
+                  Enviar
                 </Button>
               </div>
             </MolduraPublica>
