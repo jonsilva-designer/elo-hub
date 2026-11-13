@@ -129,8 +129,9 @@
 }
 
 /* Itens de lista, menu e dias do calendário ficam dentro de contêineres com rolagem ou corte:
-   o contorno com afastamento de fora seria cortado. Neles o contorno vai por dentro, com a mesma cor e largura. */
-:where([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="gridcell"] button):focus-visible {
+   o contorno com afastamento de fora seria cortado. Neles o contorno vai por dentro, com a mesma cor e largura.
+   Usa :is() e não :where() para ter especificidade maior que a regra principal; com :where() ela perdia e o contorno continuava por fora. */
+:is([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="gridcell"] button):focus-visible {
     outline-offset: -2px !important;
 }
 
