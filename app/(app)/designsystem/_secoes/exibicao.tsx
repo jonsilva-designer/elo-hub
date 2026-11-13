@@ -20,7 +20,6 @@ import {
   PRIORIDADES,
   GRUPOS_DE_STATUS,
 } from '../exemplos'
-import { ExibicaoEstados } from './exibicao-estados'
 import { Exemplo, Subsecao } from './secao'
 
 function Numero({ legenda, children }: { legenda: string; children: string }) {
@@ -162,7 +161,6 @@ export function Exibicao() {
       <Exemplo rotulo="Progresso sem atividades">
         <ProgressoAtividades concluidas={0} total={0} />
       </Exemplo>
-      <ExibicaoEstados />
     </Subsecao>
   )
 }

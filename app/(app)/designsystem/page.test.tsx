@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { STATUS_POR_TOM } from '@/lib/design/status'
-import Pagina from './page'
+import Pagina, { metadata } from './page'
 
 function renderizar() {
   return render(
@@ -13,16 +13,35 @@ function renderizar() {
 }
 
 // Ignora os títulos dos componentes em demonstração (marcados com data-demo), que também são h2.
-const titulos = (nivel: number) =>
-  screen
-    .getAllByRole('heading', { level: nivel })
-    .filter((h) => !h.closest('[data-demo]'))
-    .map((h) => h.textContent)
+const semDemo = (titulos: HTMLElement[]) =>
+  titulos.filter((h) => !h.closest('[data-demo]')).map((h) => h.textContent)
+
+const titulos = (nivel: number) => semDemo(screen.getAllByRole('heading', { level: nivel }))
+
+/** A seção (elemento `section`) do título h2 dado. */
+const secao = (titulo: string) =>
+  screen.getByRole('heading', { level: 2, name: titulo }).closest('section') as HTMLElement
+
+const MATRIZ: Record<string, string[]> = {
+  'Botão principal': ['Normal', 'Passar o mouse', 'Foco', 'Pressionado', 'Desabilitado', 'Carregando'],
+  'Botão secundário': ['Normal', 'Passar o mouse', 'Foco', 'Pressionado', 'Desabilitado'],
+  'Botão perigo': ['Normal', 'Passar o mouse', 'Foco', 'Pressionado', 'Desabilitado'],
+  'Campo de texto': ['Normal', 'Passar o mouse', 'Foco', 'Com erro', 'Desabilitado'],
+  'Linha de tabela': ['Normal', 'Passar o mouse', 'Foco', 'Destaque de atenção', 'Destaque de problema'],
+}
+
+/** Linha da matriz de estados: o bloco que contém o rótulo e as células. */
+const linhaDaMatriz = (rotulo: string) =>
+  within(secao('Estados de interface')).getByText(rotulo).parentElement as HTMLElement
 
 describe('página /designsystem', () => {
   it('mostra o título da página', () => {
     renderizar()
     expect(screen.getByRole('heading', { level: 1, name: 'Padrão visual' })).toBeInTheDocument()
+  })
+
+  it('tem o título da aba', () => {
+    expect(metadata.title).toBe('Padrão visual | Plataforma ELO')
   })
 
   it('mostra as seções na ordem', () => {
@@ -32,12 +51,15 @@ describe('página /designsystem', () => {
       'Tipografia',
       'Cantos, espaçamento, sombras e ícones',
       'Componentes',
+      'Estados de interface',
+      'Estrutura da tela',
     ])
   })
 
   it('mostra os subtítulos de Componentes na ordem', () => {
     renderizar()
-    expect(titulos(3)).toEqual(['Ações', 'Formulário', 'Exibição', 'Tabela', 'Navegação', 'Retorno'])
+    const h3 = within(secao('Componentes')).getAllByRole('heading', { level: 3 })
+    expect(semDemo(h3)).toEqual(['Ações', 'Formulário', 'Exibição', 'Tabela', 'Navegação', 'Retorno'])
   })
 
   it('marca como provisórias as linhas de Azul-marinho e Dourado', () => {
@@ -68,5 +90,91 @@ describe('página /designsystem', () => {
     for (const s of Object.values(STATUS_POR_TOM).flat()) {
       expect(screen.getAllByText(s).length).toBeGreaterThan(0)
     }
+  })
+})
+
+describe('seção Estados de interface', () => {
+  it('mostra cada componente com as legendas dos estados, na ordem', () => {
+    renderizar()
+    for (const [rotulo, legendas] of Object.entries(MATRIZ)) {
+      const linha = linhaDaMatriz(rotulo)
+      const celulas = legendas.map((l) => within(linha).getByText(l, { exact: true }))
+      for (let i = 1; i < celulas.length; i++) {
+        const segue = celulas[i - 1].compareDocumentPosition(celulas[i]) & Node.DOCUMENT_POSITION_FOLLOWING
+        expect(segue, `${rotulo}: ${legendas[i - 1]} antes de ${legendas[i]}`).toBeTruthy()
+      }
+    }
+  })
+
+  it('só a célula Normal é interativa; os estados forçados ficam inertes', () => {
+    renderizar()
+    for (const [rotulo, legendas] of Object.entries(MATRIZ)) {
+      const linha = linhaDaMatriz(rotulo)
+      for (const legenda of legendas) {
+        const celula = within(linha).getByText(legenda, { exact: true }).parentElement as HTMLElement
+        const inerte = celula.querySelector('[inert]')
+        if (legenda === 'Normal') expect(inerte, `${rotulo}, ${legenda}`).toBeNull()
+        else expect(inerte, `${rotulo}, ${legenda}`).not.toBeNull()
+      }
+    }
+  })
+
+  it('o foco forçado repete o contorno global: 2px, sólido, afastado 2px, azul-marinho', () => {
+    renderizar()
+    const celula = within(linhaDaMatriz('Botão principal')).getByText('Foco', { exact: true })
+      .parentElement as HTMLElement
+    const botao = within(celula).getByRole('button')
+    for (const c of ['outline-2', 'outline-solid', 'outline-offset-2', 'outline-ring']) {
+      expect(botao.className.split(' ')).toContain(c)
+    }
+  })
+
+  it('mostra os estados de página uma vez cada, só nesta seção', () => {
+    const { container } = renderizar()
+    const s = within(secao('Estados de interface'))
+    for (const texto of ['Nenhum contrato cadastrado', 'Não foi possível carregar.', 'Você não tem acesso a esta página.']) {
+      expect(screen.getAllByText(texto)).toHaveLength(1)
+      expect(s.getByText(texto)).toBeInTheDocument()
+    }
+    const carregando = container.querySelectorAll('[role="status"][aria-busy="true"]')
+    expect(carregando).toHaveLength(1)
+    expect(secao('Estados de interface')).toContainElement(carregando[0] as HTMLElement)
+    expect(carregando[0]).toHaveTextContent('Carregando')
+    expect(within(secao('Componentes')).queryByText('Nenhum contrato cadastrado')).not.toBeInTheDocument()
+  })
+
+  it('avisa que os textos de vazio, erro e validação são provisórios (DT-03)', () => {
+    renderizar()
+    const aviso = within(secao('Estados de interface')).getByText(/são provisórios/)
+    expect(aviso).toHaveTextContent('DT-03')
+  })
+})
+
+describe('seção Estrutura da tela', () => {
+  it('explica a lateral, o cabeçalho de página e a barra do celular', () => {
+    renderizar()
+    const s = within(secao('Estrutura da tela'))
+    for (const rotulo of ['Lateral', 'Cabeçalho de página', 'Barra do celular', 'Moldura das páginas públicas']) {
+      expect(s.getByText(rotulo, { exact: true })).toBeInTheDocument()
+    }
+    expect(s.getByText(/Padrão visual/)).toBeInTheDocument()
+    const barra = s.getByText(/Abrir menu/)
+    expect(barra).toHaveTextContent('Fechar menu')
+    expect(barra).toHaveTextContent('Esc')
+  })
+
+  it('mostra a moldura pública com um login de exemplo que não envia nada', () => {
+    renderizar()
+    const s = within(secao('Estrutura da tela'))
+    expect(s.getByAltText('ELO HUB')).toBeInTheDocument()
+    expect(s.getByLabelText('E-mail')).toHaveAttribute('type', 'email')
+    expect(s.getByLabelText('Senha')).toHaveAttribute('type', 'password')
+    expect(s.getByRole('button', { name: 'Entrar' })).toHaveAttribute('type', 'button')
+    expect(s.getByText(/não têm a lateral/)).toBeInTheDocument()
+  })
+
+  it('a lateral e a barra do celular saíram de Navegação', () => {
+    renderizar()
+    expect(screen.queryByText('Lateral e barra do celular')).not.toBeInTheDocument()
   })
 })

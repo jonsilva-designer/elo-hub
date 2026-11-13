@@ -6,7 +6,13 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import type { Usuario } from '@/lib/dados/tipos'
+import { cn } from '@/lib/utils'
 import { Menu, RodapeMenu } from './menu'
+
+// Botões discretos sobre o azul-marinho: passar o mouse e pressionar usam o tom da lateral,
+// e não o fundo claro do botão discreto.
+const SOBRE_A_LATERAL =
+  'text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent not-disabled:not-aria-disabled:active:bg-sidebar-accent aria-expanded:bg-sidebar-accent'
 
 /** Barra do celular (abaixo de 1024px) com o botão que abre a gaveta do menu. */
 export function BarraTopo({ usuario }: { usuario: Usuario }) {
@@ -27,7 +33,7 @@ export function BarraTopo({ usuario }: { usuario: Usuario }) {
           <Button
             variant="ghost"
             size="icon"
-            className="text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent"
+            className={SOBRE_A_LATERAL}
           >
             <IconeMenu strokeWidth={1.6} aria-hidden="true" />
             <span className="sr-only">Abrir menu</span>
@@ -45,7 +51,7 @@ export function BarraTopo({ usuario }: { usuario: Usuario }) {
             <Button
               variant="ghost"
               size="icon-sm"
-              className="absolute top-3 right-3 text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent"
+              className={cn('absolute top-3 right-3', SOBRE_A_LATERAL)}
             >
               <X strokeWidth={1.6} aria-hidden="true" />
               <span className="sr-only">Fechar menu</span>

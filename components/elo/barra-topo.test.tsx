@@ -71,4 +71,18 @@ describe('BarraTopo', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(abrir).toHaveFocus()
   })
+
+  it('os botões de abrir e fechar ficam no tom da lateral ao passar o mouse e ao pressionar', async () => {
+    const u = userEvent.setup()
+    render(<BarraTopo usuario={helena} />)
+    const abrir = screen.getByRole('button', { name: 'Abrir menu' })
+    await u.click(abrir)
+    for (const botao of [abrir, screen.getByRole('button', { name: 'Fechar menu' })]) {
+      const classes = botao.className.split(' ')
+      expect(classes).toContain('not-disabled:not-aria-disabled:hover:bg-sidebar-accent')
+      expect(classes).toContain('not-disabled:not-aria-disabled:active:bg-sidebar-accent')
+      // O tom claro de superfície, do botão discreto, não pode aparecer sobre o azul-marinho.
+      expect(classes.filter((c) => c.includes('surface'))).toEqual([])
+    }
+  })
 })

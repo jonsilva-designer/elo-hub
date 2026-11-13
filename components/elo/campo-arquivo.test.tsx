@@ -25,4 +25,14 @@ describe('CampoArquivo', () => {
     expect(screen.getByText('relatorio.pdf')).toBeInTheDocument()
     expect(onChange).toHaveBeenCalledWith(arquivo)
   })
+
+  it('o botão escurece ao passar o mouse e mais ao pressionar, só com o campo habilitado', () => {
+    render(<CampoArquivo id="a" onChange={() => {}} />)
+    const classes = screen.getByText('Escolher arquivo').className.split(' ')
+    expect(classes).toContain('peer-enabled:hover:bg-surface-hover')
+    expect(classes).toContain('peer-enabled:active:bg-surface-active')
+    for (const c of classes.filter((c) => /(^|:)(hover|active):/.test(c))) {
+      expect(c.startsWith('peer-enabled:'), c).toBe(true)
+    }
+  })
 })

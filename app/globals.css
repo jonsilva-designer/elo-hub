@@ -26,6 +26,13 @@
     --color-secondary: var(--secondary);
     --color-primary-foreground: var(--primary-foreground);
     --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-active: var(--primary-active);
+    --color-destructive-hover: var(--destructive-hover);
+    --color-destructive-active: var(--destructive-active);
+    --color-surface-hover: var(--surface-hover);
+    --color-surface-active: var(--surface-active);
+    --color-input-hover: var(--input-hover);
     --color-popover-foreground: var(--popover-foreground);
     --color-popover: var(--popover);
     --color-card-foreground: var(--card-foreground);
@@ -103,6 +110,18 @@
     --sidebar-accent-foreground: var(--elo-branco);
     --sidebar-border: color-mix(in srgb, var(--elo-branco) 10%, transparent);
     --sidebar-ring: var(--elo-dourado);
+
+    /* Passar o mouse e pressionado (padrão, seção 7): um tom mais escuro que a cor de base
+       e, ao pressionar, mais um. Saem das cores acima, sem valor próprio. */
+    --primary-hover: color-mix(in oklch, var(--primary), black 16%);
+    --primary-active: color-mix(in oklch, var(--primary), black 30%);
+    --destructive-hover: color-mix(in oklch, var(--destructive), black 12%);
+    --destructive-active: color-mix(in oklch, var(--destructive), black 22%);
+    /* Botões secundário e discreto: o fundo branco ou papel passa ao muted e depois escurece */
+    --surface-hover: var(--muted);
+    --surface-active: color-mix(in oklch, var(--muted), black 5%);
+    /* Borda dos campos ao passar o mouse */
+    --input-hover: color-mix(in oklch, var(--input), black 20%);
 }
 
 @layer base {
@@ -128,10 +147,10 @@
     box-shadow: none !important;
 }
 
-/* Itens de lista, menu e dias do calendário ficam dentro de contêineres com rolagem ou corte:
+/* Itens de lista, menu, dias do calendário e linhas clicáveis de tabela ficam dentro de contêineres com rolagem ou corte:
    o contorno com afastamento de fora seria cortado. Neles o contorno vai por dentro, com a mesma cor e largura.
    Usa :is() e não :where() para ter especificidade maior que a regra principal; com :where() ela perdia e o contorno continuava por fora. */
-:is([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="gridcell"] button):focus-visible {
+:is([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="gridcell"] button, tr[tabindex]):focus-visible {
     outline-offset: -2px !important;
 }
 

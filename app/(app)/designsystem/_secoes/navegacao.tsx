@@ -45,17 +45,6 @@ export function Navegacao() {
             <TabsContent value="documentos">Arquivos anexados ao cliente, do mais recente ao mais antigo.</TabsContent>
           </Tabs>
         </Exemplo>
-        <Exemplo
-          rotulo="Lateral e barra do celular"
-          nota={
-            <>
-              A lateral ao redor desta página é o componente real. Abaixo de <Num>1024</Num>px ela vira a barra
-              do topo, com o botão que abre a gaveta do menu.
-            </>
-          }
-        >
-          <span className="text-[13px] text-muted-foreground">Veja o menu da lateral ou da barra do topo.</span>
-        </Exemplo>
       </Subsecao>
     </div>
   )

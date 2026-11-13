@@ -43,4 +43,13 @@ describe('SelecaoMultipla', () => {
     render(<SelecaoMultipla opcoes={opcoes} valores={[]} onChange={() => {}} />)
     expect(screen.getByPlaceholderText('Selecione')).toBeInTheDocument()
   })
+
+  it('desabilitada, o botão de remover a ficha não reage ao passar o mouse', () => {
+    render(<SelecaoMultipla opcoes={opcoes} valores={['bruno']} onChange={() => {}} disabled />)
+    const remover = screen.getByRole('button', { name: 'Remover Bruno' })
+    expect(remover).toHaveAttribute('aria-disabled', 'true')
+    const hovers = remover.className.split(' ').filter((c) => /(^|:)hover:/.test(c))
+    expect(hovers.length).toBeGreaterThan(0)
+    for (const c of hovers) expect(c, c).toContain('not-aria-disabled:')
+  })
 })

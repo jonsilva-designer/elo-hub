@@ -4,8 +4,7 @@ import { cn } from '@/lib/utils'
 /** Quadro branco com borda e sem sombra: cartões só têm borda (padrão 4.5). */
 export function Quadro({ children, className, ...resto }: ComponentProps<'div'>) {
   return (
-    // min-w-0: sem isso, uma tabela larga dentro do painel alargaria a página em vez de rolar.
-    <div className={cn('min-w-0 rounded-xl border border-border bg-card p-5 sm:p-6', className)} {...resto}>
+    <div className={cn('rounded-xl border border-border bg-card p-5 sm:p-6', className)} {...resto}>
       {children}
     </div>
   )
@@ -22,8 +21,7 @@ export function Secao({
   children: ReactNode
 }) {
   return (
-    // min-w-0: a seção pode ser item de grid ou flex da tela; sem isso o conteúdo largo a alarga.
-    <section className="mt-10 min-w-0 space-y-4">
+    <section className="mt-10 space-y-4">
       <div className="space-y-1">
         <h2 className="text-[15px] font-bold text-[var(--elo-azul-marinho)]">{titulo}</h2>
         {descricao ? <p className="text-[13px] text-muted-foreground">{descricao}</p> : null}
@@ -42,11 +40,16 @@ export function Linhas({ children }: { children: ReactNode }) {
   )
 }
 
-/** Subtítulo h3 dentro de Componentes. O conteúdo vai num painel de linhas `Exemplo`. */
+/** Subtítulo h3 de uma seção. */
+export function Subtitulo({ children }: { children: ReactNode }) {
+  return <h3 className="text-sm font-bold text-[var(--elo-azul-marinho)]">{children}</h3>
+}
+
+/** Subtítulo h3 com o conteúdo num painel de linhas `Exemplo`. */
 export function Subsecao({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-bold text-[var(--elo-azul-marinho)]">{titulo}</h3>
+      <Subtitulo>{titulo}</Subtitulo>
       <Linhas>{children}</Linhas>
     </div>
   )

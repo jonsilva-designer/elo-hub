@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { Acoes } from './_secoes/acoes'
+import { EstadosDeInterface } from './_secoes/estados'
+import { Estrutura } from './_secoes/estrutura'
 import { Exibicao } from './_secoes/exibicao'
 import { Formulario } from './_secoes/formulario'
 import { Fundamentos } from './_secoes/fundamentos'
@@ -16,7 +18,7 @@ export const metadata: Metadata = { title: 'Padrão visual | Plataforma ELO' }
 
 export default function PaginaDesignSystem() {
   return (
-    <div className="w-full min-w-0 max-w-6xl">
+    <div className="w-full max-w-6xl">
       <CabecalhoPagina
         titulo="Padrão visual"
         contexto="Cores, tipografia e componentes da Plataforma ELO, com dados fictícios."
@@ -38,6 +40,8 @@ export default function PaginaDesignSystem() {
           <Retorno />
         </div>
       </Secao>
+      <EstadosDeInterface />
+      <Estrutura />
     </div>
   )
 }

@@ -43,10 +43,12 @@ export function CampoArquivo({
           if (!disabled) entrada.current?.click()
         }}
         className={cn(
-          'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-input bg-card px-2.5 text-sm font-medium select-none hover:bg-muted',
+          'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-input bg-card px-2.5 text-sm font-medium select-none',
+          // Como o botão secundário: um tom mais escuro ao passar o mouse e outro ao pressionar (padrão 7).
+          'peer-enabled:hover:bg-surface-hover peer-enabled:active:bg-surface-active',
           'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring',
           'peer-aria-invalid:border-destructive',
-          'peer-disabled:cursor-not-allowed peer-disabled:opacity-50 peer-disabled:hover:bg-card',
+          'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
         )}
       >
         <Paperclip className="size-4" />
