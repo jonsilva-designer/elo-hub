@@ -5,6 +5,7 @@ import { Campo, type AtributosDeCampo } from '@/components/elo/campo'
 import { CampoArquivo } from '@/components/elo/campo-arquivo'
 import { CampoData } from '@/components/elo/campo-data'
 import { CampoValor } from '@/components/elo/campo-valor'
+import { EntradaSenha } from '@/components/elo/entrada-senha'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -145,6 +146,19 @@ export function Formulario() {
               erro="Informe o responsável"
             >
               {(p) => <Input {...p} />}
+            </Campo>
+          </Celula>
+        </Estados>
+      </Exemplo>
+
+      <Exemplo rotulo="Campo de senha">
+        <Estados>
+          <Celula legenda="Normal">
+            <Campo rotulo="Senha">{(p) => <EntradaSenha {...p} defaultValue="senha-de-exemplo" />}</Campo>
+          </Celula>
+          <Celula legenda="Com erro">
+            <Campo rotulo="Senha" erro="Informe a senha.">
+              {(p) => <EntradaSenha {...p} />}
             </Campo>
           </Celula>
         </Estados>

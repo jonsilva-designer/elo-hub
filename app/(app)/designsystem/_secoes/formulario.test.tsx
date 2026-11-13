@@ -28,3 +28,14 @@ describe('seção Formulário', () => {
     expect(grupo).toHaveAttribute('aria-invalid', 'true')
   })
 })
+
+describe('seção Formulário, campo de senha', () => {
+  it('mostra o campo de senha escondido, com o botão Mostrar', () => {
+    render(<Formulario />)
+    expect(screen.getByText('Campo de senha')).toBeInTheDocument()
+    const senhas = screen.getAllByLabelText('Senha')
+    expect(senhas.length).toBeGreaterThan(0)
+    for (const s of senhas) expect(s).toHaveAttribute('type', 'password')
+    expect(screen.getAllByRole('button', { name: 'Mostrar senha' })).toHaveLength(senhas.length)
+  })
+})
