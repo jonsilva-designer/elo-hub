@@ -29,14 +29,14 @@ export function Marca() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <thead>
-              <tr className="border-b border-[color:var(--elo-divisoria)] text-xs text-muted-foreground">
+              <tr className="border-b border-divisoria text-xs text-muted-foreground">
                 <th scope="col" className="px-4 py-2.5 font-medium">Cor</th>
                 <th scope="col" className="px-4 py-2.5 font-medium">Token</th>
                 <th scope="col" className="px-4 py-2.5 font-medium">Valor</th>
                 <th scope="col" className="px-4 py-2.5 font-medium">Uso</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[color:var(--elo-divisoria)]">
+            <tbody className="divide-y divide-divisoria">
               {CORES.map((cor) => (
                 <tr key={cor.token}>
                   <td className="px-4 py-2.5">

@@ -20,7 +20,7 @@ const FOCO = 'outline-2 outline-solid outline-offset-2 outline-ring'
 // Na linha de tabela o contorno vai por dentro, como na regra global para linhas clicáveis.
 const FOCO_NA_LINHA =
   '[&_tbody_tr]:outline-2 [&_tbody_tr]:outline-solid [&_tbody_tr]:-outline-offset-2 [&_tbody_tr]:outline-ring'
-const MOUSE_NA_LINHA = '[&_tbody_tr]:bg-[var(--elo-papel)]'
+const MOUSE_NA_LINHA = '[&_tbody_tr]:bg-papel'
 
 /** Estados de um componente lado a lado, cada um numa célula com a sua legenda. */
 function Matriz({ className, children }: { className: string; children: ReactNode }) {
@@ -55,6 +55,13 @@ const BOTOES: { rotulo: string; variante: Variante; texto: string; mouse: string
     rotulo: 'Botão secundário',
     variante: 'outline',
     texto: 'Editar',
+    mouse: 'bg-surface-hover',
+    pressionado: 'bg-surface-active',
+  },
+  {
+    rotulo: 'Botão discreto',
+    variante: 'ghost',
+    texto: 'Cancelar',
     mouse: 'bg-surface-hover',
     pressionado: 'bg-surface-active',
   },

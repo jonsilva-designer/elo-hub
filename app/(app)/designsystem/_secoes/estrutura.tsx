@@ -28,7 +28,7 @@ function DesenhoBarraDoCelular() {
         </span>
       </div>
       <div className="space-y-3 p-4">
-        <div className="space-y-2 border-b border-[var(--elo-dourado-suave)] pb-3">
+        <div className="space-y-2 border-b border-dourado-suave pb-3">
           <div className="h-3 w-24 rounded-sm bg-primary" />
           <div className="h-2 w-36 rounded-sm bg-border" />
         </div>

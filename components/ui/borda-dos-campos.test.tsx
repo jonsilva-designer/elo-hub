@@ -1,8 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
+import { Checkbox } from './checkbox'
 import { Input } from './input'
 import { InputGroup, InputGroupInput } from './input-group'
+import { RadioGroup, RadioGroupItem } from './radio-group'
 import { Select, SelectTrigger, SelectValue } from './select'
 import { Textarea } from './textarea'
 
@@ -55,5 +57,28 @@ describe('borda dos campos ao passar o mouse', () => {
     )
     const caixa = container.querySelector<HTMLElement>('[data-slot="combobox-chips"]')!
     expect(hovers(caixa)).toEqual(['not-has-disabled:not-has-aria-invalid:hover:border-input-hover'])
+  })
+})
+
+describe('caixa de seleção e opção única ao passar o mouse', () => {
+  // Como os campos, mas só desmarcadas: a marcada é azul-marinho e mantém a borda.
+  const GUARDA_MARCAVEL = 'not-disabled:not-aria-invalid:not-data-checked:'
+
+  it('caixa de seleção', () => {
+    render(<Checkbox aria-label="Revisei" />)
+    expect(hovers(screen.getByRole('checkbox', { name: 'Revisei' }))).toEqual([
+      `${GUARDA_MARCAVEL}hover:border-input-hover`,
+    ])
+  })
+
+  it('opção única', () => {
+    render(
+      <RadioGroup aria-label="Porte">
+        <RadioGroupItem value="medio" aria-label="Médio" />
+      </RadioGroup>,
+    )
+    expect(hovers(screen.getByRole('radio', { name: 'Médio' }))).toEqual([
+      `${GUARDA_MARCAVEL}hover:border-input-hover`,
+    ])
   })
 })

@@ -23,7 +23,7 @@ export function Secao({
   return (
     <section className="mt-10 space-y-4">
       <div className="space-y-1">
-        <h2 className="text-[15px] font-bold text-[var(--elo-azul-marinho)]">{titulo}</h2>
+        <h2 className="text-[15px] font-bold text-primary">{titulo}</h2>
         {descricao ? <p className="text-[13px] text-muted-foreground">{descricao}</p> : null}
       </div>
       {children}
@@ -34,7 +34,7 @@ export function Secao({
 /** Quadro de linhas `Exemplo`, separadas por divisória. É o único jeito de separar linhas na página. */
 export function Linhas({ children }: { children: ReactNode }) {
   return (
-    <Quadro className="divide-y divide-[color:var(--elo-divisoria)] [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
+    <Quadro className="divide-y divide-divisoria [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
       {children}
     </Quadro>
   )
@@ -42,7 +42,7 @@ export function Linhas({ children }: { children: ReactNode }) {
 
 /** Subtítulo h3 de uma seção. */
 export function Subtitulo({ children }: { children: ReactNode }) {
-  return <h3 className="text-sm font-bold text-[var(--elo-azul-marinho)]">{children}</h3>
+  return <h3 className="text-sm font-bold text-primary">{children}</h3>
 }
 
 /** Subtítulo h3 com o conteúdo num painel de linhas `Exemplo`. */

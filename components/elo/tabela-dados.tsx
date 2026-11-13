@@ -155,7 +155,7 @@ export function TabelaDados<T>({
                 onClick={aoClicarLinha ? (e) => aoClicar(e, linha) : undefined}
                 onKeyDown={aoClicarLinha ? (e) => aoTeclar(e, linha) : undefined}
                 className={cn(
-                  aoClicarLinha && 'cursor-pointer hover:bg-[var(--elo-papel)]',
+                  aoClicarLinha && 'cursor-pointer hover:bg-papel',
                   marca && CLASSE_DESTAQUE[marca],
                 )}
               >
@@ -172,7 +172,7 @@ export function TabelaDados<T>({
       {totalPaginas > 1 ? (
         <nav
           aria-label="Paginação"
-          className="flex flex-wrap items-center justify-between gap-2 border-t border-[color:var(--elo-divisoria)] px-4 py-2.5"
+          className="flex flex-wrap items-center justify-between gap-2 border-t border-divisoria px-4 py-2.5"
         >
           {/* Região viva: o leitor de tela anuncia a página nova depois do clique. */}
           <span aria-live="polite" aria-atomic="true" className="text-xs whitespace-nowrap text-muted-foreground">

@@ -24,7 +24,7 @@ const TEXTO_POR_TOM: Record<TomDeStatus, string> = {
   suspenso: "text-[var(--elo-status-suspenso-texto)]",
   concluido: "text-foreground",
   problema: "text-foreground",
-  fechado: "text-[var(--elo-texto-secundario)]",
+  fechado: "text-muted-foreground",
 };
 
 export function EtiquetaStatus({ status }: { status: string }) {
@@ -34,7 +34,7 @@ export function EtiquetaStatus({ status }: { status: string }) {
       data-tom={tom}
       className={cn(
         BASE,
-        "gap-1.5 border-border bg-[var(--elo-branco)]",
+        "gap-1.5 border-border bg-card",
         TEXTO_POR_TOM[tom],
       )}
     >
@@ -75,7 +75,7 @@ export function EtiquetaPlanejamento() {
     <span
       className={cn(
         BASE,
-        "border-dashed border-[var(--elo-azul-marinho)] bg-[var(--elo-branco)] text-[var(--elo-azul-marinho)]",
+        "border-dashed border-primary bg-card text-primary",
       )}
     >
       Planejamento
@@ -110,7 +110,7 @@ export function IndicadorPrioridade({ prioridade }: { prioridade: Prioridade }) 
               className={cn(
                 "w-[3px] rounded-sm",
                 b.altura,
-                preenchida ? "bg-[var(--elo-azul-marinho)]" : "bg-[var(--elo-borda)]",
+                preenchida ? "bg-primary" : "bg-border",
               )}
             />
           );

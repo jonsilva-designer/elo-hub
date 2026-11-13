@@ -63,7 +63,7 @@ export function Fundamentos() {
               <li key={c.px} className="flex items-center gap-3">
                 <span
                   aria-hidden="true"
-                  className={cn('size-14 shrink-0 border border-border bg-[var(--elo-dourado-suave)]', c.classe)}
+                  className={cn('size-14 shrink-0 border border-border bg-dourado-suave', c.classe)}
                 />
                 <span className="text-xs">
                   <Num className="text-sm">{c.px}</Num>
@@ -105,7 +105,7 @@ export function Fundamentos() {
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {ICONES.map(({ nome, Icone }) => (
               <li key={nome} className="flex items-center gap-2 text-sm">
-                <Icone aria-hidden="true" size={16} className="shrink-0 text-[var(--elo-azul-marinho)]" />
+                <Icone aria-hidden="true" size={16} className="shrink-0 text-primary" />
                 {nome}
               </li>
             ))}

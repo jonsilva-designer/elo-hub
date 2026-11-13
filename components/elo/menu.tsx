@@ -77,7 +77,7 @@ export function RodapeMenu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
       </Link>
       <div className="mx-2.5 px-3">
         <div className="text-[13px] font-semibold text-sidebar-accent-foreground">{usuario.nome}</div>
-        <div className="text-xs text-[var(--elo-lateral-texto-fraco)]">{usuario.perfil}</div>
+        <div className="text-xs text-lateral-texto-fraco">{usuario.perfil}</div>
       </div>
     </div>
   )

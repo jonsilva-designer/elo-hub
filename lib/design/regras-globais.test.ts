@@ -40,3 +40,27 @@ describe('ícones', () => {
     expect(corpo).toMatch(/stroke-width:\s*1\.6\s*;/)
   })
 })
+
+describe('sombra das superfícies flutuantes', () => {
+  it('sai do azul-marinho da marca, sem cor escrita à mão', () => {
+    const valor = css.match(/--shadow-flutuante:\s*([^;]+);/)?.[1] ?? ''
+    expect(valor).not.toMatch(/rgb\(|#[0-9a-f]{3,8}\b/i)
+    const misturas = [...valor.matchAll(/color-mix\(in srgb, var\(--elo-azul-marinho\) (\d+)%, transparent\)/g)]
+    expect(misturas.map((m) => m[1])).toEqual(['10', '12'])
+    expect(valor).toMatch(/^0 1px 2px color-mix\(.+\), 0 10px 28px color-mix\(.+\)$/)
+  })
+})
+
+describe('tokens da ELO no tema do Tailwind', () => {
+  const tema = css.match(/@theme inline\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
+  for (const [classe, token] of [
+    ['divisoria', '--elo-divisoria'],
+    ['papel', '--elo-papel'],
+    ['dourado-suave', '--elo-dourado-suave'],
+    ['lateral-texto-fraco', '--elo-lateral-texto-fraco'],
+  ]) {
+    it(`--color-${classe} aponta para ${token}`, () => {
+      expect(tema).toContain(`--color-${classe}: var(${token});`)
+    })
+  }
+})

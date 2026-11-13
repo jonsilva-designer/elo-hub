@@ -27,7 +27,7 @@ export function Painel({
       // Sem respiro, o corte arredonda o fundo da última linha nos cantos do painel.
       className={cn('min-w-0 rounded-xl border border-border bg-card', semRespiro && 'overflow-hidden')}
     >
-      <div className="flex items-center gap-3 border-b border-[color:var(--elo-divisoria)] px-5 py-3">
+      <div className="flex items-center gap-3 border-b border-divisoria px-5 py-3">
         <h2 id={id} className="text-sm font-bold text-primary">
           {titulo}
         </h2>

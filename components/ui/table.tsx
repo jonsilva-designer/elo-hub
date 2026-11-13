@@ -22,7 +22,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b [&_tr]:border-[color:var(--elo-divisoria)]", className)}
+      className={cn("[&_tr]:border-b [&_tr]:border-divisoria", className)}
       {...props}
     />
   )
@@ -43,7 +43,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
     <tfoot
       data-slot="table-footer"
       className={cn(
-        "border-t border-[color:var(--elo-divisoria)] bg-muted/50 font-medium [&>tr]:last:border-b-0",
+        "border-t border-divisoria bg-muted/50 font-medium [&>tr]:last:border-b-0",
         className
       )}
       {...props}
@@ -56,7 +56,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b border-[color:var(--elo-divisoria)] transition-colors data-[state=selected]:bg-muted",
+        "border-b border-divisoria transition-colors data-[state=selected]:bg-muted",
         className
       )}
       {...props}

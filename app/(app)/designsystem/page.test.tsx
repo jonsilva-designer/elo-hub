@@ -25,6 +25,7 @@ const secao = (titulo: string) =>
 const MATRIZ: Record<string, string[]> = {
   'Botão principal': ['Normal', 'Passar o mouse', 'Foco', 'Pressionado', 'Desabilitado', 'Carregando'],
   'Botão secundário': ['Normal', 'Passar o mouse', 'Foco', 'Pressionado', 'Desabilitado'],
+  'Botão discreto': ['Normal', 'Passar o mouse', 'Foco', 'Pressionado', 'Desabilitado'],
   'Botão perigo': ['Normal', 'Passar o mouse', 'Foco', 'Pressionado', 'Desabilitado'],
   'Campo de texto': ['Normal', 'Passar o mouse', 'Foco', 'Com erro', 'Desabilitado'],
   'Linha de tabela': ['Normal', 'Passar o mouse', 'Foco', 'Destaque de atenção', 'Destaque de problema'],
