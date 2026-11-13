@@ -49,7 +49,7 @@ export function Menu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
                   aria-current={atual ? 'page' : undefined}
                   className={cn(BASE_ITEM, atual && ITEM_ATIVO)}
                 >
-                  <Icone className="size-4 shrink-0" strokeWidth={1.6} aria-hidden="true" />
+                  <Icone className="size-4 shrink-0" aria-hidden="true" />
                   {item.rotulo}
                 </Link>
               )
@@ -72,7 +72,7 @@ export function RodapeMenu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
         aria-current={atual ? 'page' : undefined}
         className={cn(BASE_ITEM, 'mb-2 py-1.5 text-xs', atual && ITEM_ATIVO)}
       >
-        <Palette className="size-4 shrink-0" strokeWidth={1.6} aria-hidden="true" />
+        <Palette className="size-4 shrink-0" aria-hidden="true" />
         Padrão visual
       </Link>
       <div className="mx-2.5 px-3">

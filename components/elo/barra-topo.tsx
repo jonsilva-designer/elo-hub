@@ -51,7 +51,7 @@ function CorpoBarraTopo({ usuario, rotaAtual }: Props & { rotaAtual: string | nu
             size="icon"
             className={SOBRE_A_LATERAL}
           >
-            <IconeMenu strokeWidth={1.6} aria-hidden="true" />
+            <IconeMenu aria-hidden="true" />
             <span className="sr-only">Abrir menu</span>
           </Button>
         </SheetTrigger>
@@ -69,7 +69,7 @@ function CorpoBarraTopo({ usuario, rotaAtual }: Props & { rotaAtual: string | nu
               size="icon-sm"
               className={cn('absolute top-3 right-3', SOBRE_A_LATERAL)}
             >
-              <X strokeWidth={1.6} aria-hidden="true" />
+              <X aria-hidden="true" />
               <span className="sr-only">Fechar menu</span>
             </Button>
           </SheetClose>

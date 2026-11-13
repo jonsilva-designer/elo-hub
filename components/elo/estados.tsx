@@ -12,8 +12,6 @@ import {
 
 // Os textos padrão destes estados são provisórios (DT-03).
 
-const ICONE = { size: 18, strokeWidth: 1.6, 'aria-hidden': true } as const
-
 /** Lista ou tabela sem registros. */
 export function EstadoVazio({
   titulo,
@@ -28,7 +26,7 @@ export function EstadoVazio({
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Inbox {...ICONE} />
+          <Inbox aria-hidden="true" />
         </EmptyMedia>
         <EmptyTitle>{titulo}</EmptyTitle>
         {descricao ? <EmptyDescription>{descricao}</EmptyDescription> : null}
@@ -51,7 +49,7 @@ export function ErroCarregamento({
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <CircleAlert {...ICONE} />
+          <CircleAlert aria-hidden="true" />
         </EmptyMedia>
         <EmptyTitle>{mensagem}</EmptyTitle>
       </EmptyHeader>
@@ -70,7 +68,7 @@ export function AcessoNegado() {
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Lock {...ICONE} />
+          <Lock aria-hidden="true" />
         </EmptyMedia>
         <EmptyTitle>Você não tem acesso a esta página.</EmptyTitle>
       </EmptyHeader>

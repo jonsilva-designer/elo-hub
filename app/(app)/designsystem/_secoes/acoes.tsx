@@ -24,7 +24,7 @@ export function Acoes() {
       </Exemplo>
       <Exemplo rotulo="Com ícone">
         <Button>
-          <Plus aria-hidden="true" size={16} strokeWidth={1.6} />
+          <Plus aria-hidden="true" size={16} />
           Novo cliente
         </Button>
       </Exemplo>

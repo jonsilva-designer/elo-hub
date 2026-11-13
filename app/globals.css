@@ -161,3 +161,9 @@
 :where([data-sidebar], [data-slot="sidebar"]) :where(a, button, input, select, textarea, [tabindex], [role]):not([role="menu"], [role="dialog"], [role="alertdialog"], [role="listbox"]):focus-visible {
     outline-color: var(--sidebar-ring) !important;
 }
+
+/* Ícones Lucide de traço fino em todo o sistema (padrão 4.7), inclusive os dos componentes gerados.
+   O Lucide põe a classe "lucide" em todo ícone; fora de camada, a regra vence o atributo stroke-width="2". */
+svg.lucide {
+    stroke-width: 1.6;
+}

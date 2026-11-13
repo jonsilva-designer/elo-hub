@@ -28,8 +28,6 @@ const CLASSE_DESTAQUE: Record<Destaque, string> = {
   problema: '[&>td:first-child]:shadow-[inset_3px_0_0_var(--elo-status-problema)]',
 }
 
-const ICONE = { size: 16, strokeWidth: 1.6, 'aria-hidden': true } as const
-
 type Ordem = { coluna: string; sentido: 'ascending' | 'descending' }
 
 type Valor = string | number | null | undefined
@@ -133,7 +131,7 @@ export function TabelaDados<T>({
                       className="inline-flex items-center gap-1 rounded-sm align-middle font-semibold leading-4 hover:text-foreground"
                     >
                       {c.titulo}
-                      <Seta {...ICONE} className={sentido ? undefined : 'opacity-60'} />
+                      <Seta size={16} aria-hidden="true" className={sentido ? undefined : 'opacity-60'} />
                     </button>
                   ) : (
                     c.titulo

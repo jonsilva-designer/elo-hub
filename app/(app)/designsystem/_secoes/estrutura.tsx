@@ -24,7 +24,7 @@ function DesenhoBarraDoCelular() {
       <div className="flex items-center justify-between bg-sidebar px-4 py-2">
         <Image src="/marca/logo-elo-claro.png" alt="" width={814} height={627} className="h-9 w-auto" />
         <span className="flex size-8 items-center justify-center text-sidebar-accent-foreground">
-          <IconeMenu className="size-4" strokeWidth={1.6} />
+          <IconeMenu className="size-4" />
         </span>
       </div>
       <div className="space-y-3 p-4">

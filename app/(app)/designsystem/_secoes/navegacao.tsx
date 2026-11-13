@@ -21,7 +21,7 @@ export function Navegacao() {
               }
               acoes={
                 <Button>
-                  <Plus aria-hidden="true" strokeWidth={1.6} />
+                  <Plus aria-hidden="true" />
                   Novo contrato
                 </Button>
               }

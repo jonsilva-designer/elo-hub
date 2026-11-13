@@ -8,7 +8,7 @@ export function LinkVoltar({ href, rotulo }: { href: string; rotulo: string }) {
       href={href}
       className="inline-flex items-center gap-1.5 rounded-sm text-[13px] text-muted-foreground transition-colors hover:text-primary"
     >
-      <ArrowLeft className="size-4 shrink-0" strokeWidth={1.6} aria-hidden="true" />
+      <ArrowLeft className="size-4 shrink-0" aria-hidden="true" />
       <span className="sr-only">Voltar para</span>
       {' '}
       <span>{rotulo}</span>

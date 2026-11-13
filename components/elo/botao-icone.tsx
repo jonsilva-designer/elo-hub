@@ -16,7 +16,7 @@ export function BotaoIcone({
     <Tooltip>
       <TooltipTrigger asChild>
         <Button size="icon" variant="ghost" aria-label={rotulo} {...props}>
-          <Icone aria-hidden="true" size={16} strokeWidth={1.6} />
+          <Icone aria-hidden="true" size={16} />
         </Button>
       </TooltipTrigger>
       <TooltipContent>{rotulo}</TooltipContent>

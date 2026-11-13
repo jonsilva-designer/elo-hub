@@ -105,7 +105,7 @@ export function Fundamentos() {
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {ICONES.map(({ nome, Icone }) => (
               <li key={nome} className="flex items-center gap-2 text-sm">
-                <Icone aria-hidden="true" size={16} strokeWidth={1.6} className="shrink-0 text-[var(--elo-azul-marinho)]" />
+                <Icone aria-hidden="true" size={16} className="shrink-0 text-[var(--elo-azul-marinho)]" />
                 {nome}
               </li>
             ))}
