@@ -87,6 +87,8 @@ export function TabelaDados<T>({
   const totalPaginas = Math.max(1, Math.ceil(ordenadas.length / porPagina))
   const atual = Math.min(pagina, totalPaginas)
   const visiveis = ordenadas.slice((atual - 1) * porPagina, atual * porPagina)
+  const primeira = atual <= 1
+  const ultima = atual >= totalPaginas
 
   function ordenar(id: string) {
     setOrdem((o) =>
@@ -124,9 +126,10 @@ export function TabelaDados<T>({
               return (
                 <TableHead key={c.id} aria-sort={sentido} className={direita ? 'text-right' : undefined}>
                   {c.ordenarPor ? (
+                    // Sem aria-label: o nome do botão vira o nome do cabeçalho, que o leitor de tela repete
+                    // em cada célula. O título basta; o aria-sort do th diz a ordem.
                     <button
                       type="button"
-                      aria-label={`Ordenar por ${c.titulo}`}
                       onClick={() => ordenar(c.id)}
                       className="inline-flex items-center gap-1 rounded-sm align-middle font-semibold leading-4 hover:text-foreground"
                     >
@@ -171,14 +174,31 @@ export function TabelaDados<T>({
           aria-label="Paginação"
           className="flex flex-wrap items-center justify-between gap-2 border-t border-[color:var(--elo-divisoria)] px-4 py-2.5"
         >
-          <span className="text-xs whitespace-nowrap text-muted-foreground">
+          {/* Região viva: o leitor de tela anuncia a página nova depois do clique. */}
+          <span aria-live="polite" aria-atomic="true" className="text-xs whitespace-nowrap text-muted-foreground">
             Página <Num>{atual}</Num> de <Num>{totalPaginas}</Num>
           </span>
+          {/* aria-disabled em vez de disabled: na primeira e na última página o botão continua focável,
+              e o foco não cai para o body ao chegar ao fim. O clique é ignorado pela guarda. */}
           <div className="flex gap-2">
-            <Button variant="outline" disabled={atual <= 1} onClick={() => setPagina(atual - 1)}>
+            <Button
+              type="button"
+              variant="outline"
+              aria-disabled={primeira || undefined}
+              onClick={() => {
+                if (!primeira) setPagina(atual - 1)
+              }}
+            >
               Página anterior
             </Button>
-            <Button variant="outline" disabled={atual >= totalPaginas} onClick={() => setPagina(atual + 1)}>
+            <Button
+              type="button"
+              variant="outline"
+              aria-disabled={ultima || undefined}
+              onClick={() => {
+                if (!ultima) setPagina(atual + 1)
+              }}
+            >
               Próxima página
             </Button>
           </div>

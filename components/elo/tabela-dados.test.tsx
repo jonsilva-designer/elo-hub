@@ -39,18 +39,26 @@ describe('TabelaDados', () => {
   it('ordena de A a Z em pt-BR e depois inverte', async () => {
     const u = userEvent.setup()
     render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
-    await u.click(screen.getByRole('button', { name: 'Ordenar por Cliente' }))
+    await u.click(screen.getByRole('button', { name: 'Cliente' }))
     expect(cabecalho('Cliente')).toHaveAttribute('aria-sort', 'ascending')
     expect(clientesNaOrdem()).toEqual(['álvaro Agro', 'Marta Clínica', 'Zélia Transportes'])
-    await u.click(screen.getByRole('button', { name: 'Ordenar por Cliente' }))
+    await u.click(screen.getByRole('button', { name: 'Cliente' }))
     expect(cabecalho('Cliente')).toHaveAttribute('aria-sort', 'descending')
     expect(clientesNaOrdem()).toEqual(['Zélia Transportes', 'Marta Clínica', 'álvaro Agro'])
     expect(cabecalho('Término')).not.toHaveAttribute('aria-sort')
   })
 
+  it('o nome do cabeçalho é só o título: o leitor de tela não repete "Ordenar por" em cada célula', () => {
+    render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
+    expect(screen.getByRole('columnheader', { name: 'Cliente' })).toBeInTheDocument()
+    const botao = screen.getByRole('button', { name: 'Cliente' })
+    expect(botao).not.toHaveAttribute('aria-label')
+    expect(botao).toHaveAttribute('type', 'button')
+  })
+
   it('coluna sem ordenarPor não tem botão no título', () => {
     render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
-    expect(screen.queryByRole('button', { name: 'Ordenar por Término' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Término' })).not.toBeInTheDocument()
   })
 
   it('alinha à direita o cabeçalho e as células', () => {
@@ -118,11 +126,44 @@ describe('TabelaDados', () => {
     expect(screen.getByText('Cliente 10')).toBeInTheDocument()
   })
 
+  it('na última página, "Próxima página" fica aria-disabled, mantém o foco e não avança', async () => {
+    const u = userEvent.setup()
+    render(<TabelaDados colunas={COLUNAS} linhas={muitas(25)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />)
+    const proxima = screen.getByRole('button', { name: 'Próxima página' })
+    const anterior = screen.getByRole('button', { name: 'Página anterior' })
+    expect(anterior).toHaveAttribute('aria-disabled', 'true')
+    expect(anterior).not.toBeDisabled()
+    proxima.focus()
+    await u.keyboard('{Enter}')
+    await u.keyboard('{Enter}')
+    expect(screen.getByText(/^Página\s+de/)).toHaveTextContent('Página 3 de 3')
+    expect(proxima).toHaveAttribute('aria-disabled', 'true')
+    expect(proxima).not.toBeDisabled()
+    expect(proxima).toHaveFocus()
+    await u.keyboard('{Enter}')
+    expect(screen.getByText(/^Página\s+de/)).toHaveTextContent('Página 3 de 3')
+    expect(anterior).not.toHaveAttribute('aria-disabled')
+  })
+
+  it('"Página X de Y" é anunciada pelo leitor de tela ao mudar', () => {
+    render(<TabelaDados colunas={COLUNAS} linhas={muitas(25)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />)
+    const indicador = screen.getByText(/^Página\s+de/)
+    expect(indicador).toHaveAttribute('aria-live', 'polite')
+    expect(indicador).toHaveAttribute('aria-atomic', 'true')
+  })
+
+  it('os botões de página são type="button": dentro de um formulário não o enviam', () => {
+    render(<TabelaDados colunas={COLUNAS} linhas={muitas(25)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />)
+    for (const nome of ['Página anterior', 'Próxima página']) {
+      expect(screen.getByRole('button', { name: nome })).toHaveAttribute('type', 'button')
+    }
+  })
+
   it('ordenar volta para a página 1', async () => {
     const u = userEvent.setup()
     render(<TabelaDados colunas={COLUNAS} linhas={muitas(25)} chave={(l) => l.id} porPagina={10} vazio={VAZIO} />)
     await u.click(screen.getByRole('button', { name: 'Próxima página' }))
-    await u.click(screen.getByRole('button', { name: 'Ordenar por Cliente' }))
+    await u.click(screen.getByRole('button', { name: 'Cliente' }))
     expect(screen.getByText(/^Página +de/)).toHaveTextContent('Página 1 de 3')
   })
 
@@ -203,9 +244,9 @@ describe('TabelaDados', () => {
     ]
     render(<TabelaDados colunas={colunas} linhas={linhas} chave={(l) => l.id} vazio={VAZIO} />)
     const ids = () => clientesNaOrdem().slice(0, 2)
-    await u.click(screen.getByRole('button', { name: 'Ordenar por V' }))
+    await u.click(screen.getByRole('button', { name: 'V' }))
     expect(ids()).toEqual(['um', 'dois'])
-    await u.click(screen.getByRole('button', { name: 'Ordenar por V' }))
+    await u.click(screen.getByRole('button', { name: 'V' }))
     expect(ids()).toEqual(['dois', 'um'])
   })
 
