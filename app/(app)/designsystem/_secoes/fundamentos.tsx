@@ -1,15 +1,5 @@
 import type { ReactNode } from 'react'
-import {
-  FileText,
-  Folder,
-  House,
-  Inbox,
-  Layers,
-  ListChecks,
-  Settings,
-  Users,
-  type LucideIcon,
-} from 'lucide-react'
+import { ITENS_MENU } from '@/components/elo/navegacao'
 import { Num } from '@/components/elo/num'
 import { cn } from '@/lib/utils'
 import { Quadro, Secao } from './secao'
@@ -28,17 +18,6 @@ const ESPACOS = [
   { px: '16px', classe: 'w-4' },
   { px: '24px', classe: 'w-6' },
   { px: '32px', classe: 'w-8' },
-]
-
-const ICONES: { nome: string; Icone: LucideIcon }[] = [
-  { nome: 'Início', Icone: House },
-  { nome: 'Minhas atividades', Icone: ListChecks },
-  { nome: 'Clientes', Icone: Users },
-  { nome: 'Contratos', Icone: FileText },
-  { nome: 'Escopos', Icone: Layers },
-  { nome: 'Central ELO', Icone: Inbox },
-  { nome: 'Documentos', Icone: Folder },
-  { nome: 'Configurações', Icone: Settings },
 ]
 
 function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
@@ -102,11 +81,12 @@ export function Fundamentos() {
           <p className="text-xs text-muted-foreground">
             Lucide, <Num>16px</Num>, traço <Num>1,6</Num>. O ícone sempre acompanha texto.
           </p>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {ICONES.map(({ nome, Icone }) => (
-              <li key={nome} className="flex items-center gap-2 text-sm">
+          {/* Os ícones do menu real, na mesma ordem: a lista nunca diverge da lateral. */}
+          <ul aria-label="Ícones do menu" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {ITENS_MENU.map(({ rotulo, icone: Icone }) => (
+              <li key={rotulo} className="flex items-center gap-2 text-sm">
                 <Icone aria-hidden="true" size={16} className="shrink-0 text-primary" />
-                {nome}
+                {rotulo}
               </li>
             ))}
           </ul>

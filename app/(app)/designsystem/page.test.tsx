@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { ITENS_MENU } from '@/components/elo/navegacao'
 import { STATUS_POR_TOM } from '@/lib/design/status'
 import Pagina, { metadata } from './page'
 
@@ -84,6 +85,14 @@ describe('página /designsystem', () => {
     const texto = container.textContent ?? ''
     expect(texto).not.toMatch(/\p{Extended_Pictographic}/u)
     expect(texto).not.toContain('Cleo')
+  })
+
+  it('a lista de ícones sai do menu real, na mesma ordem', () => {
+    renderizar()
+    const lista = screen.getByRole('list', { name: 'Ícones do menu' })
+    const nomes = within(lista).getAllByRole('listitem').map((li) => li.textContent)
+    expect(nomes).toEqual(ITENS_MENU.map((i) => i.rotulo))
+    expect(nomes).toContain('Especialistas')
   })
 
   it('mostra todos os status da tabela de tons', () => {

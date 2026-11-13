@@ -1,5 +1,7 @@
 "use client"
 
+// Ajustado ao padrão e ainda sem uso: fica para as janelas de formulário, que entram com as telas.
+
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Dialog as DialogPrimitive } from "radix-ui"
