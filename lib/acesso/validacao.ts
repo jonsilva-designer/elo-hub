@@ -6,6 +6,8 @@ export const MENSAGENS = {
   senhaVazia: 'Informe a senha.',
   credenciaisIncorretas: 'E-mail ou senha incorretos.',
   usuarioInativo: 'Acesso negado: este usuário está inativo. Fale com o Administrador da ELO.',
+  senhaCurta: 'A senha precisa ter pelo menos 8 caracteres.',
+  senhasDiferentes: 'As senhas não são iguais.',
 } as const
 
 const FORMATO_DE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -24,5 +26,13 @@ export function validarEntrada(email: string, senha: string): { email?: string; 
   const erroDoEmail = validarEmail(email)
   if (erroDoEmail) erros.email = erroDoEmail
   if (!senha) erros.senha = MENSAGENS.senhaVazia
+  return erros
+}
+
+/** O mínimo de 8 caracteres vem da arquitetura (seção 6). Os dois erros podem vir juntos. */
+export function validarNovaSenha(senha: string, confirmacao: string): { senha?: string; confirmacao?: string } {
+  const erros: { senha?: string; confirmacao?: string } = {}
+  if (senha.length < 8) erros.senha = MENSAGENS.senhaCurta
+  if (confirmacao !== senha) erros.confirmacao = MENSAGENS.senhasDiferentes
   return erros
 }

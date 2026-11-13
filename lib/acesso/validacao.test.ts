@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { validarEmail, validarEntrada } from './validacao'
+import { validarEmail, validarEntrada, validarNovaSenha } from './validacao'
 
 describe('validarEmail', () => {
   it('pede o e-mail quando vazio ou só com espaços', () => {
@@ -24,5 +24,26 @@ describe('validarEntrada', () => {
 
   it('não dá erro com e-mail e senha preenchidos', () => {
     expect(validarEntrada('helena.prado@elogovernance.com.br', 'qualquer')).toEqual({})
+  })
+})
+
+describe('validarNovaSenha', () => {
+  it('recusa menos de 8 caracteres', () => {
+    expect(validarNovaSenha('1234567', '1234567')).toEqual({ senha: 'A senha precisa ter pelo menos 8 caracteres.' })
+  })
+
+  it('recusa senhas diferentes', () => {
+    expect(validarNovaSenha('12345678', '12345679')).toEqual({ confirmacao: 'As senhas não são iguais.' })
+  })
+
+  it('pode dar os dois erros juntos', () => {
+    expect(validarNovaSenha('curta', 'outra')).toEqual({
+      senha: 'A senha precisa ter pelo menos 8 caracteres.',
+      confirmacao: 'As senhas não são iguais.',
+    })
+  })
+
+  it('aceita 8 caracteres iguais nos dois campos', () => {
+    expect(validarNovaSenha('12345678', '12345678')).toEqual({})
   })
 })

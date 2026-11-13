@@ -11,3 +11,13 @@ export type EstadoEntrar = {
 }
 
 export const ESTADO_INICIAL_ENTRAR: EstadoEntrar = { email: '', erros: {} }
+
+/** O que a ação de recuperar a senha devolve ao formulário. */
+export type EstadoRecuperacao = { email: string; erro?: string; enviado: boolean }
+
+export const ESTADO_INICIAL_RECUPERACAO: EstadoRecuperacao = { email: '', enviado: false }
+
+/** O que a ação de definir a senha devolve ao formulário. */
+export type EstadoDefinirSenha = { erros: { senha?: string; confirmacao?: string } }
+
+export const ESTADO_INICIAL_DEFINIR_SENHA: EstadoDefinirSenha = { erros: {} }

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Perfil } from '@/lib/dados/tipos'
 import { cookiesFalsos, destinoDe, entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { entrar, entrarComoPerfil, sair } from './acoes'
-import { ESTADO_INICIAL_ENTRAR } from './estados'
+import { definirSenha, entrar, entrarComoPerfil, pedirRecuperacao, sair } from './acoes'
+import { ESTADO_INICIAL_DEFINIR_SENHA, ESTADO_INICIAL_ENTRAR, ESTADO_INICIAL_RECUPERACAO } from './estados'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
 vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
@@ -99,6 +99,53 @@ describe('sair', () => {
   it('apaga a sessão e vai ao login (F01)', async () => {
     entrarComo('usr-helena')
     expect(await destinoDe(sair())).toBe('/login')
+    expect(sessao()).toBeUndefined()
+  })
+})
+
+describe('pedirRecuperacao (CA-01.5)', () => {
+  it('dá a mesma resposta para e-mail cadastrado e não cadastrado', async () => {
+    const cadastrado = await pedirRecuperacao(ESTADO_INICIAL_RECUPERACAO, form({ email: HELENA }))
+    const naoCadastrado = await pedirRecuperacao(
+      ESTADO_INICIAL_RECUPERACAO,
+      form({ email: 'ninguem@elogovernance.com.br' }),
+    )
+    expect(cadastrado).toMatchObject({ enviado: true })
+    expect(cadastrado.erro).toBeUndefined()
+    expect({ ...naoCadastrado, email: '' }).toEqual({ ...cadastrado, email: '' })
+  })
+
+  it('recusa o e-mail inválido e o vazio', async () => {
+    expect(await pedirRecuperacao(ESTADO_INICIAL_RECUPERACAO, form({ email: 'helena' }))).toMatchObject({
+      erro: 'Informe um e-mail válido.',
+      enviado: false,
+    })
+    expect(await pedirRecuperacao(ESTADO_INICIAL_RECUPERACAO, form({ email: '' }))).toMatchObject({
+      erro: 'Informe o e-mail.',
+      enviado: false,
+    })
+  })
+})
+
+describe('definirSenha', () => {
+  it('recusa a senha curta', async () => {
+    const estado = await definirSenha(ESTADO_INICIAL_DEFINIR_SENHA, form({ senha: 'curta', confirmacao: 'curta' }))
+    expect(estado.erros).toEqual({ senha: 'A senha precisa ter pelo menos 8 caracteres.' })
+  })
+
+  it('recusa senhas diferentes', async () => {
+    const estado = await definirSenha(
+      ESTADO_INICIAL_DEFINIR_SENHA,
+      form({ senha: '12345678', confirmacao: '87654321' }),
+    )
+    expect(estado.erros).toEqual({ confirmacao: 'As senhas não são iguais.' })
+  })
+
+  it('com tudo certo, vai ao login com o aviso, sem gravar nada', async () => {
+    const destino = await destinoDe(
+      definirSenha(ESTADO_INICIAL_DEFINIR_SENHA, form({ senha: '12345678', confirmacao: '12345678' })),
+    )
+    expect(destino).toBe('/login?aviso=senha-definida')
     expect(sessao()).toBeUndefined()
   })
 })
