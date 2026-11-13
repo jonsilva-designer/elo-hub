@@ -122,6 +122,7 @@ function DialogFooter({
   )
 }
 
+// ELO: o título segue o título de seção do padrão (4.2): 15px, negrito, azul-marinho.
 function DialogTitle({
   className,
   ...props
@@ -130,7 +131,7 @@ function DialogTitle({
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
-        "font-heading text-base leading-none font-medium",
+        "text-[15px] leading-none font-bold text-primary",
         className
       )}
       {...props}

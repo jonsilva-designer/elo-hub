@@ -7,6 +7,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       theme="light"
+      // ELO: nomes em português da área dos avisos e do botão de fechar (o padrão do sonner é em inglês).
+      containerAriaLabel="Avisos"
       className="toaster group"
       icons={{
         success: (
@@ -35,6 +37,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         } as React.CSSProperties
       }
       toastOptions={{
+        closeButtonAriaLabel: "Fechar aviso",
         classNames: {
           toast: "cn-toast rounded-xl shadow-[var(--shadow-flutuante)]",
         },

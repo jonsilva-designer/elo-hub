@@ -1,13 +1,15 @@
 'use client'
 
-import { Paperclip } from 'lucide-react'
+import { Paperclip, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { BotaoIcone } from './botao-icone'
 import type { AtributosDeCampo } from './campo'
 
 /**
  * Envio de arquivo. O controle nativo fica escondido, mas continua focável e com o rótulo do Campo;
  * o botão desenhado só repete o clique. O contorno de foco aparece no botão desenhado.
+ * Com um arquivo escolhido, "Remover arquivo" limpa o campo e entrega null.
  */
 export function CampoArquivo({
   aceitar,
@@ -21,6 +23,14 @@ export function CampoArquivo({
 } & AtributosDeCampo) {
   const entrada = useRef<HTMLInputElement>(null)
   const [nome, setNome] = useState<string | null>(null)
+
+  function remover() {
+    if (entrada.current) entrada.current.value = ''
+    setNome(null)
+    onChange(null)
+    // O botão some: o foco volta ao campo, e não cai para o body.
+    entrada.current?.focus()
+  }
 
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
@@ -64,6 +74,9 @@ export function CampoArquivo({
       >
         {nome ?? 'Nenhum arquivo escolhido'}
       </span>
+      {nome ? (
+        <BotaoIcone rotulo="Remover arquivo" icone={X} size="icon-sm" disabled={disabled} onClick={remover} />
+      ) : null}
     </div>
   )
 }

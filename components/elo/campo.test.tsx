@@ -39,3 +39,21 @@ describe('Campo', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
+
+describe('Campo em grupo', () => {
+  it('entrega o aria-labelledby que aponta para a legenda: quem chama só espalha os atributos', () => {
+    render(
+      <Campo rotulo="Porte da empresa" grupo>
+        {(p) => <div role="radiogroup" {...p} />}
+      </Campo>,
+    )
+    const grupo = screen.getByRole('radiogroup', { name: 'Porte da empresa' })
+    const legenda = screen.getByText('Porte da empresa').closest('legend')!
+    expect(grupo).toHaveAttribute('aria-labelledby', legenda.id)
+  })
+
+  it('fora do modo grupo não há aria-labelledby: o rótulo liga pelo htmlFor', () => {
+    render(<Campo rotulo="Nome do cliente">{(p) => <Input {...p} />}</Campo>)
+    expect(screen.getByLabelText('Nome do cliente')).not.toHaveAttribute('aria-labelledby')
+  })
+})

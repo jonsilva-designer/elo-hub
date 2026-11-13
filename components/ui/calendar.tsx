@@ -144,6 +144,10 @@ function Calendar({
             />
           )
         },
+        // ELO: números sempre em JetBrains Mono. No título "novembro de 2026", o ano vai em mono e o resto em Inter.
+        CaptionLabel: ({ children, ...props }) => (
+          <span {...props}>{typeof children === "string" ? comNumerosEmMono(children) : children}</span>
+        ),
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
@@ -177,6 +181,19 @@ function Calendar({
       }}
       {...props}
     />
+  )
+}
+
+/** Texto com cada sequência de algarismos num span em JetBrains Mono. */
+function comNumerosEmMono(texto: string) {
+  return texto.split(/(\d+)/).map((parte, i) =>
+    i % 2 === 1 ? (
+      <span key={i} className="font-mono tabular-nums">
+        {parte}
+      </span>
+    ) : (
+      parte
+    )
   )
 }
 

@@ -56,7 +56,11 @@ describe('CampoData', () => {
     render(<CampoData id="d" valor="2026-11-09" onChange={() => {}} />)
     await userEvent.click(screen.getByRole('button', { name: 'Abrir calendário' }))
     const dialogo = await screen.findByRole('dialog')
-    expect(within(dialogo).getByText(/novembro de 2026/i)).toBeInTheDocument()
+    const titulo = within(dialogo).getByRole('status')
+    expect(titulo).toHaveTextContent('novembro de 2026')
+    // Números sempre em JetBrains Mono: o ano em mono, "novembro de" em Inter.
+    expect(within(titulo).getByText('2026')).toHaveClass('font-mono')
+    expect(within(titulo).getByText(/novembro de/)).not.toHaveClass('font-mono')
   })
 
   it('escolher um dia do calendário entrega AAAA-MM-DD', async () => {

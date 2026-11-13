@@ -54,12 +54,13 @@ function EmptyMedia({
   )
 }
 
+// ELO: o título segue o título de seção do padrão (4.2): 15px, negrito, azul-marinho.
 function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="empty-title"
       className={cn(
-        "text-sm font-medium tracking-tight",
+        "text-[15px] font-bold text-primary",
         className
       )}
       {...props}

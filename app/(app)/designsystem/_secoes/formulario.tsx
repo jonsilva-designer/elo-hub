@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
-import { Campo } from '@/components/elo/campo'
+import { Campo, type AtributosDeCampo } from '@/components/elo/campo'
 import { CampoArquivo } from '@/components/elo/campo-arquivo'
 import { CampoData } from '@/components/elo/campo-data'
 import { CampoValor } from '@/components/elo/campo-valor'
@@ -71,31 +71,20 @@ function SelecaoSimples({
   )
 }
 
+/** Opção única dentro de um `Campo grupo`: recebe os atributos do Campo (nome pela legenda, ajuda e erro). */
 function Portes({
   id,
   valor,
   onChange,
   disabled,
-  invalido,
-  descritoPor,
-}: {
-  id: string
+  ...atributos
+}: AtributosDeCampo & {
   valor: string
   onChange?: (v: string) => void
   disabled?: boolean
-  invalido?: true
-  descritoPor?: string
 }) {
   return (
-    <RadioGroup
-      id={id}
-      aria-labelledby={`${id}-rotulo`}
-      aria-describedby={descritoPor}
-      aria-invalid={invalido}
-      value={valor}
-      onValueChange={onChange}
-      disabled={disabled}
-    >
+    <RadioGroup id={id} {...atributos} value={valor} onValueChange={onChange} disabled={disabled}>
       {PORTES.map(([v, r]) => (
         <div key={v} className="flex items-center gap-2">
           <RadioGroupItem id={`${id}-${v}`} value={v} />
@@ -289,17 +278,17 @@ export function Formulario() {
         <Estados>
           <Celula legenda="Normal">
             <Campo rotulo="Porte da empresa" grupo>
-              {(p) => <Portes id={p.id} valor={porte} onChange={setPorte} />}
+              {(p) => <Portes {...p} valor={porte} onChange={setPorte} />}
             </Campo>
           </Celula>
           <Celula legenda="Com erro">
             <Campo rotulo="Porte da empresa" grupo erro="Escolha o porte">
-              {(p) => <Portes id={p.id} valor="" invalido={p['aria-invalid']} descritoPor={p['aria-describedby']} />}
+              {(p) => <Portes {...p} valor="" />}
             </Campo>
           </Celula>
           <Celula legenda="Desabilitado">
             <Campo rotulo="Porte da empresa" grupo>
-              {(p) => <Portes id={p.id} valor="medio" disabled />}
+              {(p) => <Portes {...p} valor="medio" disabled />}
             </Campo>
           </Celula>
         </Estados>

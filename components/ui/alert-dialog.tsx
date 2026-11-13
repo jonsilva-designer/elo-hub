@@ -115,6 +115,7 @@ function AlertDialogMedia({
   )
 }
 
+// ELO: o título segue o título de seção do padrão (4.2): 15px, negrito, azul-marinho.
 function AlertDialogTitle({
   className,
   ...props
@@ -123,7 +124,7 @@ function AlertDialogTitle({
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
       className={cn(
-        "font-heading text-base font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
+        "text-[15px] font-bold text-primary sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
         className
       )}
       {...props}
