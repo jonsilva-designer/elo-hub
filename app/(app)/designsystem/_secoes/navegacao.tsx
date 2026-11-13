@@ -54,7 +54,7 @@ export function Navegacao() {
             </>
           }
         >
-          <span className="text-[13px] text-muted-foreground">Veja o menu à esquerda.</span>
+          <span className="text-[13px] text-muted-foreground">Veja o menu da lateral ou da barra do topo.</span>
         </Exemplo>
       </Subsecao>
     </div>

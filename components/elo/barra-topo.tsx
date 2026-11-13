@@ -1,10 +1,10 @@
 'use client'
 
-import { Menu as IconeMenu } from 'lucide-react'
+import { Menu as IconeMenu, X } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import type { Usuario } from '@/lib/dados/tipos'
 import { Menu, RodapeMenu } from './menu'
 
@@ -27,7 +27,7 @@ export function BarraTopo({ usuario }: { usuario: Usuario }) {
           <Button
             variant="ghost"
             size="icon"
-            className="text-sidebar-accent-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+            className="text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent"
           >
             <IconeMenu strokeWidth={1.6} aria-hidden="true" />
             <span className="sr-only">Abrir menu</span>
@@ -37,9 +37,20 @@ export function BarraTopo({ usuario }: { usuario: Usuario }) {
           side="left"
           showCloseButton={false}
           data-sidebar
-          className="w-[280px] max-w-[85vw] gap-0 rounded-r-2xl border-0 bg-sidebar p-0 text-sidebar-foreground"
+          aria-describedby={undefined}
+          className="data-[side=left]:w-[280px] data-[side=left]:sm:max-w-[280px] gap-0 rounded-r-2xl border-0 bg-sidebar p-0 text-sidebar-foreground"
         >
           <SheetTitle className="sr-only">Menu</SheetTitle>
+          <SheetClose asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="absolute top-3 right-3 text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent"
+            >
+              <X strokeWidth={1.6} aria-hidden="true" />
+              <span className="sr-only">Fechar menu</span>
+            </Button>
+          </SheetClose>
           <div className="flex justify-center px-4 pt-5 pb-3">
             <Image
               src="/marca/logo-elo-claro.png"
