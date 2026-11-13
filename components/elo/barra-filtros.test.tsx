@@ -27,4 +27,18 @@ describe('BarraFiltros', () => {
     await u.click(screen.getByRole('button', { name: 'Exportar' }))
     expect(aoExportar).toHaveBeenCalledTimes(1)
   })
+
+  it('Exportar é type="button": dentro de um formulário não o envia', async () => {
+    const u = userEvent.setup()
+    const enviar = vi.fn((e: React.FormEvent) => e.preventDefault())
+    render(
+      <form onSubmit={enviar}>
+        <BarraFiltros busca="" aoBuscar={() => {}} aoExportar={() => {}} />
+      </form>,
+    )
+    const exportar = screen.getByRole('button', { name: 'Exportar' })
+    expect(exportar).toHaveAttribute('type', 'button')
+    await u.click(exportar)
+    expect(enviar).not.toHaveBeenCalled()
+  })
 })

@@ -61,9 +61,14 @@ export function AvisoConfirmacao({
   return (
     <Alert className="border-[var(--elo-status-atencao)]">
       <AlertDescription className="text-foreground">{mensagem}</AlertDescription>
+      {/* type="button": o aviso costuma ficar dentro do formulário que ele confirma, e não deve enviá-lo. */}
       <div className="mt-2 flex gap-2">
-        <Button onClick={onConfirmar}>Salvar mesmo assim</Button>
-        <Button variant="outline" onClick={onRevisar}>Revisar</Button>
+        <Button type="button" onClick={onConfirmar}>
+          Salvar mesmo assim
+        </Button>
+        <Button type="button" variant="outline" onClick={onRevisar}>
+          Revisar
+        </Button>
       </div>
     </Alert>
   )

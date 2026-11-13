@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
@@ -51,5 +53,27 @@ describe('BotaoBloqueado', () => {
     expect(botao).not.toBeDisabled()
     await userEvent.tab()
     expect(botao).toHaveFocus()
+  })
+})
+
+describe('BotaoBloqueado em formulário e em componente de servidor', () => {
+  it('é type="button" e não envia o formulário em volta', async () => {
+    const enviar = vi.fn((e: React.FormEvent) => e.preventDefault())
+    render(
+      <TooltipProvider>
+        <form onSubmit={enviar}>
+          <BotaoBloqueado motivo="Há atividades abertas">Encerrar</BotaoBloqueado>
+        </form>
+      </TooltipProvider>,
+    )
+    const botao = screen.getByRole('button', { name: 'Encerrar' })
+    expect(botao).toHaveAttribute('type', 'button')
+    await userEvent.click(botao)
+    expect(enviar).not.toHaveBeenCalled()
+  })
+
+  it('é componente de cliente: passa onClick ao botão, o que um componente de servidor não pode fazer', () => {
+    const fonte = readFileSync(join(process.cwd(), 'components/elo/botao-bloqueado.tsx'), 'utf8')
+    expect(fonte).toMatch(/^['"]use client['"]/)
   })
 })

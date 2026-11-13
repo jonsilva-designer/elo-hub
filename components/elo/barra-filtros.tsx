@@ -31,7 +31,7 @@ export function BarraFiltros({
       </InputGroup>
       {filtros}
       {aoExportar ? (
-        <Button variant="outline" onClick={aoExportar}>
+        <Button type="button" variant="outline" onClick={aoExportar}>
           <Download aria-hidden="true" />
           Exportar
         </Button>

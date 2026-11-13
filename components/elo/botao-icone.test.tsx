@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Download } from 'lucide-react'
@@ -17,5 +19,19 @@ describe('BotaoIcone', () => {
     await userEvent.tab()
     expect(botao).toHaveFocus()
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Exportar')
+  })
+
+  it('é type="button": dentro de um formulário não o envia', () => {
+    render(
+      <TooltipProvider>
+        <BotaoIcone rotulo="Exportar" icone={Download} />
+      </TooltipProvider>,
+    )
+    expect(screen.getByRole('button', { name: 'Exportar' })).toHaveAttribute('type', 'button')
+  })
+
+  it('continua sem "use client", para servir a componentes de servidor', () => {
+    const fonte = readFileSync(join(process.cwd(), 'components/elo/botao-icone.tsx'), 'utf8')
+    expect(fonte).not.toMatch(/^\s*['"]use client['"]/)
   })
 })

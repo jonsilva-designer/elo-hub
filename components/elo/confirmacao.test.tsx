@@ -55,3 +55,21 @@ describe('AvisoConfirmacao', () => {
     expect(onRevisar).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('botões dentro de um formulário', () => {
+  it('"Salvar mesmo assim" e "Revisar" não enviam o formulário em volta', async () => {
+    const enviar = vi.fn((e: React.FormEvent) => e.preventDefault())
+    const onConfirmar = vi.fn()
+    const onRevisar = vi.fn()
+    render(
+      <form onSubmit={enviar}>
+        <AvisoConfirmacao mensagem="Data fora do prazo" onConfirmar={onConfirmar} onRevisar={onRevisar} />
+      </form>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar mesmo assim' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Revisar' }))
+    expect(enviar).not.toHaveBeenCalled()
+    expect(onConfirmar).toHaveBeenCalledTimes(1)
+    expect(onRevisar).toHaveBeenCalledTimes(1)
+  })
+})
