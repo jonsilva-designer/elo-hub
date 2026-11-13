@@ -2,6 +2,7 @@
 
 import { Menu as IconeMenu, X } from 'lucide-react'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
@@ -9,18 +10,33 @@ import type { Usuario } from '@/lib/dados/tipos'
 import { cn } from '@/lib/utils'
 import { Menu, RodapeMenu } from './menu'
 
-// Botões discretos sobre o azul-marinho: passar o mouse e pressionar usam o tom da lateral,
-// e não o fundo claro do botão discreto.
+// Botões discretos sobre o azul-marinho: passar o mouse e pressionar usam os tons da lateral,
+// e não o fundo claro do botão discreto. Pressionado é um passo mais forte que passar o mouse.
 const SOBRE_A_LATERAL =
-  'text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent not-disabled:not-aria-disabled:active:bg-sidebar-accent aria-expanded:bg-sidebar-accent'
+  'text-sidebar-accent-foreground not-disabled:not-aria-disabled:hover:bg-sidebar-accent not-disabled:not-aria-disabled:active:bg-sidebar-accent-active aria-expanded:bg-sidebar-accent'
+
+type Props = { usuario: Usuario }
 
 /** Barra do celular (abaixo de 1024px) com o botão que abre a gaveta do menu. */
-export function BarraTopo({ usuario }: { usuario: Usuario }) {
+export function BarraTopo({ usuario }: Props) {
+  return <CorpoBarraTopo usuario={usuario} rotaAtual={usePathname()} />
+}
+
+/**
+ * A mesma barra, sem ler o endereço: na gaveta, nenhum item fica marcado. É a espera do
+ * Suspense do layout enquanto a rota não é conhecida (rota dinâmica fora do `generateStaticParams`).
+ */
+export function BarraTopoEstatica({ usuario }: Props) {
+  return <CorpoBarraTopo usuario={usuario} rotaAtual={null} />
+}
+
+function CorpoBarraTopo({ usuario, rotaAtual }: Props & { rotaAtual: string | null }) {
   const [aberta, setAberta] = useState(false)
   const fechar = () => setAberta(false)
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between bg-sidebar px-4 py-2 lg:hidden">
+    // data-sidebar: o foco do teclado sobre o azul-marinho é dourado, como na lateral.
+    <header data-sidebar className="sticky top-0 z-40 flex items-center justify-between bg-sidebar px-4 py-2 lg:hidden">
       <Image
         src="/marca/logo-elo-claro.png"
         alt="ELO HUB"
@@ -66,8 +82,8 @@ export function BarraTopo({ usuario }: { usuario: Usuario }) {
               className="h-14 w-auto"
             />
           </div>
-          <Menu usuario={usuario} aoNavegar={fechar} />
-          <RodapeMenu usuario={usuario} aoNavegar={fechar} />
+          <Menu usuario={usuario} rotaAtual={rotaAtual} aoNavegar={fechar} />
+          <RodapeMenu usuario={usuario} rotaAtual={rotaAtual} aoNavegar={fechar} />
         </SheetContent>
       </Sheet>
     </header>

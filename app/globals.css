@@ -10,6 +10,7 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-active: var(--sidebar-accent-active);
     --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
     --color-sidebar-foreground: var(--sidebar-foreground);
@@ -107,6 +108,8 @@
     --sidebar-primary: var(--elo-dourado);
     --sidebar-primary-foreground: var(--elo-azul-marinho);
     --sidebar-accent: color-mix(in srgb, var(--elo-dourado) 16%, transparent);
+    /* Item da lateral pressionado: um passo mais forte que o passar o mouse e que o item atual */
+    --sidebar-accent-active: color-mix(in srgb, var(--elo-dourado) 26%, transparent);
     --sidebar-accent-foreground: var(--elo-branco);
     --sidebar-border: color-mix(in srgb, var(--elo-branco) 10%, transparent);
     --sidebar-ring: var(--elo-dourado);

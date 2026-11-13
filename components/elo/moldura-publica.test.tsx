@@ -13,6 +13,11 @@ describe('MolduraPublica', () => {
     expect(screen.getByAltText('ELO HUB')).toBeInTheDocument()
   })
 
+  it('carrega o logo de imediato, sem o priority que o Next 16 descontinuou', () => {
+    render(<MolduraPublica>x</MolduraPublica>)
+    expect(screen.getByAltText('ELO HUB')).toHaveAttribute('loading', 'eager')
+  })
+
   it('ocupa a tela toda por padrão', () => {
     const { container } = render(<MolduraPublica>x</MolduraPublica>)
     expect((container.firstElementChild as HTMLElement).className).toContain('min-h-dvh')
