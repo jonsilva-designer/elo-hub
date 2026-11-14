@@ -41,7 +41,7 @@ export function FormularioRecuperacao() {
           </Button>
         </form>
       )}
-      <Link href="/login" className={cn(buttonVariants({ variant: 'link' }), 'h-auto px-0 text-[13px]')}>
+      <Link href="/login" className={cn(buttonVariants({ variant: 'link' }), 'h-auto px-0 text-secundario')}>
         Voltar para o login
       </Link>
     </div>

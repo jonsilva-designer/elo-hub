@@ -69,7 +69,7 @@ export function Campo({
       ) : null}
     </span>
   )
-  const classeDoRotulo = 'text-[13px] font-medium text-foreground'
+  const classeDoRotulo = 'text-secundario font-medium text-foreground'
 
   const ajudaEErro = (
     <>
@@ -104,7 +104,7 @@ export function Campo({
       <Field orientation="horizontal" className="items-start">
         {children(props)}
         <FieldContent>
-          <FieldLabel id={`${id}-rotulo`} htmlFor={id} className="text-[13px] font-normal text-foreground">
+          <FieldLabel id={`${id}-rotulo`} htmlFor={id} className="text-secundario font-normal text-foreground">
             {textoDoRotulo}
           </FieldLabel>
           {ajudaEErro}

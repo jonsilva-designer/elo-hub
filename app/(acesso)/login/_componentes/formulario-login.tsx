@@ -42,7 +42,7 @@ export function FormularioLogin({ destino, aviso }: { destino: string; aviso?: s
         {(p) => <EntradaSenha {...p} name="senha" autoComplete="current-password" />}
       </Campo>
       <div className="flex justify-end">
-        <Link href="/recuperar-senha" className={cn(buttonVariants({ variant: 'link' }), 'h-auto px-0 text-[13px]')}>
+        <Link href="/recuperar-senha" className={cn(buttonVariants({ variant: 'link' }), 'h-auto px-0 text-secundario')}>
           Esqueci minha senha
         </Link>
       </div>

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from './dialog'
 import { Empty, EmptyHeader, EmptyTitle } from './empty'
 
 // Títulos de janela e de estado vazio seguem o título de seção (padrão 4.2): 15px, negrito, azul-marinho.
-const TITULO_DE_SECAO = ['text-[15px]', 'font-bold', 'text-primary']
+const TITULO_DE_SECAO = ['text-titulo-painel', 'font-bold', 'text-primary']
 
 function classes(el: HTMLElement) {
   return el.className.split(' ')

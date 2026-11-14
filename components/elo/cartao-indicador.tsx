@@ -24,15 +24,15 @@ export function CartaoIndicador({
 }) {
   const conteudo = (
     <>
-      <span className="block text-[11px] font-semibold uppercase tracking-[.09em] text-muted-foreground">
+      <span className="block text-rotulo font-semibold uppercase tracking-[.09em] text-muted-foreground">
         {rotulo}
       </span>
-      <span className="mt-2 block font-mono text-3xl font-medium tabular-nums text-primary">
+      <span className="mt-2 block font-mono text-indicador font-medium tabular-nums text-primary">
         {formatarNumero(valor)}
       </span>
       {/* `!= null`: um detalhe zero também aparece. */}
       {detalhe != null ? (
-        <span className="mt-1 block text-[13px] text-muted-foreground">{detalhe}</span>
+        <span className="mt-1 block text-secundario text-muted-foreground">{detalhe}</span>
       ) : null}
     </>
   )

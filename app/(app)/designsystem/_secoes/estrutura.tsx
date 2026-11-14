@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Exemplo, Linhas, Secao } from './secao'
 
-const TEXTO = 'max-w-prose text-[13px] leading-relaxed'
+const TEXTO = 'max-w-prose text-secundario leading-relaxed'
 
 /**
  * Desenho fixo da barra do celular, feito com as cores do padrão. Não usa a `BarraTopo` real,
@@ -120,7 +120,7 @@ export function Estrutura() {
             <MolduraPublica className="min-h-0">
               {/* Só demonstração: não há formulário nem envio, e o botão não é de envio. */}
               <div className="space-y-5">
-                <p className="text-lg font-semibold text-primary">Formulário de diagnóstico</p>
+                <p className="text-titulo-pagina font-semibold text-primary">Formulário de diagnóstico</p>
                 <Campo rotulo="Nome">{(p) => <Input {...p} autoComplete="off" />}</Campo>
                 <Campo rotulo="E-mail">
                   {(p) => <Input {...p} type="email" autoComplete="off" placeholder="nome@empresa.com.br" />}

@@ -23,8 +23,8 @@ export function Secao({
   return (
     <section className="mt-10 space-y-4">
       <div className="space-y-1">
-        <h2 className="text-[15px] font-bold text-primary">{titulo}</h2>
-        {descricao ? <p className="text-[13px] text-muted-foreground">{descricao}</p> : null}
+        <h2 className="text-titulo-painel font-bold text-primary">{titulo}</h2>
+        {descricao ? <p className="text-secundario text-muted-foreground">{descricao}</p> : null}
       </div>
       {children}
     </section>

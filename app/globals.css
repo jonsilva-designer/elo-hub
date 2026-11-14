@@ -54,6 +54,15 @@
     --radius-4xl: 12px;
     /* Sombra das superfícies flutuantes, no tom do azul-marinho (segue a cor da marca se ela mudar) */
     --shadow-flutuante: 0 1px 2px color-mix(in srgb, var(--elo-azul-marinho) 10%, transparent), 0 10px 28px color-mix(in srgb, var(--elo-azul-marinho) 12%, transparent);
+    /* Escala de tamanhos de texto (padrão visual, seção 4.2), usada como classe: text-titulo-pagina, text-secundario...
+       O texto (14px) é o text-sm e o texto secundário menor (12px) é o text-xs, do próprio Tailwind.
+       Sem altura de linha própria: cada elemento mantém a que já tinha. */
+    --text-titulo-pagina: 26px;
+    --text-titulo-painel: 15px;
+    --text-secundario: 13px;
+    --text-rotulo: 11px;
+    --text-grupo: 10.5px;
+    --text-indicador: 30px;
 }
 
 :root {

@@ -11,7 +11,7 @@ export default function NaoEncontrada() {
   return (
     <MolduraPublica>
       <div className="space-y-4 text-center">
-        <h1 className="text-lg font-semibold text-primary">Página não encontrada</h1>
+        <h1 className="text-titulo-pagina font-semibold text-primary">Página não encontrada</h1>
         <p className="text-sm text-muted-foreground">Algumas telas do protótipo ainda estão em construção.</p>
         <Link href="/designsystem" className={buttonVariants()}>
           Ver o padrão visual

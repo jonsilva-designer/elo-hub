@@ -10,7 +10,7 @@ import { itemAtivo, itensDoPerfil } from './navegacao'
 
 // Pressionado: um passo mais forte que o passar o mouse, nos tons da lateral (padrão 7).
 const BASE_ITEM =
-  'relative mx-2.5 flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground active:bg-sidebar-accent-active active:text-sidebar-accent-foreground'
+  'relative mx-2.5 flex items-center gap-2.5 rounded-lg px-3 py-2 text-secundario font-medium text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground active:bg-sidebar-accent-active active:text-sidebar-accent-foreground'
 const ITEM_ATIVO =
   "bg-sidebar-accent font-semibold text-sidebar-accent-foreground before:absolute before:top-2 before:bottom-2 before:left-0 before:w-[3px] before:rounded-sm before:bg-sidebar-primary before:content-['']"
 
@@ -42,7 +42,7 @@ export function Menu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
         return (
           <div key={grupo ?? 'geral'} className="flex flex-col gap-0.5">
             {grupo ? (
-              <div className="mx-2.5 mb-1 px-3 text-[10.5px] font-semibold tracking-[.12em] text-sidebar-primary uppercase">
+              <div className="mx-2.5 mb-1 px-3 text-grupo font-semibold tracking-[.12em] text-sidebar-primary uppercase">
                 {grupo}
               </div>
             ) : null}
@@ -86,7 +86,7 @@ export function RodapeMenu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
       {usuario ? (
         <div className="mx-2.5 flex items-center justify-between gap-2 pl-3">
           <div className="min-w-0">
-            <div className="truncate text-[13px] font-semibold text-sidebar-accent-foreground">{usuario.nome}</div>
+            <div className="truncate text-secundario font-semibold text-sidebar-accent-foreground">{usuario.nome}</div>
             <div className="text-xs text-lateral-texto-fraco">{usuario.perfil}</div>
           </div>
           <form action={sair}>

@@ -11,7 +11,7 @@ import { QuadroPrototipo } from '../../_componentes/quadro-prototipo'
 export function EntradaPorPerfil({ destino, exemplos }: { destino: string; exemplos: ExemplosDoPrototipo }) {
   return (
     <QuadroPrototipo>
-      <p className="text-[13px] text-muted-foreground">Entre sem senha com um perfil de exemplo.</p>
+      <p className="text-secundario text-muted-foreground">Entre sem senha com um perfil de exemplo.</p>
       <div className="space-y-3">
         <form action={entrarComoPerfil.bind(null, 'Administrador', destino)} className="space-y-1">
           <Button type="submit" variant="outline" className="w-full">

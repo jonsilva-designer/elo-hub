@@ -12,7 +12,7 @@ export function QuadroPrototipo({ children }: { children: ReactNode }) {
     >
       <h2
         id="titulo-prototipo"
-        className="text-[10.5px] font-semibold tracking-[.12em] text-[var(--elo-status-suspenso-texto)] uppercase"
+        className="text-grupo font-semibold tracking-[.12em] text-[var(--elo-status-suspenso-texto)] uppercase"
       >
         Protótipo
       </h2>

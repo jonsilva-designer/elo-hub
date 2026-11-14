@@ -33,7 +33,7 @@ export function Painel({
         </h2>
         {temContagem || acao ? (
           <div className="ml-auto flex items-center gap-3">
-            {temContagem ? <span className="text-[13px] text-muted-foreground">{contagem}</span> : null}
+            {temContagem ? <span className="text-secundario text-muted-foreground">{contagem}</span> : null}
             {acao}
           </div>
         ) : null}

@@ -54,7 +54,7 @@ export function Marca() {
                   </td>
                   <td className="px-4 py-2.5 text-xs"><Num>{cor.token}</Num></td>
                   <td className="px-4 py-2.5 text-xs"><ValorDaCor token={cor.token} /></td>
-                  <td className="px-4 py-2.5 text-[13px] text-muted-foreground">{cor.uso}</td>
+                  <td className="px-4 py-2.5 text-secundario text-muted-foreground">{cor.uso}</td>
                 </tr>
               ))}
             </tbody>

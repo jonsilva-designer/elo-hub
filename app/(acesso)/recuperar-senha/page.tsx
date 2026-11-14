@@ -19,8 +19,8 @@ export default function PaginaRecuperarSenha() {
         <FormularioRecuperacao />
         {/* Sempre visível, para chegar à tela do link sem precisar enviar. */}
         <QuadroPrototipo>
-          <p className="text-[13px] text-muted-foreground">Nenhum e-mail é enviado no protótipo.</p>
-          <Link href="/definir-senha" className={cn(buttonVariants({ variant: 'link' }), 'h-auto px-0 text-[13px]')}>
+          <p className="text-secundario text-muted-foreground">Nenhum e-mail é enviado no protótipo.</p>
+          <Link href="/definir-senha" className={cn(buttonVariants({ variant: 'link' }), 'h-auto px-0 text-secundario')}>
             Abrir a tela do link do e-mail
           </Link>
         </QuadroPrototipo>
