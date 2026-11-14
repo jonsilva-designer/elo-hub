@@ -178,6 +178,21 @@ describe('página do cliente (parte 2, 5.6)', () => {
     )
   })
 
+  it('o menu de ações aparece só para o Administrador e fora do cadastro da ELO (critério 11)', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = await abrir('cli-vertice')
+    expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument()
+    unmount()
+    await abrir('cli-elo')
+    expect(screen.queryByRole('button', { name: 'Mais ações' })).not.toBeInTheDocument()
+  })
+
+  it('a Equipe não vê o menu de ações', async () => {
+    entrarComo('usr-rafael')
+    await abrir('cli-vertice')
+    expect(screen.queryByRole('button', { name: 'Mais ações' })).not.toBeInTheDocument()
+  })
+
   it('fora do vínculo ou com id que não existe, não encontrado (critério 9)', async () => {
     entrarComo('usr-rafael')
     await expect(conteudo('cli-montareal')).rejects.toThrow('NEXT_NOT_FOUND')

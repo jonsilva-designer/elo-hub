@@ -1,10 +1,11 @@
 'use server'
 
-import { obterCliente, obterClientePorCnpj } from '@/lib/dados/clientes'
+import { itensQueImpedemInativar, obterCliente, obterClientePorCnpj, temItensLigados } from '@/lib/dados/clientes'
 import { listarSegmentos } from '@/lib/dados/listas'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
-import { mensagemDeSucesso, SEM_PERMISSAO } from '@/lib/resultado-acao'
+import type { Cliente } from '@/lib/dados/tipos'
+import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import { UFS } from '@/lib/ufs'
 import type { EstadoSalvarCliente } from './estados'
 import { lerDadosCliente, validarCliente } from './validacao'
@@ -39,3 +40,55 @@ export async function salvarCliente(_estado: EstadoSalvarCliente, formData: Form
     sucesso: { mensagem: mensagemDeSucesso('Cliente salvo.'), destino: atual ? `/clientes/${atual.id}` : '/clientes' },
   }
 }
+
+const CADASTRO_DA_ELO = 'O cadastro da ELO não pode ser inativado nem excluído.'
+const recusa = (mensagem: string): ResultadoAcao => ({ ok: false, mensagem })
+
+/**
+ * O cliente ao alcance do Administrador, ou a recusa. Os argumentos vêm do navegador e podem ser forjados:
+ * quem não é Administrador, ou um id que não existe, recebe a mesma recusa, sem saber se o cliente existe.
+ */
+async function clienteDoAdministrador(id: unknown): Promise<Cliente | ResultadoAcao> {
+  const usuario = await obterUsuarioAtual()
+  if (!ehAdmin(usuario) || typeof id !== 'string') return recusa(SEM_PERMISSAO)
+  return (await obterCliente(id)) ?? recusa(SEM_PERMISSAO)
+}
+
+const ehRecusa = (x: Cliente | ResultadoAcao): x is ResultadoAcao => 'ok' in x
+
+/** Inativar o cliente (RN-18, CA-18.3): recusado enquanto houver itens abertos ligados a ele. */
+export async function inativarCliente(id: string): Promise<ResultadoAcao> {
+  const cliente = await clienteDoAdministrador(id)
+  if (ehRecusa(cliente)) return cliente
+  if (cliente.ehCadastroElo) return recusa(CADASTRO_DA_ELO)
+  if (cliente.status === 'Inativo') return recusa('Este cliente já está inativo.')
+  const impedimentos = await itensQueImpedemInativar(cliente.id)
+  if (impedimentos.length > 0) {
+    return {
+      ok: false,
+      mensagem: 'Não é possível inativar este cliente enquanto houver itens abertos ligados a ele.',
+      impedimentos,
+    }
+  }
+  return { ok: true, mensagem: mensagemDeSucesso('Cliente inativado.') }
+}
+
+/** Reativar o cliente Inativo, para Prospect ou Ativo (6.1). */
+export async function reativarCliente(id: string, status: string): Promise<ResultadoAcao> {
+  const cliente = await clienteDoAdministrador(id)
+  if (ehRecusa(cliente)) return cliente
+  if (cliente.status !== 'Inativo') return recusa('Só um cliente inativo pode ser reativado.')
+  if (status !== 'Prospect' && status !== 'Ativo') return recusa('Escolha Prospect ou Ativo.')
+  return { ok: true, mensagem: mensagemDeSucesso('Cliente reativado.') }
+}
+
+/** Excluir o cliente (DF-33, CA-18.4): só sem nada ligado a ele, e com justificativa. */
+export async function excluirCliente(id: string, justificativa: string): Promise<ResultadoAcao> {
+  const cliente = await clienteDoAdministrador(id)
+  if (ehRecusa(cliente)) return cliente
+  if (cliente.ehCadastroElo) return recusa(CADASTRO_DA_ELO)
+  if (await temItensLigados(cliente.id)) return recusa('Este cliente tem registros ligados e não pode ser excluído.')
+  if (typeof justificativa !== 'string' || !justificativa.trim()) return recusa('Escreva a justificativa da exclusão.')
+  return { ok: true, mensagem: mensagemDeSucesso('Cliente excluído.') }
+}
+

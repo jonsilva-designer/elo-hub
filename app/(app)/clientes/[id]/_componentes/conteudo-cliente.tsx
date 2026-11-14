@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { abasDoCliente, abaValida, ROTULOS_DAS_ABAS, type AbaCliente } from '@/lib/clientes/abas'
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { formatarCnpj } from '@/lib/cnpj'
-import { obterCliente } from '@/lib/dados/clientes'
+import { itensQueImpedemInativar, obterCliente, temItensLigados } from '@/lib/dados/clientes'
 import { listarHistorico } from '@/lib/dados/historico'
 import { listarAvaliacoesDoCliente } from '@/lib/dados/maturidade'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -19,6 +19,7 @@ import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { maturidadeDoCliente } from '@/lib/maturidade/regras'
 import { VoltarParaClientes } from '../../_componentes/voltar-para-clientes'
 import { AbaMaturidade } from './aba-maturidade'
+import { AcoesCliente } from './acoes-cliente'
 import { AbaResumo } from './aba-resumo'
 import { AbasCliente } from './abas-cliente'
 
@@ -47,6 +48,11 @@ export async function ConteudoCliente({
   ])
   const comparacao = maturidadeDoCliente(avaliacoes)
   const admin = ehAdmin(usuario)
+  // Inativar, reativar e excluir: só o Administrador, e nunca no cadastro da ELO (DF-40).
+  const comMenu = admin && !cliente.ehCadastroElo
+  const [impedimentos, ligados] = comMenu
+    ? await Promise.all([itensQueImpedemInativar(cliente.id), temItensLigados(cliente.id)])
+    : [[], true]
 
   const paineis: Record<AbaCliente, React.ReactNode> = {
     resumo: <AbaResumo cliente={cliente} atual={comparacao?.atual ?? null} historico={historico} />,
@@ -89,6 +95,7 @@ export async function ConteudoCliente({
                 Visão Executiva
               </BotaoBloqueado>
             )}
+            {comMenu ? <AcoesCliente cliente={cliente} impedimentos={impedimentos} podeExcluir={!ligados} /> : null}
           </>
         }
       />

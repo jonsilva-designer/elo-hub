@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { listarClientes } from '@/lib/dados/clientes'
+import { listarClientes, obterCliente } from '@/lib/dados/clientes'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { salvarCliente } from './acoes'
+import { excluirCliente, inativarCliente, reativarCliente, salvarCliente } from './acoes'
 import { ESTADO_INICIAL_SALVAR_CLIENTE } from './estados'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -63,3 +63,84 @@ describe('salvarCliente (F02, matriz 4.3)', () => {
     expect((await salvar({ ...NOVO, id: 'cli-nao-existe' })).erroGeral).toBe(SEM_PERMISSAO)
   })
 })
+
+describe('inativar, reativar e excluir (RN-18, DF-33, matriz 4.3)', () => {
+  it('a Equipe é recusada nas três ações, sem saber se o cliente existe', async () => {
+    entrarComo('usr-rafael')
+    expect(await inativarCliente('cli-vertice')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+    expect(await reativarCliente('cli-fortec', 'Ativo')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+    expect(await excluirCliente('cli-limpar', 'Duplicado')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+  })
+
+  it('inativar a Vértice é recusado e lista a avaliação Em elaboração (CA-18.3)', async () => {
+    entrarComo('usr-helena')
+    const r = await inativarCliente('cli-vertice')
+    expect(r).toMatchObject({
+      ok: false,
+      mensagem: 'Não é possível inativar este cliente enquanto houver itens abertos ligados a ele.',
+    })
+    expect(r.ok === false && r.impedimentos?.map((i) => i.href)).toEqual(['/avaliacoes/ava-vertice-3'])
+  })
+
+  it('inativar a Atlântica passa, e avisa que nada é gravado', async () => {
+    entrarComo('usr-helena')
+    expect(await inativarCliente('cli-atlantica')).toEqual({
+      ok: true,
+      mensagem: 'Cliente inativado. No protótipo, os dados não são gravados.',
+    })
+  })
+
+  it('o cadastro da ELO não é inativado nem excluído (DF-40)', async () => {
+    entrarComo('usr-helena')
+    const mensagem = 'O cadastro da ELO não pode ser inativado nem excluído.'
+    expect(await inativarCliente('cli-elo')).toEqual({ ok: false, mensagem })
+    expect(await excluirCliente('cli-elo', 'x')).toEqual({ ok: false, mensagem })
+  })
+
+  it('inativar quem já está inativo é recusado', async () => {
+    entrarComo('usr-helena')
+    expect(await inativarCliente('cli-fortec')).toEqual({ ok: false, mensagem: 'Este cliente já está inativo.' })
+  })
+
+  it('reativar pede Prospect ou Ativo e só vale para o cliente Inativo', async () => {
+    entrarComo('usr-helena')
+    expect(await reativarCliente('cli-fortec', 'Prospect')).toEqual({
+      ok: true,
+      mensagem: 'Cliente reativado. No protótipo, os dados não são gravados.',
+    })
+    for (const status of ['Inativo', 'Xyz', '']) {
+      expect(await reativarCliente('cli-fortec', status), status).toEqual({ ok: false, mensagem: 'Escolha Prospect ou Ativo.' })
+    }
+    expect(await reativarCliente('cli-vertice', 'Ativo')).toEqual({
+      ok: false,
+      mensagem: 'Só um cliente inativo pode ser reativado.',
+    })
+  })
+
+  it('excluir só vale sem registros ligados e com justificativa (CA-18.4)', async () => {
+    entrarComo('usr-helena')
+    expect(await excluirCliente('cli-vertice', 'x')).toEqual({
+      ok: false,
+      mensagem: 'Este cliente tem registros ligados e não pode ser excluído.',
+    })
+    expect(await excluirCliente('cli-limpar', '   ')).toEqual({ ok: false, mensagem: 'Escreva a justificativa da exclusão.' })
+    expect(await excluirCliente('cli-limpar', 'Cadastro duplicado')).toEqual({
+      ok: true,
+      mensagem: 'Cliente excluído. No protótipo, os dados não são gravados.',
+    })
+  })
+
+  it('um id que não existe é recusado como sem permissão', async () => {
+    entrarComo('usr-helena')
+    expect(await inativarCliente('cli-nao-existe')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+  })
+
+  it('nada muda nos dados: salvar só simula', async () => {
+    entrarComo('usr-helena')
+    await inativarCliente('cli-atlantica')
+    await excluirCliente('cli-limpar', 'Cadastro duplicado')
+    expect((await obterCliente('cli-atlantica'))?.status).toBe('Ativo')
+    expect(await obterCliente('cli-limpar')).not.toBeNull()
+  })
+})
+
