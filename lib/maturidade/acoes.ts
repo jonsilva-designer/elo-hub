@@ -2,8 +2,12 @@
 
 import { obterCliente } from '@/lib/dados/clientes'
 import { listarAvaliadores, listarDimensoes, obterAvaliacao } from '@/lib/dados/maturidade'
-import { mensagemDeSucesso, SEM_PERMISSAO } from '@/lib/resultado-acao'
+import { ehAdmin } from '@/lib/dados/regras'
+import { obterUsuarioAtual } from '@/lib/dados/sessao'
+import type { AvaliacaoDetalhada } from '@/lib/dados/tipos'
+import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoSalvarAvaliacao } from './estados'
+import { oQueFaltaParaConcluir } from './regras'
 import { lerDadosAvaliacao, MENSAGENS_AVALIACAO, validarAvaliacao } from './validacao'
 
 // Ações da avaliação de maturidade (parte 2, 5.3). Conferem o perfil e o vínculo no servidor, mesmo quando a
@@ -54,4 +58,37 @@ export async function salvarAvaliacao(
       destino: avaliacaoId ? `/avaliacoes/${avaliacaoId}` : `/clientes/${clienteId}?aba=maturidade`,
     },
   }
+}
+
+const negar = (mensagem: string): ResultadoAcao => ({ ok: false, mensagem })
+
+/**
+ * A avaliação ao alcance do Administrador, ou a recusa. O id vem do navegador e pode ser forjado: quem não é
+ * Administrador, ou um id que não existe, recebe a mesma recusa, sem saber se a avaliação existe.
+ */
+async function avaliacaoDoAdministrador(id: unknown): Promise<AvaliacaoDetalhada | ResultadoAcao> {
+  const usuario = await obterUsuarioAtual()
+  if (!ehAdmin(usuario) || typeof id !== 'string') return negar(SEM_PERMISSAO)
+  return (await obterAvaliacao(id)) ?? negar(SEM_PERMISSAO)
+}
+
+const ehRecusa = (x: AvaliacaoDetalhada | ResultadoAcao): x is ResultadoAcao => 'ok' in x
+
+/** Concluir a avaliação (CA-20.2), só pelo Administrador: recusado enquanto faltar nível, maturidade geral ou prontidão. */
+export async function concluirAvaliacao(id: string): Promise<ResultadoAcao> {
+  const avaliacao = await avaliacaoDoAdministrador(id)
+  if (ehRecusa(avaliacao)) return avaliacao
+  if (avaliacao.status === 'Concluída') return negar('Esta avaliação já está concluída.')
+  const faltando = oQueFaltaParaConcluir(avaliacao)
+  if (faltando.length > 0) return negar(`Para concluir, preencha: ${faltando.join(', ')}.`)
+  return { ok: true, mensagem: mensagemDeSucesso('Avaliação concluída.') }
+}
+
+/** Reabrir a avaliação Concluída (RN-17, RN-22), só pelo Administrador e com justificativa. */
+export async function reabrirAvaliacao(id: string, justificativa: string): Promise<ResultadoAcao> {
+  const avaliacao = await avaliacaoDoAdministrador(id)
+  if (ehRecusa(avaliacao)) return avaliacao
+  if (avaliacao.status !== 'Concluída') return negar('Só uma avaliação concluída pode ser reaberta.')
+  if (typeof justificativa !== 'string' || !justificativa.trim()) return negar('Escreva a justificativa da reabertura.')
+  return { ok: true, mensagem: mensagemDeSucesso('Avaliação reaberta.') }
 }
