@@ -14,6 +14,12 @@ describe('itemAtivo', () => {
   it('todo /configuracoes/* ativa Configurações', () => {
     expect(itemAtivo('/configuracoes/listas', '/configuracoes/usuarios')).toBe(true)
   })
+  it('as avaliações ficam dentro de Clientes (parte 2, 5.1)', () => {
+    expect(itemAtivo('/avaliacoes/ava-vertice-3', '/clientes')).toBe(true)
+    expect(itemAtivo('/avaliacoes/nova', '/clientes')).toBe(true)
+    expect(itemAtivo('/avaliacoes', '/contratos')).toBe(false)
+    expect(itemAtivo('/avaliacoes-x', '/clientes')).toBe(false)
+  })
 })
 
 describe('itensDoPerfil', () => {

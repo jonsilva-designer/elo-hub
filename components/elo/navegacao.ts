@@ -38,10 +38,15 @@ export const ITENS_MENU: ItemMenu[] = [
   },
 ]
 
-/** Ativo na rota exata ou em qualquer subrota. Todo `/configuracoes/*` ativa Configurações. */
+const dentroDe = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`)
+
+/**
+ * Ativo na rota exata ou em qualquer subrota. Todo `/configuracoes/*` ativa Configurações, e as avaliações
+ * (`/avaliacoes/*`) ficam dentro de Clientes (parte 2, 5.1).
+ */
 export function itemAtivo(pathname: string, href: string): boolean {
   const base = href.startsWith('/configuracoes') ? '/configuracoes' : href
-  return pathname === base || pathname.startsWith(`${base}/`)
+  return dentroDe(pathname, base) || (base === '/clientes' && dentroDe(pathname, '/avaliacoes'))
 }
 
 /** Sem perfil (`null`, enquanto o usuário não chegou), só os itens comuns aos dois perfis. */

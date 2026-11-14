@@ -6,10 +6,10 @@ import { useActionState, useEffect, useState } from 'react'
 import { Campo } from '@/components/elo/campo'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Painel } from '@/components/elo/painel'
+import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import { salvarCliente } from '@/lib/clientes/acoes'
@@ -18,47 +18,6 @@ import type { DadosCliente } from '@/lib/clientes/validacao'
 import { formatarCnpj } from '@/lib/cnpj'
 import type { Cliente } from '@/lib/dados/tipos'
 import { UFS } from '@/lib/ufs'
-
-/** Item "sem valor" das seleções opcionais: a seleção não aceita texto vazio como item. */
-const NAO_INFORMADO = 'nao-informado'
-
-/** Seleção opcional ou obrigatória, com o valor num campo oculto para o envio do formulário. */
-function SelecaoDoFormulario({
-  nome,
-  valor,
-  aoMudar,
-  opcoes,
-  opcional,
-  atributos,
-  className,
-}: {
-  nome: string
-  valor: string
-  aoMudar: (valor: string) => void
-  opcoes: readonly string[]
-  opcional?: boolean
-  atributos: Record<string, unknown>
-  className?: string
-}) {
-  return (
-    <>
-      <Select value={valor} onValueChange={(v) => aoMudar(v === NAO_INFORMADO ? '' : v)}>
-        <SelectTrigger {...atributos} className={className ?? 'w-full'}>
-          <SelectValue placeholder="Selecione" />
-        </SelectTrigger>
-        <SelectContent>
-          {opcional ? <SelectItem value={NAO_INFORMADO}>Não informado</SelectItem> : null}
-          {opcoes.map((o) => (
-            <SelectItem key={o} value={o}>
-              {o}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <input type="hidden" name={nome} value={valor} />
-    </>
-  )
-}
 
 /**
  * Cadastro e edição do cliente (F02, parte 2, 5.5). Quem confere tudo é o servidor; com `noValidate`,
@@ -115,7 +74,7 @@ export function FormularioCliente({ cliente, segmentos }: { cliente: Cliente | n
           </Campo>
           <Campo rotulo="Segmento">
             {(p) => (
-              <SelecaoDoFormulario nome="segmento" valor={segmento} aoMudar={setSegmento} opcoes={segmentos} opcional atributos={p} />
+              <SelecaoDoFormulario nome="segmento" valor={segmento} aoMudar={setSegmento} opcoes={segmentos} rotuloVazio="Não informado" atributos={p} />
             )}
           </Campo>
           <Campo rotulo="Cidade">
@@ -128,7 +87,7 @@ export function FormularioCliente({ cliente, segmentos }: { cliente: Cliente | n
                 valor={uf}
                 aoMudar={setUf}
                 opcoes={UFS}
-                opcional
+                rotuloVazio="Não informado"
                 atributos={p}
                 className="w-full sm:w-40"
               />
