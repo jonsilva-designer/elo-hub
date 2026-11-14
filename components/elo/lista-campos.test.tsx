@@ -36,4 +36,17 @@ describe('ListaCampos', () => {
     expect(dds[2]).toHaveTextContent('—')
     expect(dds[3]).toHaveTextContent(/^0$/)
   })
+
+  it('o rótulo e o valor têm pesos diferentes: rótulo pequeno em caixa alta, valor em destaque', () => {
+    const { container } = render(<ListaCampos itens={[{ rotulo: 'Segmento', valor: 'Tecnologia' }]} />)
+    expect(container.querySelector('dt')).toHaveClass('text-rotulo', 'uppercase', 'text-muted-foreground')
+    expect(container.querySelector('dd')).toHaveClass('text-sm', 'font-medium', 'text-foreground')
+  })
+
+  it('o traço do valor vazio fica apagado, para não parecer um valor', () => {
+    const { container } = render(<ListaCampos itens={[{ rotulo: 'Observações', valor: null }]} />)
+    const traco = container.querySelector('dd span')
+    expect(traco).toHaveTextContent('—')
+    expect(traco).toHaveClass('font-normal', 'text-muted-foreground')
+  })
 })

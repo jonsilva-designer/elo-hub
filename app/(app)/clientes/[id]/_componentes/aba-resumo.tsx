@@ -10,7 +10,7 @@ import type { AvaliacaoMaturidade, Cliente, EntradaHistorico } from '@/lib/dados
 import { formatarData } from '@/lib/formato'
 import { cn } from '@/lib/utils'
 
-const naoInformado = <span className="text-muted-foreground">Não informado</span>
+const naoInformado = <span className="font-normal text-muted-foreground">Não informado</span>
 
 const ou = (valor: string | undefined) => (valor?.trim() ? valor : naoInformado)
 

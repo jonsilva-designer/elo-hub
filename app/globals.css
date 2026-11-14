@@ -152,6 +152,11 @@
     html {
         @apply font-sans;
     }
+    /* Mãozinho em tudo que é clicável (padrão 7; achado do Jonathan em 14/11/2026). O Tailwind 4 deixa o botão
+       com o cursor comum. O bloqueado continua com o cursor de bloqueado: as classes do componente vencem esta camada. */
+    button:not(:disabled), [role="button"], [role="tab"], [role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], summary {
+        cursor: pointer;
+    }
 }
 
 /* Foco visível igual em todo o sistema. Fora de camada e com !important
@@ -165,10 +170,17 @@
     box-shadow: none !important;
 }
 
+/* Depois de um clique, o contorno some: ele é da navegação por teclado (padrão 4.8). O Chrome às vezes o mostra no
+   clique, por exemplo depois de abrir a página pelo Enter na barra de endereço. A ModalidadeDeFoco marca no <html> o
+   último jeito de interagir (achado do Jonathan em 14/11/2026). Os campos de texto mantêm o contorno: mostram onde se digita. */
+:root[data-modalidade="ponteiro"] :where(a, button, select, [tabindex], [role]):not(input, textarea, [contenteditable="true"]):focus-visible {
+    outline: none !important;
+}
+
 /* Itens de lista, menu, dias do calendário e linhas clicáveis de tabela ficam dentro de contêineres com rolagem ou corte:
    o contorno com afastamento de fora seria cortado. Neles o contorno vai por dentro, com a mesma cor e largura.
    Usa :is() e não :where() para ter especificidade maior que a regra principal; com :where() ela perdia e o contorno continuava por fora. */
-:is([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="gridcell"] button, tr[tabindex]):focus-visible {
+:is([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="gridcell"] button, tr[tabindex], [role="tab"]):focus-visible {
     outline-offset: -2px !important;
 }
 

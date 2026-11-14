@@ -4,6 +4,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { ModalidadeDeFoco } from "@/components/elo/modalidade-de-foco";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -17,6 +18,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={cn("font-sans", inter.variable, jetbrainsMono.variable)}>
       <body>
+        {/* Marca no <html> se a última interação foi mouse ou teclado, para o contorno de foco (padrão 4.8). */}
+        <ModalidadeDeFoco />
         <TooltipProvider>
           {children}
           <Toaster position="bottom-right" />
