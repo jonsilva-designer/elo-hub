@@ -1,3 +1,4 @@
+import type { EntradaHistorico, ItemQueImpede, MaturidadeGeral, NivelDimensao } from '@/lib/dados/tipos'
 import { STATUS_POR_TOM, type Criticidade, type Prioridade, type TomDeStatus } from '@/lib/design/status'
 
 /** Dados fictícios da página /designsystem. Datas sempre em texto fixo. */
@@ -79,3 +80,45 @@ export const CONTRATOS_EXEMPLO: ContratoDaLista[] = [
   { numero: 'CT-2026-044', cliente: 'Padaria Pão de Ouro', status: 'Ativo', vigencia: 'Vigente', termino: '2027-06-30', valor: 9800 },
   { numero: 'CT-2026-048', cliente: 'Farmácia Saúde Plena', status: 'Ativo', vigencia: 'Vigente', termino: '2027-09-10', valor: 13250 },
 ]
+
+/** Os sete valores do nível de maturidade: os cinco da régua e os dois sem régua. */
+export const NIVEIS_EXEMPLO: (NivelDimensao | MaturidadeGeral)[] = [
+  'Inicial',
+  'Básica',
+  'Em estruturação',
+  'Consistente',
+  'Avançada',
+  'Não avaliada',
+  'Inconclusiva',
+]
+
+/** Histórico fictício de um cliente de exemplo (F17). */
+export const HISTORICO_EXEMPLO: EntradaHistorico[] = [
+  { id: 'ex-1', dataHora: '2026-04-02T09:10:00-03:00', usuario: 'Helena Prado', descricao: 'Cadastro criado' },
+  {
+    id: 'ex-2',
+    dataHora: '2026-05-14T15:20:00-03:00',
+    usuario: 'Helena Prado',
+    descricao: 'Status do cliente',
+    valorAnterior: 'Prospect',
+    valorNovo: 'Ativo',
+  },
+  { id: 'ex-3', dataHora: '2026-05-14T15:25:00-03:00', usuario: 'Helena Prado', descricao: 'Vínculo incluído', valorNovo: 'Rafael Souza' },
+  {
+    id: 'ex-4',
+    dataHora: '2026-08-03T10:45:00-03:00',
+    usuario: 'Rafael Souza',
+    descricao: 'Cidade',
+    valorAnterior: 'Macaé',
+    valorNovo: 'Rio das Ostras',
+  },
+]
+
+/** Item aberto fictício que impede inativar o cliente (RN-18). O link fica na própria página. */
+export const IMPEDIMENTO_EXEMPLO: ItemQueImpede = {
+  tipo: 'Avaliação de maturidade',
+  descricao: 'Avaliação de 12/08/2026',
+  status: 'Em elaboração',
+  responsavel: 'Rafael Souza',
+  href: '/designsystem',
+}

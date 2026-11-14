@@ -15,6 +15,15 @@ const dataCurta = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
   month: "2-digit",
 });
+const dataHora = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: FUSO,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
 const real = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -70,6 +79,25 @@ function formatarComIntl(
 
 export function formatarData(valor: EntradaData): string {
   return formatarComIntl(valor, dataCompleta, ({ ano, mes, dia }) => `${dia}/${mes}/${ano}`);
+}
+
+// Data com hora e sem fuso (AAAA-MM-DDTHH:MM, segundos opcionais): já está no horário de Brasília.
+const DATA_HORA_SEM_FUSO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?$/;
+
+/** `20/09/2026 14:32`, no horário de Brasília. Vazio ou inválido vira o traço. Usada no histórico (F17). */
+export function formatarDataHora(valor: EntradaData): string {
+  if (valor === null || valor === undefined || valor === "") return VAZIO;
+  if (typeof valor === "string") {
+    const m = DATA_HORA_SEM_FUSO.exec(valor);
+    if (m) {
+      const [, ano, mes, dia, hora, minuto] = m;
+      return dataExiste(Number(ano), Number(mes), Number(dia)) ? `${dia}/${mes}/${ano} ${hora}:${minuto}` : VAZIO;
+    }
+  }
+  const data = valor instanceof Date ? valor : new Date(valor);
+  if (Number.isNaN(data.getTime())) return VAZIO;
+  const p = Object.fromEntries(dataHora.formatToParts(data).map((parte) => [parte.type, parte.value]));
+  return `${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}`;
 }
 
 export function formatarDataCurta(valor: EntradaData): string {

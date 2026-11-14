@@ -9,6 +9,7 @@ import {
   formatarPercentual,
   formatarReal,
   lerValorEmReais,
+  formatarDataHora,
 } from "@/lib/formato";
 
 describe("formatarData", () => {
@@ -171,3 +172,24 @@ describe("dataExiste", () => {
     expect(formatarData("0050-01-01")).toBe("01/01/0050");
   });
 });
+
+describe('formatarDataHora', () => {
+  it('mostra data e hora no horário de Brasília', () => {
+    expect(formatarDataHora('2026-09-20T14:32:00-03:00')).toBe('20/09/2026 14:32')
+  })
+
+  it('converte de outro fuso para Brasília, inclusive na virada do dia', () => {
+    expect(formatarDataHora('2026-11-14T01:30:00Z')).toBe('13/11/2026 22:30')
+  })
+
+  it('data com hora e sem fuso já é de Brasília', () => {
+    expect(formatarDataHora('2026-03-12T16:40')).toBe('12/03/2026 16:40')
+  })
+
+  it('vazio ou inválido vira o traço', () => {
+    expect(formatarDataHora('')).toBe('—')
+    expect(formatarDataHora(null)).toBe('—')
+    expect(formatarDataHora('ontem')).toBe('—')
+    expect(formatarDataHora('2026-02-31T10:00')).toBe('—')
+  })
+})

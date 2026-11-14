@@ -14,4 +14,12 @@ describe('STATUS_POR_TOM', () => {
       for (const s of lista) expect(tomDoStatus(s)).toBe(tom)
     }
   })
+
+  it('a prontidão da avaliação cai nos tons do padrão (parte 2, 5.10)', () => {
+    expect(tomDoStatus('Pronto')).toBe('concluido')
+    expect(tomDoStatus('Pronto com condições')).toBe('atencao')
+    expect(tomDoStatus('Não pronto no momento')).toBe('problema')
+    expect(tomDoStatus('Inconclusivo')).toBe('neutro')
+    expect(STATUS_POR_TOM.neutro).toContain('Inconclusivo')
+  })
 })

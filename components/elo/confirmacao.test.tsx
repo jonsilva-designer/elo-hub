@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { Button } from '@/components/ui/button'
-import { AvisoConfirmacao, ConfirmarAcao } from './confirmacao'
+import { AvisoConfirmacao, ConfirmarAcao, ListaImpedimentos } from './confirmacao'
 
 describe('ConfirmarAcao', () => {
   function montar(onConfirmar = vi.fn()) {
@@ -40,6 +41,95 @@ describe('ConfirmarAcao', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     expect(onConfirmar).not.toHaveBeenCalled()
+  })
+})
+
+describe('ConfirmarAcao com conteúdo (parte 2, 5.10)', () => {
+  it('mostra o conteúdo dentro da janela', async () => {
+    render(
+      <ConfirmarAcao titulo="Excluir cliente?" rotuloConfirmar="Excluir" onConfirmar={vi.fn()} conteudo={<p>Campo de justificativa</p>}>
+        <Button>Abrir</Button>
+      </ConfirmarAcao>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Abrir' }))
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('Campo de justificativa')
+  })
+
+  it('bloqueada, só deixa fechar', async () => {
+    const onConfirmar = vi.fn()
+    render(
+      <ConfirmarAcao titulo="Não é possível inativar" rotuloConfirmar="Inativar" onConfirmar={onConfirmar} bloqueado>
+        <Button>Abrir</Button>
+      </ConfirmarAcao>,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Abrir' }))
+    expect(screen.queryByRole('button', { name: 'Inativar' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cancelar' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Fechar' }))
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(onConfirmar).not.toHaveBeenCalled()
+  })
+
+  function Controlada({ onConfirmar, carregando = false }: { onConfirmar: () => void; carregando?: boolean }) {
+    const [aberto, setAberto] = useState(true)
+    return (
+      <ConfirmarAcao
+        titulo="Reabrir avaliação?"
+        rotuloConfirmar="Reabrir"
+        onConfirmar={onConfirmar}
+        aberto={aberto}
+        aoMudarAberto={setAberto}
+        carregando={carregando}
+      />
+    )
+  }
+
+  it('controlada e sem gatilho, abre pelo estado e não fecha sozinha ao confirmar', async () => {
+    const onConfirmar = vi.fn()
+    render(<Controlada onConfirmar={onConfirmar} />)
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('Reabrir avaliação?')
+    await userEvent.click(screen.getByRole('button', { name: 'Reabrir' }))
+    expect(onConfirmar).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+  })
+
+  it('controlada, Cancelar fecha', async () => {
+    render(<Controlada onConfirmar={vi.fn()} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  })
+
+  it('carregando, o botão de confirmar fica ocupado e não envia de novo', async () => {
+    const onConfirmar = vi.fn()
+    render(<Controlada onConfirmar={onConfirmar} carregando />)
+    const botao = screen.getByRole('button', { name: /Reabrir/ })
+    expect(botao).toHaveAttribute('aria-busy', 'true')
+    expect(botao).toBeDisabled()
+    await userEvent.click(botao)
+    expect(onConfirmar).not.toHaveBeenCalled()
+  })
+})
+
+describe('ListaImpedimentos (RN-18, CA-18.3)', () => {
+  it('mostra o tipo, o link do item, o status e o responsável', () => {
+    render(
+      <ListaImpedimentos
+        itens={[
+          {
+            tipo: 'Avaliação de maturidade',
+            descricao: 'Avaliação de 05/11/2026',
+            status: 'Em elaboração',
+            responsavel: 'Rafael Souza',
+            href: '/avaliacoes/ava-vertice-3',
+          },
+        ]}
+      />,
+    )
+    const item = screen.getByRole('listitem')
+    expect(item).toHaveTextContent('Avaliação de maturidade')
+    expect(screen.getByRole('link', { name: 'Avaliação de 05/11/2026' })).toHaveAttribute('href', '/avaliacoes/ava-vertice-3')
+    expect(item).toHaveTextContent('Em elaboração')
+    expect(item).toHaveTextContent('Rafael Souza')
   })
 })
 

@@ -12,12 +12,12 @@ export type Prioridade = "Baixa" | "Média" | "Alta";
 
 /** Status de cada tom (padrão visual 4.6). Fonte única: a página /designsystem lê daqui. */
 export const STATUS_POR_TOM: Readonly<Record<TomDeStatus, readonly string[]>> = {
-  neutro: ["Prospect", "Proposta", "Planejado", "Não iniciada", "Nova", "Em análise", "Em elaboração", "Não aplicável", "Superado"],
+  neutro: ["Prospect", "Proposta", "Planejado", "Não iniciada", "Nova", "Em análise", "Em elaboração", "Não aplicável", "Superado", "Inconclusivo"],
   "em-curso": ["Em contratação", "Em andamento", "Em triagem", "Em atendimento", "Aberto"],
-  atencao: ["Em espera", "Aguardando retorno", "Próximo do vencimento"],
+  atencao: ["Em espera", "Aguardando retorno", "Próximo do vencimento", "Pronto com condições"],
   suspenso: ["Suspenso"],
-  concluido: ["Ativo", "Vigente", "Concluído", "Concluída", "Resolvida"],
-  problema: ["Vencido"],
+  concluido: ["Ativo", "Vigente", "Concluído", "Concluída", "Resolvida", "Pronto"],
+  problema: ["Vencido", "Não pronto no momento"],
   fechado: ["Inativo", "Encerrado", "Encerrada", "Cancelado", "Cancelada"],
 };
 

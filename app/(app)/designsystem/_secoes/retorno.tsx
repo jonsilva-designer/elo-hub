@@ -1,11 +1,13 @@
 'use client'
 
 import { Info } from 'lucide-react'
-import { AvisoConfirmacao, ConfirmarAcao } from '@/components/elo/confirmacao'
+import { AvisoConfirmacao, ConfirmarAcao, ListaImpedimentos } from '@/components/elo/confirmacao'
+import { Campo } from '@/components/elo/campo'
+import { Textarea } from '@/components/ui/textarea'
 import { BotaoIcone } from '@/components/elo/botao-icone'
 import { Button } from '@/components/ui/button'
 import { avisarSalvo } from '@/lib/avisos'
-import { MENSAGEM_AVISO } from '../exemplos'
+import { IMPEDIMENTO_EXEMPLO, MENSAGEM_AVISO } from '../exemplos'
 import { Exemplo, Subsecao } from './secao'
 
 export function Retorno() {
@@ -28,6 +30,34 @@ export function Retorno() {
           onConfirmar={() => avisarSalvo('Documento excluído')}
         >
           <Button variant="destructive">Excluir documento</Button>
+        </ConfirmarAcao>
+      </Exemplo>
+      <Exemplo rotulo="Janela de confirmação com justificativa">
+        <ConfirmarAcao
+          titulo="Excluir cliente?"
+          descricao="A exclusão é definitiva. Escreva o motivo."
+          rotuloConfirmar="Excluir"
+          perigo
+          onConfirmar={() => avisarSalvo('Cliente excluído')}
+          conteudo={
+            <Campo rotulo="Justificativa" obrigatorio>
+              {(p) => <Textarea {...p} />}
+            </Campo>
+          }
+        >
+          <Button variant="outline">Excluir cliente</Button>
+        </ConfirmarAcao>
+      </Exemplo>
+      <Exemplo rotulo="Janela de confirmação bloqueada">
+        <ConfirmarAcao
+          titulo="Não é possível inativar"
+          descricao="Não é possível inativar este cliente enquanto houver itens abertos ligados a ele."
+          rotuloConfirmar="Inativar"
+          bloqueado
+          onConfirmar={() => {}}
+          conteudo={<ListaImpedimentos itens={[IMPEDIMENTO_EXEMPLO]} />}
+        >
+          <Button variant="outline">Inativar cliente</Button>
         </ConfirmarAcao>
       </Exemplo>
       <Exemplo rotulo="Aviso de confirmação na tela">

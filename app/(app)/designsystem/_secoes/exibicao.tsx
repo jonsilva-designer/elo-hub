@@ -1,5 +1,7 @@
 import { CartaoIndicador, GradeIndicadores } from '@/components/elo/cartao-indicador'
 import { ListaCampos } from '@/components/elo/lista-campos'
+import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
+import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { ProgressoAtividades } from '@/components/elo/progresso-atividades'
@@ -19,6 +21,8 @@ import {
   NUMEROS_EXEMPLO,
   PRIORIDADES,
   GRUPOS_DE_STATUS,
+  HISTORICO_EXEMPLO,
+  NIVEIS_EXEMPLO,
 } from '../exemplos'
 import { Exemplo, Subsecao } from './secao'
 
@@ -58,6 +62,13 @@ export function Exibicao() {
         {PRIORIDADES.map((p) => (
           <IndicadorPrioridade key={p} prioridade={p} />
         ))}
+      </Exemplo>
+      <Exemplo rotulo="Nível de maturidade">
+        <span className="flex flex-col gap-2 text-sm">
+          {NIVEIS_EXEMPLO.map((n) => (
+            <NivelMaturidade key={n} nivel={n} />
+          ))}
+        </span>
       </Exemplo>
       <Exemplo rotulo="Linha de escopo">
         <span className="text-sm font-medium">{ESCOPO_EXEMPLO.titulo}</span>
@@ -151,6 +162,17 @@ export function Exibicao() {
               ]}
             />
           </Painel>
+        </div>
+      </Exemplo>
+      <Exemplo largo rotulo="Painel de histórico">
+        <div data-demo className="w-full space-y-3">
+          <PainelHistorico entradas={HISTORICO_EXEMPLO} />
+          <LinhaAutoria entradas={HISTORICO_EXEMPLO} />
+        </div>
+      </Exemplo>
+      <Exemplo largo rotulo="Histórico sem alterações">
+        <div data-demo className="w-full">
+          <PainelHistorico entradas={[]} />
         </div>
       </Exemplo>
       <Exemplo rotulo="Progresso de atividades">

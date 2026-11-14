@@ -101,6 +101,22 @@ describe('página /designsystem', () => {
       expect(screen.getAllByText(s).length).toBeGreaterThan(0)
     }
   })
+  it('mostra os componentes da parte 2: nível de maturidade, histórico e janelas com conteúdo', () => {
+    renderizar()
+    const componentes = secao('Componentes')
+    for (const rotulo of [
+      'Nível de maturidade',
+      'Painel de histórico',
+      'Janela de confirmação com justificativa',
+      'Janela de confirmação bloqueada',
+    ]) {
+      expect(within(componentes).getByText(rotulo)).toBeInTheDocument()
+    }
+    for (const nivel of ['Em estruturação', 'Não avaliada', 'Inconclusiva']) {
+      expect(within(componentes).getAllByText(nivel).length).toBeGreaterThan(0)
+    }
+    expect(within(componentes).getByText('Nenhuma alteração registrada.')).toBeInTheDocument()
+  })
 })
 
 describe('seção Estados de interface', () => {
