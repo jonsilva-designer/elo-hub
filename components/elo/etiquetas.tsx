@@ -85,7 +85,7 @@ export function EtiquetaPlanejamento() {
 
 const BARRAS = [
   { altura: "h-1.5", cheia: 1 },
-  { altura: "h-[9px]", cheia: 2 },
+  { altura: "h-2.25", cheia: 2 },
   { altura: "h-3", cheia: 3 },
 ] as const;
 
@@ -108,7 +108,7 @@ export function IndicadorPrioridade({ prioridade }: { prioridade: Prioridade }) 
               aria-hidden="true"
               {...(preenchida ? { "data-preenchida": "true" } : {})}
               className={cn(
-                "w-[3px] rounded-sm",
+                "w-0.75 rounded-sm",
                 b.altura,
                 preenchida ? "bg-primary" : "bg-border",
               )}

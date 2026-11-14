@@ -37,7 +37,7 @@ export function Tipografia() {
     >
       <Linhas>
         <Exemplo rotulo="Título da página" nota={<Legenda fonte="Inter" tamanho="26px" classe="text-titulo-pagina" peso="600" nota={<>Azul-marinho, espaçamento <Num>-0,02em</Num></>} />}>
-          <p className="text-titulo-pagina font-semibold tracking-[-0.02em] text-primary">Contratos ativos</p>
+          <p className="text-titulo-pagina font-semibold tracking-titulo text-primary">Contratos ativos</p>
         </Exemplo>
         <Exemplo rotulo="Título de seção ou painel" nota={<Legenda fonte="Inter" tamanho="15px" classe="text-titulo-painel" peso="700" nota="Azul-marinho" />}>
           <p className="text-titulo-painel font-bold text-primary">Atividades da semana</p>
@@ -49,11 +49,11 @@ export function Tipografia() {
           <p className="text-secundario text-muted-foreground">Atualizado pela equipe de governança.</p>
         </Exemplo>
         <Exemplo rotulo="Rótulo de indicador" nota={<Legenda fonte="Inter" tamanho="11px" classe="text-rotulo" peso="600" nota={<>Caixa alta, espaçamento <Num>0,09em</Num></>} />}>
-          <p className="text-rotulo font-semibold uppercase tracking-[0.09em] text-muted-foreground">Atividades atrasadas</p>
+          <p className="text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground">Atividades atrasadas</p>
         </Exemplo>
         <Exemplo rotulo="Nome de grupo da lateral" nota={<Legenda fonte="Inter" tamanho="10,5px" classe="text-grupo" peso="600" nota={<>Caixa alta, espaçamento <Num>0,12em</Num>, dourado sobre azul-marinho</>} />}>
           <div className="inline-block rounded-lg bg-primary px-4 py-3">
-            <p className="text-grupo font-semibold uppercase tracking-[0.12em] text-sidebar-primary">Operação</p>
+            <p className="text-grupo font-semibold uppercase tracking-grupo text-sidebar-primary">Operação</p>
           </div>
         </Exemplo>
         <Exemplo rotulo="Número de indicador" nota={<Legenda fonte="JetBrains Mono" tamanho="30px" classe="text-indicador" peso="500" nota="Azul-marinho, algarismos de mesma largura" />}>

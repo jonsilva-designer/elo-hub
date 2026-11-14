@@ -52,4 +52,9 @@ describe('SelecaoMultipla', () => {
     expect(hovers.length).toBeGreaterThan(0)
     for (const c of hovers) expect(c, c).toContain('not-aria-disabled:')
   })
+
+  it('aceita um nome para o leitor de tela, sem precisar de rótulo à parte', () => {
+    render(<SelecaoMultipla opcoes={opcoes} valores={[]} onChange={vi.fn()} aria-label="Status" />)
+    expect(screen.getByRole('combobox', { name: 'Status' })).toBeInTheDocument()
+  })
 })

@@ -15,7 +15,7 @@ export function ListaCampos({ itens }: { itens: { rotulo: string; valor: ReactNo
     <dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
       {itens.map(({ rotulo, valor }) => (
         <div key={rotulo} className="min-w-0">
-          <dt className="text-rotulo font-semibold tracking-[0.09em] text-muted-foreground uppercase">{rotulo}</dt>
+          <dt className="text-rotulo font-semibold tracking-rotulo text-muted-foreground uppercase">{rotulo}</dt>
           <dd className="mt-1 text-sm font-medium text-foreground">
             {semValor(valor) ? <span className="font-normal text-muted-foreground">{VAZIO}</span> : valor}
           </dd>

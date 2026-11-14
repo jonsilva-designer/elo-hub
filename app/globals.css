@@ -63,6 +63,15 @@
     --text-rotulo: 11px;
     --text-grupo: 10.5px;
     --text-indicador: 30px;
+    /* Espaçamento entre letras da escala (padrão 4.2): tracking-titulo, tracking-rotulo e tracking-grupo. */
+    --tracking-titulo: -0.02em;
+    --tracking-rotulo: 0.09em;
+    --tracking-grupo: 0.12em;
+    /* Larguras da estrutura da tela (padrão 5): a lateral e a gaveta do celular (w-lateral, max-w-gaveta...). */
+    --container-lateral: 212px;
+    --container-gaveta: 280px;
+    /* Canto mínimo, só para detalhes como a seta da dica. */
+    --radius-xs: 2px;
 }
 
 :root {

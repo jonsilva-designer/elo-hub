@@ -84,13 +84,13 @@ describe('BarraTopo', () => {
     expect(botao).toHaveFocus()
   })
 
-  it('a gaveta tem 280px de largura', async () => {
+  it('a gaveta tem a largura do token --container-gaveta (280px)', async () => {
     const u = userEvent.setup()
     render(<BarraTopo usuario={helena} />)
     await u.click(screen.getByRole('button', { name: 'Abrir menu' }))
     const gaveta = screen.getByRole('dialog', { name: 'Menu' })
-    expect(gaveta.className).toContain('data-[side=left]:w-[280px]')
-    expect(gaveta.className).toContain('data-[side=left]:sm:max-w-[280px]')
+    expect(gaveta.className).toContain('data-[side=left]:w-gaveta')
+    expect(gaveta.className).toContain('data-[side=left]:sm:max-w-gaveta')
   })
 
   it('fecha com o botão "Fechar menu" e devolve o foco', async () => {

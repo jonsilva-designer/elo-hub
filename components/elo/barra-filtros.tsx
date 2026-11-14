@@ -18,7 +18,7 @@ export function BarraFiltros({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <InputGroup className="w-full min-w-[14rem] flex-1 sm:w-auto">
+      <InputGroup className="w-full min-w-56 flex-1 sm:w-auto">
         <InputGroupAddon>
           <Search aria-hidden="true" />
         </InputGroupAddon>

@@ -142,11 +142,8 @@ export function ListaClientes({
           filtros={
             <>
               <div className="w-full sm:w-64">
-                <label htmlFor="filtro-status" className="sr-only">
-                  Status
-                </label>
                 <SelecaoMultipla
-                  id="filtro-status"
+                  aria-label="Status"
                   opcoes={OPCOES_DE_STATUS}
                   valores={filtros.status}
                   onChange={(status) => mudar({ ...filtros, status: status as StatusCliente[] })}

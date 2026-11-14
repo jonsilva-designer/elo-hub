@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { formatarNumero } from '@/lib/formato'
 import { cn } from '@/lib/utils'
 
-const CAIXA = 'block min-w-0 rounded-xl border border-border bg-card p-[18px]'
+const CAIXA = 'block min-w-0 rounded-xl border border-border bg-card p-4.5'
 
 /** Quatro colunas no computador, depois duas, depois uma (seção 5 do padrão visual). */
 export function GradeIndicadores({ children }: { children: ReactNode }) {
@@ -24,7 +24,7 @@ export function CartaoIndicador({
 }) {
   const conteudo = (
     <>
-      <span className="block text-rotulo font-semibold uppercase tracking-[.09em] text-muted-foreground">
+      <span className="block text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground">
         {rotulo}
       </span>
       <span className="mt-2 block font-mono text-indicador font-medium tabular-nums text-primary">

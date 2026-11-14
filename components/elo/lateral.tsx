@@ -25,7 +25,7 @@ function CorpoLateral({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: strin
   return (
     <aside
       data-sidebar
-      className="sticky top-3 my-3 ml-3 hidden h-[calc(100dvh-1.5rem)] w-[212px] shrink-0 flex-col rounded-2xl bg-sidebar text-sidebar-foreground shadow-[var(--shadow-flutuante)] lg:flex"
+      className="sticky top-3 my-3 ml-3 hidden h-[calc(100dvh---spacing(6))] w-lateral shrink-0 flex-col rounded-2xl bg-sidebar text-sidebar-foreground shadow-[var(--shadow-flutuante)] lg:flex"
     >
       <div className="flex justify-center px-4 pt-5 pb-3">
         {/* Sem preload nem loading="eager": no celular a lateral fica escondida e o logo não deve baixar.

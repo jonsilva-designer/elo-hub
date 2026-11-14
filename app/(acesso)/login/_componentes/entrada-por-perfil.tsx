@@ -2,7 +2,7 @@ import { Num } from '@/components/elo/num'
 import { Button } from '@/components/ui/button'
 import { entrarComoPerfil } from '@/lib/acesso/acoes'
 import type { ExemplosDoPrototipo } from '@/lib/dados/tipos'
-import { QuadroPrototipo } from '../../_componentes/quadro-prototipo'
+import { QuadroPrototipo } from '@/components/elo/quadro-prototipo'
 
 /**
  * Botões do protótipo: um por perfil (decisão do Jonathan). Cada botão é o seu próprio formulário,

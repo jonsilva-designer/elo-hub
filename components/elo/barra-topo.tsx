@@ -56,7 +56,7 @@ function CorpoBarraTopo({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: str
           showCloseButton={false}
           data-sidebar
           aria-describedby={undefined}
-          className="data-[side=left]:w-[280px] data-[side=left]:sm:max-w-[280px] gap-0 rounded-r-2xl border-0 bg-sidebar p-0 text-sidebar-foreground"
+          className="data-[side=left]:w-gaveta data-[side=left]:sm:max-w-gaveta gap-0 rounded-r-2xl border-0 bg-sidebar p-0 text-sidebar-foreground"
         >
           <SheetTitle className="sr-only">Menu</SheetTitle>
           <SheetClose asChild>

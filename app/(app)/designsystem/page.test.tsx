@@ -101,6 +101,12 @@ describe('página /designsystem', () => {
       expect(screen.getAllByText(s).length).toBeGreaterThan(0)
     }
   })
+  it('mostra o bloco do protótipo, da entrada por perfil do login (padrão 6)', () => {
+    renderizar()
+    const estrutura = secao('Estrutura da tela')
+    expect(within(estrutura).getByRole('region', { name: 'Protótipo' })).toHaveTextContent('Entrar como Equipe')
+  })
+
   it('mostra os componentes da parte 2: nível de maturidade, histórico e janelas com conteúdo', () => {
     renderizar()
     const componentes = secao('Componentes')

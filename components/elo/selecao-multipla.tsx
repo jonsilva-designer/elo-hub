@@ -25,6 +25,7 @@ export function SelecaoMultipla({
   disabled,
   'aria-describedby': descritoPor,
   'aria-invalid': invalido,
+  'aria-label': nome,
 }: {
   opcoes: Opcao[]
   valores: string[]
@@ -34,6 +35,8 @@ export function SelecaoMultipla({
   disabled?: boolean
   'aria-describedby'?: string
   'aria-invalid'?: true
+  /** Nome para o leitor de tela quando não há rótulo visível, como num filtro. */
+  'aria-label'?: string
 }) {
   const ancora = useComboboxAnchor()
   const rotulos = new Map(opcoes.map((o) => [o.valor, o.rotulo]))
@@ -61,6 +64,7 @@ export function SelecaoMultipla({
                 id={id}
                 aria-describedby={descritoPor}
                 aria-invalid={invalido}
+                aria-label={nome}
                 placeholder={escolhidos.length === 0 ? placeholder : undefined}
               />
             </>

@@ -12,7 +12,7 @@ import { itemAtivo, itensDoPerfil } from './navegacao'
 const BASE_ITEM =
   'relative mx-2.5 flex items-center gap-2.5 rounded-lg px-3 py-2 text-secundario font-medium text-sidebar-foreground outline-none transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground active:bg-sidebar-accent-active active:text-sidebar-accent-foreground'
 const ITEM_ATIVO =
-  "bg-sidebar-accent font-semibold text-sidebar-accent-foreground before:absolute before:top-2 before:bottom-2 before:left-0 before:w-[3px] before:rounded-sm before:bg-sidebar-primary before:content-['']"
+  "bg-sidebar-accent font-semibold text-sidebar-accent-foreground before:absolute before:top-2 before:bottom-2 before:left-0 before:w-0.75 before:rounded-sm before:bg-sidebar-primary before:content-['']"
 
 // Botões discretos sobre o azul-marinho: passar o mouse e pressionar usam os tons da lateral,
 // e não o fundo claro do botão discreto. Pressionado é um passo mais forte que passar o mouse.
@@ -42,7 +42,7 @@ export function Menu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
         return (
           <div key={grupo ?? 'geral'} className="flex flex-col gap-0.5">
             {grupo ? (
-              <div className="mx-2.5 mb-1 px-3 text-grupo font-semibold tracking-[.12em] text-sidebar-primary uppercase">
+              <div className="mx-2.5 mb-1 px-3 text-grupo font-semibold tracking-grupo text-sidebar-primary uppercase">
                 {grupo}
               </div>
             ) : null}

@@ -4,6 +4,7 @@ import { Menu as IconeMenu } from 'lucide-react'
 import Image from 'next/image'
 import { Campo } from '@/components/elo/campo'
 import { MolduraAcesso } from '@/components/elo/moldura-acesso'
+import { QuadroPrototipo } from '@/components/elo/quadro-prototipo'
 import { MolduraPublica } from '@/components/elo/moldura-publica'
 import { Num } from '@/components/elo/num'
 import { Button } from '@/components/ui/button'
@@ -20,7 +21,7 @@ function DesenhoBarraDoCelular() {
   return (
     <div
       aria-hidden="true"
-      className="w-full max-w-[390px] overflow-hidden rounded-xl border border-border bg-background"
+      className="w-full max-w-97.5 overflow-hidden rounded-xl border border-border bg-background"
     >
       <div className="flex items-center justify-between bg-sidebar px-4 py-2">
         <Image src="/marca/logo-elo-claro.png" alt="" width={814} height={627} className="h-9 w-auto" />
@@ -91,7 +92,7 @@ export function Estrutura() {
           rotulo="Moldura de acesso"
           nota="As telas de acesso (entrar, recuperar a senha e definir a senha) não têm a lateral. A imagem aparece em tela larga e deitada. No celular e no tablet em pé, fica só o formulário. O exemplo não envia nada."
         >
-          <div data-demo className="h-[600px] overflow-hidden rounded-xl border border-border">
+          <div data-demo className="h-150 overflow-hidden rounded-xl border border-border">
             <MolduraAcesso
               className="h-full min-h-0"
               titulo="Entrar"
@@ -108,6 +109,25 @@ export function Estrutura() {
                 </Button>
               </div>
             </MolduraAcesso>
+          </div>
+        </Exemplo>
+
+        <Exemplo
+          rotulo="Bloco do protótipo"
+          nota="Atalhos que só existem no protótipo, como a entrada por perfil no login, separados do formulário de verdade. Sai inteiro na Etapa 3. O exemplo não envia nada."
+        >
+          <div data-demo className="w-full max-w-md">
+            <QuadroPrototipo>
+              <p className="text-secundario text-muted-foreground">Entrar direto com um perfil de exemplo, sem senha.</p>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline">
+                  Entrar como Administrador
+                </Button>
+                <Button type="button" variant="outline">
+                  Entrar como Equipe
+                </Button>
+              </div>
+            </QuadroPrototipo>
           </div>
         </Exemplo>
 

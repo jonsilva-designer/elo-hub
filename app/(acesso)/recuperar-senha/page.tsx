@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { MolduraAcesso } from '@/components/elo/moldura-acesso'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { QuadroPrototipo } from '../_componentes/quadro-prototipo'
+import { QuadroPrototipo } from '@/components/elo/quadro-prototipo'
 import { FormularioRecuperacao } from './_componentes/formulario-recuperacao'
 
 // O layout raiz não usa modelo de título: o sufixo vai completo aqui.
