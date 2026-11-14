@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cnpjValido } from './cnpj'
+import { cnpjValido, formatarCnpj } from './cnpj'
 
 describe('cnpjValido', () => {
   it('aceita o CNPJ com e sem pontuação', () => {
@@ -18,5 +18,17 @@ describe('cnpjValido', () => {
   it('recusa o que não tem 14 dígitos', () => {
     expect(cnpjValido('123')).toBe(false)
     expect(cnpjValido('')).toBe(false)
+  })
+})
+
+describe('formatarCnpj', () => {
+  it('põe a máscara num CNPJ de 14 dígitos, com ou sem pontuação', () => {
+    expect(formatarCnpj('21473509000121')).toBe('21.473.509/0001-21')
+    expect(formatarCnpj(' 21.473.509/0001-21 ')).toBe('21.473.509/0001-21')
+  })
+
+  it('devolve sem mudar o que não tem 14 dígitos', () => {
+    expect(formatarCnpj('123')).toBe('123')
+    expect(formatarCnpj('')).toBe('')
   })
 })

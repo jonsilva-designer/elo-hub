@@ -13,3 +13,11 @@ export function cnpjValido(cnpj: string): boolean {
   const d = [...limpo].map(Number)
   return digitoVerificador(d, PESOS_1) === d[12] && digitoVerificador(d, PESOS_2) === d[13]
 }
+
+/** O CNPJ com a máscara `00.000.000/0000-00`. O que não tem 14 dígitos volta como veio, sem espaços nas pontas. */
+export function formatarCnpj(cnpj: string): string {
+  const limpo = cnpj.trim()
+  const d = limpo.replace(/\D/g, '')
+  if (d.length !== 14) return limpo
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
+}
