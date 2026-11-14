@@ -30,10 +30,12 @@ const OPCOES_DE_STATUS = (['Prospect', 'Ativo', 'Inativo'] as const).map((s) => 
 
 const cidadeUf = (c: Cliente) => [c.cidade, c.uf].filter(Boolean).join('/') || VAZIO
 
+// Larguras fixas: a busca e os filtros não mexem no tamanho das colunas. O Status fica com o resto (cerca de 18%).
 const COLUNAS: Coluna<Cliente>[] = [
   {
     id: 'cliente',
     titulo: 'Cliente',
+    largura: 'w-3/10',
     ordenarPor: nomeDoCliente,
     celula: (c) => (
       <span className="flex min-w-0 flex-col">
@@ -45,9 +47,9 @@ const COLUNAS: Coluna<Cliente>[] = [
       </span>
     ),
   },
-  { id: 'cnpj', titulo: 'CNPJ', ordenarPor: (c) => c.cnpj, celula: (c) => <Num className="whitespace-nowrap">{c.cnpj}</Num> },
-  { id: 'segmento', titulo: 'Segmento', ordenarPor: (c) => c.segmento, celula: (c) => c.segmento || VAZIO },
-  { id: 'cidade', titulo: 'Cidade/UF', ordenarPor: (c) => c.cidade, celula: cidadeUf },
+  { id: 'cnpj', titulo: 'CNPJ', largura: 'w-1/6', ordenarPor: (c) => c.cnpj, celula: (c) => <Num className="whitespace-nowrap">{c.cnpj}</Num> },
+  { id: 'segmento', titulo: 'Segmento', largura: 'w-1/5', ordenarPor: (c) => c.segmento, celula: (c) => c.segmento || VAZIO },
+  { id: 'cidade', titulo: 'Cidade/UF', largura: 'w-3/20', ordenarPor: (c) => c.cidade, celula: cidadeUf },
   { id: 'status', titulo: 'Status', ordenarPor: (c) => c.status, celula: (c) => <EtiquetaStatus status={c.status} /> },
 ]
 

@@ -14,12 +14,13 @@ import { normalizarBusca } from '@/lib/texto'
 import { CONTRATOS_EXEMPLO, VIGENCIAS, type ContratoDaLista } from '../exemplos'
 import { Exemplo, Subsecao } from './secao'
 
+// Larguras fixas: a busca não mexe no tamanho das colunas. O Valor fica com o resto.
 const COLUNAS: Coluna<ContratoDaLista>[] = [
-  { id: 'numero', titulo: 'Número', celula: (c) => <Num>{c.numero}</Num>, ordenarPor: (c) => c.numero },
-  { id: 'cliente', titulo: 'Cliente', celula: (c) => c.cliente, ordenarPor: (c) => c.cliente },
-  { id: 'status', titulo: 'Status', celula: (c) => <EtiquetaStatus status={c.status} />, ordenarPor: (c) => c.status },
-  { id: 'vigencia', titulo: 'Vigência', celula: (c) => <EtiquetaStatus status={c.vigencia} /> },
-  { id: 'termino', titulo: 'Término', celula: (c) => <Num>{formatarData(c.termino)}</Num>, ordenarPor: (c) => c.termino },
+  { id: 'numero', titulo: 'Número', largura: 'w-1/8', celula: (c) => <Num>{c.numero}</Num>, ordenarPor: (c) => c.numero },
+  { id: 'cliente', titulo: 'Cliente', largura: 'w-1/5', celula: (c) => c.cliente, ordenarPor: (c) => c.cliente },
+  { id: 'status', titulo: 'Status', largura: 'w-3/20', celula: (c) => <EtiquetaStatus status={c.status} />, ordenarPor: (c) => c.status },
+  { id: 'vigencia', titulo: 'Vigência', largura: 'w-1/5', celula: (c) => <EtiquetaStatus status={c.vigencia} /> },
+  { id: 'termino', titulo: 'Término', largura: 'w-1/8', celula: (c) => <Num>{formatarData(c.termino)}</Num>, ordenarPor: (c) => c.termino },
   {
     id: 'valor',
     titulo: 'Valor',

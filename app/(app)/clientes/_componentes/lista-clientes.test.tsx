@@ -99,6 +99,16 @@ describe('ListaClientes', () => {
     expect(screen.queryByRole('link', { name: /Novo cliente/ })).not.toBeInTheDocument()
   })
 
+  it('as colunas têm largura fixa: a busca não muda o tamanho delas', async () => {
+    montar()
+    const larguras = () => screen.getAllByRole('columnheader').map((th) => th.className.match(/w-\d+\/\d+/)?.[0])
+    const antes = larguras()
+    expect(screen.getByRole('table')).toHaveClass('table-fixed')
+    expect(antes.filter(Boolean).length).toBeGreaterThanOrEqual(4)
+    await userEvent.type(screen.getByRole('textbox', { name: 'Buscar' }), 'atl')
+    expect(larguras()).toEqual(antes)
+  })
+
   it('começa com os filtros vindos do endereço', () => {
     montar({ filtrosIniciais: { busca: 'atl', status: [], segmento: null } })
     expect(screen.getByRole('textbox', { name: 'Buscar' })).toHaveValue('atl')

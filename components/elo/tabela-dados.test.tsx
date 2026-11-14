@@ -266,4 +266,29 @@ describe('TabelaDados', () => {
     render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
     expect(screen.getByRole('table').closest('.overflow-x-auto')).not.toBeNull()
   })
+
+  it('com larguras, as colunas ficam fixas: buscar ou filtrar não muda a largura delas', () => {
+    const fixas: Coluna<Contrato>[] = [
+      { ...COLUNAS[0], largura: 'w-2/3' },
+      { ...COLUNAS[1], largura: 'w-1/3' },
+    ]
+    render(<TabelaDados colunas={fixas} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
+    const tabela = screen.getByRole('table')
+    expect(tabela).toHaveClass('table-fixed')
+    expect(cabecalho('Cliente')).toHaveClass('w-2/3')
+    expect(cabecalho('Término')).toHaveClass('w-1/3')
+    // Numa coluna fixa, o texto longo quebra dentro da célula em vez de passar por cima da vizinha.
+    for (const celula of screen.getAllByRole('cell')) expect(celula).toHaveClass('whitespace-normal')
+  })
+
+  it('com colunas fixas, a tabela tem uma largura mínima e rola na horizontal em tela estreita', () => {
+    const fixas: Coluna<Contrato>[] = [{ ...COLUNAS[0], largura: 'w-1/2' }, COLUNAS[1]]
+    render(<TabelaDados colunas={fixas} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
+    expect(screen.getByRole('table')).toHaveClass('min-w-4xl')
+  })
+
+  it('sem larguras, a tabela continua automática', () => {
+    render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
+    expect(screen.getByRole('table')).not.toHaveClass('table-fixed')
+  })
 })

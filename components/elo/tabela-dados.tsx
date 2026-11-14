@@ -17,6 +17,12 @@ export type Coluna<T> = {
    */
   ordenarPor?: (linha: T) => string | number | null | undefined
   alinhar?: 'esquerda' | 'direita'
+  /**
+   * Classe de largura do Tailwind, como `w-1/3`. Se alguma coluna tem largura, a tabela fica com colunas
+   * fixas: buscar, filtrar ou paginar não muda o tamanho delas, e o texto longo quebra dentro da célula.
+   * As colunas sem largura dividem o que sobra.
+   */
+  largura?: string
 }
 
 type Destaque = 'atencao' | 'problema'
@@ -114,9 +120,13 @@ export function TabelaDados<T>({
     }
   }
 
+  // Colunas fixas precisam de uma largura mínima: em tela estreita, a tabela rola dentro do painel
+  // (padrão 5) em vez de espremer as colunas.
+  const fixa = colunas.some((c) => c.largura)
+
   return (
     <div>
-      <Table>
+      <Table className={fixa ? 'table-fixed min-w-4xl' : undefined}>
         <TableHeader>
           <TableRow>
             {colunas.map((c) => {
@@ -124,7 +134,7 @@ export function TabelaDados<T>({
               const sentido = ordem?.coluna === c.id ? ordem.sentido : undefined
               const Seta = sentido === 'ascending' ? ArrowUp : sentido === 'descending' ? ArrowDown : ArrowUpDown
               return (
-                <TableHead key={c.id} aria-sort={sentido} className={direita ? 'text-right' : undefined}>
+                <TableHead key={c.id} aria-sort={sentido} className={cn(direita && 'text-right', c.largura)}>
                   {c.ordenarPor ? (
                     // Sem aria-label: o nome do botão vira o nome do cabeçalho, que o leitor de tela repete
                     // em cada célula. O título basta; o aria-sort do th diz a ordem.
@@ -160,7 +170,10 @@ export function TabelaDados<T>({
                 )}
               >
                 {colunas.map((c) => (
-                  <TableCell key={c.id} className={c.alinhar === 'direita' ? 'text-right' : undefined}>
+                  <TableCell
+                    key={c.id}
+                    className={cn(c.alinhar === 'direita' && 'text-right', fixa && 'whitespace-normal break-words')}
+                  >
                     {c.celula(linha)}
                   </TableCell>
                 ))}
