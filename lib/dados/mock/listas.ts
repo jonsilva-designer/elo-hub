@@ -12,3 +12,15 @@ export const SEGMENTOS: string[] = [
   'Mineração',
   'Tecnologia',
 ]
+
+// As 8 dimensões do Teste de Maturidade e Prontidão da ELO (Apêndice C, DF-70), na ordem do PRD.
+export const DIMENSOES: string[] = [
+  'Regularidade e documentação',
+  'Capacidade técnica',
+  'Capacidade operacional',
+  'Gestão e qualidade',
+  'Saúde, segurança e ambiente',
+  'Sustentação financeira',
+  'Gestão comercial e contratual',
+  'Integridade e informação',
+]

@@ -18,6 +18,7 @@ export const CLIENTES: Cliente[] = [
     segmento: 'Manutenção e serviços industriais',
     cidade: 'Macaé',
     uf: 'RJ',
+    telefone: '(22) 2765-4310',
     status: 'Ativo',
     ehCadastroElo: false,
   },

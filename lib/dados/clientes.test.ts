@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { destinoDe, entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { listarClientes, obterCliente } from './clientes'
+import { itensQueImpedemInativar, listarClientes, obterCliente, obterClientePorCnpj, temItensLigados } from './clientes'
 import { CLIENTES } from './mock/clientes'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -42,5 +42,48 @@ describe('obterCliente (CA-01.1, link direto)', () => {
   it('o Administrador recebe qualquer cliente', async () => {
     entrarComo('usr-helena')
     expect(await obterCliente('cli-montareal')).toMatchObject({ id: 'cli-montareal' })
+  })
+})
+
+describe('obterClientePorCnpj (CA-02.1)', () => {
+  it('acha o cliente com ou sem pontuação', async () => {
+    entrarComo('usr-helena')
+    expect((await obterClientePorCnpj('21473509000121'))?.id).toBe('cli-vertice')
+    expect((await obterClientePorCnpj('21.473.509/0001-21'))?.id).toBe('cli-vertice')
+  })
+
+  it('CNPJ que não existe dá null', async () => {
+    entrarComo('usr-helena')
+    expect(await obterClientePorCnpj('11.222.333/0001-81')).toBeNull()
+    expect(await obterClientePorCnpj('')).toBeNull()
+  })
+})
+
+describe('itensQueImpedemInativar (RN-18, CA-18.3)', () => {
+  it('a Vértice tem a avaliação Em elaboração do Rafael', async () => {
+    entrarComo('usr-helena')
+    expect(await itensQueImpedemInativar('cli-vertice')).toEqual([
+      {
+        tipo: 'Avaliação de maturidade',
+        descricao: 'Avaliação de 05/11/2026',
+        status: 'Em elaboração',
+        responsavel: 'Rafael Souza',
+        href: '/avaliacoes/ava-vertice-3',
+      },
+    ])
+  })
+
+  it('a Atlântica não tem item aberto', async () => {
+    entrarComo('usr-helena')
+    expect(await itensQueImpedemInativar('cli-atlantica')).toEqual([])
+  })
+})
+
+describe('temItensLigados (DF-33)', () => {
+  it('verdadeiro para quem tem avaliação, falso para os outros', async () => {
+    entrarComo('usr-helena')
+    expect(await temItensLigados('cli-vertice')).toBe(true)
+    expect(await temItensLigados('cli-atlantica')).toBe(true)
+    for (const id of ['cli-limpar', 'cli-fortec', 'cli-elo']) expect(await temItensLigados(id), id).toBe(false)
   })
 })

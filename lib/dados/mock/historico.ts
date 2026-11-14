@@ -1,0 +1,54 @@
+import type { RegistroAlteracao } from '../tipos'
+
+// Histórico fictício (F17, DF-16): a criação de cada cliente e de cada avaliação e algumas alterações
+// relevantes. Como salvar só simula, o histórico não cresce no protótipo.
+
+type Entrada = [registro: string, dataHora: string, usuarioId: string, descricao: string, anterior?: string, novo?: string]
+
+const cliente = (...e: Entrada) => ({ tipo: 'cliente' as const, e })
+const avaliacao = (...e: Entrada) => ({ tipo: 'avaliacao' as const, e })
+
+const ENTRADAS = [
+  cliente('cli-elo', '2026-01-05T09:00:00-03:00', 'usr-helena', 'Cadastro criado'),
+  cliente('cli-fortec', '2026-01-20T10:00:00-03:00', 'usr-helena', 'Cadastro criado'),
+  cliente('cli-vertice', '2026-02-02T09:15:00-03:00', 'usr-helena', 'Cadastro criado'),
+  cliente('cli-atlantica', '2026-02-10T10:20:00-03:00', 'usr-helena', 'Cadastro criado'),
+  cliente('cli-montareal', '2026-02-18T14:00:00-03:00', 'usr-helena', 'Cadastro criado'),
+  cliente('cli-atlantica', '2026-03-02T11:05:00-03:00', 'usr-helena', 'Vínculo incluído', undefined, 'Rafael Souza'),
+  avaliacao('ava-vertice-1', '2026-03-09T10:00:00-03:00', 'usr-helena', 'Avaliação criada'),
+  avaliacao('ava-vertice-1', '2026-03-11T17:00:00-03:00', 'usr-helena', 'Status da avaliação', 'Em elaboração', 'Concluída'),
+  cliente('cli-vertice', '2026-03-12T16:40:00-03:00', 'usr-helena', 'Status do cliente', 'Prospect', 'Ativo'),
+  cliente('cli-vertice', '2026-03-12T16:45:00-03:00', 'usr-helena', 'Vínculo incluído', undefined, 'Rafael Souza'),
+  cliente('cli-rede-norte', '2026-04-08T15:00:00-03:00', 'usr-helena', 'Cadastro criado'),
+  cliente('cli-rede-norte', '2026-04-08T15:10:00-03:00', 'usr-helena', 'Vínculo incluído', undefined, 'Rafael Souza'),
+  cliente('cli-montareal', '2026-05-04T09:40:00-03:00', 'usr-helena', 'Vínculo incluído', undefined, 'Marcos Lima'),
+  cliente('cli-ondamar', '2026-06-01T09:30:00-03:00', 'usr-helena', 'Cadastro criado'),
+  cliente('cli-ondamar', '2026-06-15T14:10:00-03:00', 'usr-helena', 'Status do cliente', 'Prospect', 'Ativo'),
+  cliente('cli-fortec', '2026-08-05T11:00:00-03:00', 'usr-helena', 'Status do cliente', 'Ativo', 'Inativo'),
+  avaliacao('ava-atlantica-1', '2026-08-18T09:00:00-03:00', 'usr-helena', 'Avaliação criada'),
+  avaliacao('ava-atlantica-1', '2026-08-21T15:30:00-03:00', 'usr-helena', 'Status da avaliação', 'Em elaboração', 'Concluída'),
+  avaliacao('ava-vertice-2', '2026-09-10T10:00:00-03:00', 'usr-helena', 'Avaliação criada'),
+  avaliacao('ava-vertice-2', '2026-09-11T08:30:00-03:00', 'usr-helena', 'Avaliador', 'Helena Prado', 'Rafael Souza'),
+  avaliacao('ava-vertice-2', '2026-09-18T17:10:00-03:00', 'usr-helena', 'Status da avaliação', 'Em elaboração', 'Concluída'),
+  cliente('cli-vertice', '2026-09-20T14:32:00-03:00', 'usr-helena', 'Telefone', undefined, '(22) 2765-4310'),
+  avaliacao('ava-montareal-1', '2026-10-01T10:00:00-03:00', 'usr-helena', 'Avaliação criada'),
+  avaliacao('ava-montareal-1', '2026-10-03T16:20:00-03:00', 'usr-helena', 'Status da avaliação', 'Em elaboração', 'Concluída'),
+  avaliacao('ava-ondamar-1', '2026-10-13T09:00:00-03:00', 'usr-helena', 'Avaliação criada'),
+  avaliacao('ava-ondamar-1', '2026-10-15T11:45:00-03:00', 'usr-helena', 'Status da avaliação', 'Em elaboração', 'Concluída'),
+  cliente('cli-limpar', '2026-10-20T16:00:00-03:00', 'usr-helena', 'Cadastro criado'),
+  avaliacao('ava-vertice-3', '2026-11-05T14:20:00-03:00', 'usr-rafael', 'Avaliação criada'),
+]
+
+export const HISTORICO: RegistroAlteracao[] = ENTRADAS.map(({ tipo, e }, i) => {
+  const [registroId, dataHora, usuarioId, descricao, valorAnterior, valorNovo] = e
+  return {
+    id: `his-${String(i + 1).padStart(2, '0')}`,
+    tipo,
+    registroId,
+    dataHora,
+    usuarioId,
+    descricao,
+    ...(valorAnterior === undefined ? {} : { valorAnterior }),
+    ...(valorNovo === undefined ? {} : { valorNovo }),
+  }
+})
