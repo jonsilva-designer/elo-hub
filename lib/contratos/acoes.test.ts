@@ -207,6 +207,14 @@ describe('encerrar, cancelar, reabrir e excluir (critérios 7, 8 e 9, RN-17, RN-
     )
   })
 
+  it('não reabre contrato de cliente Inativo, que não pode ter contrato aberto (RN-18, parte 3, 5.11)', async () => {
+    entrarComo('usr-helena')
+    expect(await reabrirContrato('ctr-fortec-subestacoes', 'Proposta', 'Retomada')).toEqual({
+      ok: false,
+      mensagem: 'Cliente inativo: reative o cliente para reabrir o contrato.',
+    })
+  })
+
   it('excluir só sem nada ligado e com justificativa (CA-18.4)', async () => {
     entrarComo('usr-helena')
     expect((await excluirContrato('ctr-vertice-manutencao', 'x')).mensagem).toBe(

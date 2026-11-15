@@ -1,6 +1,6 @@
 'use server'
 
-import { listarClientes } from '@/lib/dados/clientes'
+import { listarClientes, obterCliente } from '@/lib/dados/clientes'
 import { contratoTemItensLigados, listarContratosDoCliente, obterContrato } from '@/lib/dados/contratos'
 import { escoposQueImpedemFechar } from '@/lib/dados/escopos'
 import { listarContratantes, listarServicos } from '@/lib/dados/listas'
@@ -121,6 +121,10 @@ export async function reabrirContrato(id: string, status: string, justificativa:
   if (ehRecusa(contrato)) return contrato
   if (contrato.status !== 'Encerrado' && contrato.status !== 'Cancelado') {
     return recusa('Só um contrato Encerrado ou Cancelado pode ser reaberto.')
+  }
+  // Todo status de volta é aberto, e cliente Inativo não tem contrato aberto (RN-18, parte 3, 5.11).
+  if ((await obterCliente(contrato.clienteId))?.status === 'Inativo') {
+    return recusa('Cliente inativo: reative o cliente para reabrir o contrato.')
   }
   if (!(STATUS_ABERTOS as string[]).includes(status)) return recusa('Escolha o status de volta.')
   if (typeof justificativa !== 'string' || !justificativa.trim()) return recusa('Escreva a justificativa da reabertura.')
