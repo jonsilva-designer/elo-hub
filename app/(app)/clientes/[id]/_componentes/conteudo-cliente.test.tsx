@@ -10,6 +10,7 @@ vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).mo
 vi.mock('next/navigation', async () => ({
   ...(await import('@/lib/testes/next-falso')).moduloNavigation,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(window.location.search),
 }))
 
 beforeEach(() => {

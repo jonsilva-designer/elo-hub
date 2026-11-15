@@ -86,6 +86,25 @@ describe('salvarAvaliacao (F20, CA-20.1, RN-19, RN-23)', () => {
     expect(r.valores?.medias[2]).toBe('5,01')
   })
 
+  it('valor fora das listas, enviado à mão, conta como em branco; contrato de referência não há (CA-20.3)', async () => {
+    entrarComo('usr-helena')
+    const r = await salvar({
+      clienteId: 'cli-montareal',
+      data: '2026-11-14',
+      avaliadorId: 'usr-helena',
+      contratoId: 'ctr-de-outro-cliente',
+      'nivel-0': 'Excelente',
+      'nivel-1': 'Básica',
+      maturidadeGeral: 'Ótima',
+      prontidao: 'Talvez',
+    })
+    expect(r.sucesso).toBeDefined()
+    expect(r.valores?.niveis.slice(0, 2)).toEqual(['', 'Básica'])
+    expect(r.valores?.maturidadeGeral).toBe('')
+    expect(r.valores?.prontidao).toBe('')
+    expect(r.valores?.contratoId).toBe('')
+  })
+
   it('nada muda nos dados: salvar só simula', async () => {
     entrarComo('usr-helena')
     await salvar({ clienteId: 'cli-vertice', data: '2026-11-14', avaliadorId: 'usr-helena' })

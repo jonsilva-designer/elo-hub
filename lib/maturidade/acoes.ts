@@ -7,7 +7,7 @@ import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { AvaliacaoDetalhada } from '@/lib/dados/tipos'
 import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoSalvarAvaliacao } from './estados'
-import { oQueFaltaParaConcluir } from './regras'
+import { NIVEIS_DIMENSAO, NIVEIS_GERAIS, oQueFaltaParaConcluir, PRONTIDOES } from './regras'
 import { lerDadosAvaliacao, MENSAGENS_AVALIACAO, validarAvaliacao } from './validacao'
 
 // Ações da avaliação de maturidade (parte 2, 5.3). Conferem o perfil e o vínculo no servidor, mesmo quando a
@@ -46,6 +46,13 @@ export async function salvarAvaliacao(
   }
 
   const dados = lerDadosAvaliacao(formData, dimensoes.length)
+  // Valor fora das listas, só possível enviando à mão, conta como em branco, como o segmento do cliente.
+  const daLista = (lista: readonly string[], valor: string) => (lista.includes(valor) ? valor : '')
+  dados.niveis = dados.niveis.map((n) => daLista(NIVEIS_DIMENSAO, n))
+  dados.maturidadeGeral = daLista(NIVEIS_GERAIS, dados.maturidadeGeral)
+  dados.prontidao = daLista(PRONTIDOES, dados.prontidao)
+  // Os contratos entram na parte 3: até lá, nenhum contrato de referência é aceito (CA-20.3).
+  dados.contratoId = ''
   const permitidos = (await listarAvaliadores(clienteId)).map((u) => u.id)
   const erros = validarAvaliacao(dados, permitidos)
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
