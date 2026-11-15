@@ -10,6 +10,7 @@ import {
   formatarReal,
   lerValorEmReais,
   formatarDataHora,
+  hojeEmBrasilia,
 } from "@/lib/formato";
 
 describe("formatarData", () => {
@@ -191,5 +192,12 @@ describe('formatarDataHora', () => {
     expect(formatarDataHora(null)).toBe('—')
     expect(formatarDataHora('ontem')).toBe('—')
     expect(formatarDataHora('2026-02-31T10:00')).toBe('—')
+  })
+})
+
+describe('hojeEmBrasilia (RN-20)', () => {
+  it('dá a data de Brasília, mesmo com o servidor em UTC (ponto de atenção 1)', () => {
+    expect(hojeEmBrasilia(new Date('2026-11-14T01:30:00Z'))).toBe('2026-11-13')
+    expect(hojeEmBrasilia(new Date('2026-11-14T03:00:00Z'))).toBe('2026-11-14')
   })
 })

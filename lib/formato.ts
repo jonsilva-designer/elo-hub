@@ -153,3 +153,16 @@ export function escreverValorEmReais(valor: number | null | undefined): string {
   const n = finito(valor);
   return n === null ? "" : duasCasas.format(n);
 }
+
+const diaDeBrasilia = new Intl.DateTimeFormat("en-CA", {
+  timeZone: FUSO,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/** A data de hoje no horário de Brasília, `AAAA-MM-DD` (RN-20), qualquer que seja o fuso do servidor. */
+export function hojeEmBrasilia(agora: Date): string {
+  const p = Object.fromEntries(diaDeBrasilia.formatToParts(agora).map((parte) => [parte.type, parte.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}
