@@ -28,6 +28,7 @@ describe('editar contrato (seção 5.5)', () => {
       'href',
       '/contratos/ctr-vertice-manutencao',
     )
+    expect(screen.getByRole('link', { name: 'Voltar para CT-2025-031' }).querySelector('.font-mono')).toHaveTextContent('CT-2025-031')
   })
 
   it('o Rafael, vinculado, vê acesso negado; fora do vínculo ou com id que não existe, não encontrado (critério 10)', async () => {

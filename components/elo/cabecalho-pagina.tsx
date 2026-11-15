@@ -6,7 +6,8 @@ export function CabecalhoPagina({
   contexto,
   acoes,
 }: {
-  titulo: string
+  /** Texto, ou o texto com números em <Num> (JetBrains Mono em todos os números, padrão visual). */
+  titulo: ReactNode
   contexto?: ReactNode
   acoes?: ReactNode
 }) {

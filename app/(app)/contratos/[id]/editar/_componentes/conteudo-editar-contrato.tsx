@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { AcessoNegado } from '@/components/elo/estados'
 import { LinkVoltar } from '@/components/elo/link-voltar'
+import { Num } from '@/components/elo/num'
 import { obterContrato } from '@/lib/dados/contratos'
 import { listarContratantes, listarServicos } from '@/lib/dados/listas'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -21,7 +22,7 @@ export async function ConteudoEditarContrato({ params }: { params: Promise<{ id:
   const cabecalho = (
     <>
       <div className="mb-3">
-        <LinkVoltar href={`/contratos/${contrato.id}`} rotulo={contrato.codigo} />
+        <LinkVoltar href={`/contratos/${contrato.id}`} rotulo={<Num>{contrato.codigo}</Num>} />
       </div>
       <CabecalhoPagina titulo="Editar contrato" />
     </>

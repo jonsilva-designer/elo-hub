@@ -1,8 +1,9 @@
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 
 /** Caminho de volta, acima do título da página. O nome acessível é "Voltar para <rótulo>". */
-export function LinkVoltar({ href, rotulo }: { href: string; rotulo: string }) {
+export function LinkVoltar({ href, rotulo }: { href: string; rotulo: ReactNode }) {
   return (
     <Link
       href={href}

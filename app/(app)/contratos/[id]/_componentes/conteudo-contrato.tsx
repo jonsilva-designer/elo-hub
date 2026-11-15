@@ -70,7 +70,7 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
         <VoltarParaContratos />
       </div>
       <CabecalhoPagina
-        titulo={contrato.codigo}
+        titulo={<Num>{contrato.codigo}</Num>}
         contexto={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <Link

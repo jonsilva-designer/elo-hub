@@ -31,7 +31,9 @@ describe('página do contrato (parte 3, 5.6)', () => {
     entrarComo('usr-helena')
     const { container } = await abrir('ctr-vertice-manutencao')
     expect(screen.getByRole('link', { name: 'Voltar para Contratos' })).toHaveAttribute('href', '/contratos')
-    expect(screen.getByRole('heading', { level: 1, name: 'CT-2025-031' })).toBeInTheDocument()
+    const titulo = screen.getByRole('heading', { level: 1, name: 'CT-2025-031' })
+    // JetBrains Mono em todos os números (padrão visual, decisão do Jonathan), também no título.
+    expect(titulo.querySelector('.font-mono')).toHaveTextContent('CT-2025-031')
     const cabecalho = within(container.querySelector('header')!)
     expect(cabecalho.getByRole('link', { name: 'Vértice Manutenção' })).toHaveAttribute('href', '/clientes/cli-vertice')
     expect(cabecalho.getByText('Petrobras')).toBeInTheDocument()
