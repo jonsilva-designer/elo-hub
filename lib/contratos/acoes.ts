@@ -1,14 +1,16 @@
 'use server'
 
 import { listarClientes } from '@/lib/dados/clientes'
-import { listarContratosDoCliente, obterContrato } from '@/lib/dados/contratos'
+import { contratoTemItensLigados, listarContratosDoCliente, obterContrato } from '@/lib/dados/contratos'
+import { escoposQueImpedemFechar } from '@/lib/dados/escopos'
 import { listarContratantes, listarServicos } from '@/lib/dados/listas'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
-import { mensagemDeSucesso, SEM_PERMISSAO } from '@/lib/resultado-acao'
+import type { ContratoDetalhado } from '@/lib/dados/tipos'
+import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoSalvarContrato } from './estados'
-import { TIPOS_VIGENCIA } from './regras'
+import { STATUS_ABERTOS, TIPOS_VIGENCIA } from './regras'
 import { lerDadosContrato, validarContrato } from './validacao'
 
 // Ações do contrato (parte 3, 5.3). Só o Administrador cadastra, edita e muda o status (matriz 4.3). Conferem tudo
@@ -61,4 +63,79 @@ export async function salvarContrato(_estado: EstadoSalvarContrato, formData: Fo
       destino: atual ? `/contratos/${atual.id}` : `/clientes/${dados.clienteId}?aba=contratos`,
     },
   }
+}
+
+const recusa = (mensagem: string): ResultadoAcao => ({ ok: false, mensagem })
+
+/**
+ * O contrato ao alcance do Administrador, ou a recusa. Os argumentos vêm do navegador e podem ser forjados:
+ * quem não é Administrador, ou um id que não existe, recebe a mesma recusa, sem saber se o contrato existe.
+ */
+async function contratoDoAdministrador(id: unknown): Promise<ContratoDetalhado | ResultadoAcao> {
+  const usuario = await obterUsuarioAtual()
+  if (!ehAdmin(usuario) || typeof id !== 'string') return recusa(SEM_PERMISSAO)
+  return (await obterContrato(id)) ?? recusa(SEM_PERMISSAO)
+}
+
+const ehRecusa = (x: ContratoDetalhado | ResultadoAcao): x is ResultadoAcao => 'ok' in x
+
+/** Encerrar ou cancelar: recusado enquanto houver escopos abertos, com a lista deles (RN-18, CA-18.3). */
+async function fechar(contrato: ContratoDetalhado, verbo: 'encerrar' | 'cancelar', sucesso: string): Promise<ResultadoAcao> {
+  const impedimentos = await escoposQueImpedemFechar(contrato.id)
+  if (impedimentos.length > 0) {
+    return {
+      ok: false,
+      mensagem: `Não é possível ${verbo} este contrato enquanto houver escopos abertos.`,
+      impedimentos,
+    }
+  }
+  return { ok: true, mensagem: mensagemDeSucesso(sucesso) }
+}
+
+/** Encerrar o contrato Ativo ou Suspenso: ele vigorou e terminou (F03, seção 6.1). */
+export async function encerrarContrato(id: string): Promise<ResultadoAcao> {
+  const contrato = await contratoDoAdministrador(id)
+  if (ehRecusa(contrato)) return contrato
+  if (contrato.status !== 'Ativo' && contrato.status !== 'Suspenso') {
+    return recusa('Só um contrato Ativo ou Suspenso pode ser encerrado.')
+  }
+  return fechar(contrato, 'encerrar', 'Contrato encerrado.')
+}
+
+/** Cancelar o contrato em Proposta ou Em contratação: ele não chegou a vigorar (F03, seção 6.1). */
+export async function cancelarContrato(id: string): Promise<ResultadoAcao> {
+  const contrato = await contratoDoAdministrador(id)
+  if (ehRecusa(contrato)) return contrato
+  if (contrato.status !== 'Proposta' && contrato.status !== 'Em contratação') {
+    return recusa('Só um contrato em Proposta ou Em contratação pode ser cancelado.')
+  }
+  return fechar(contrato, 'cancelar', 'Contrato cancelado.')
+}
+
+/**
+ * Reabrir o contrato Encerrado ou Cancelado para um status aberto, com justificativa (RN-17, RN-22). Ativo e
+ * Suspenso exigem as datas da vigência (CA-03.2): sem elas, a recusa pede para editar o contrato antes.
+ */
+export async function reabrirContrato(id: string, status: string, justificativa: string): Promise<ResultadoAcao> {
+  const contrato = await contratoDoAdministrador(id)
+  if (ehRecusa(contrato)) return contrato
+  if (contrato.status !== 'Encerrado' && contrato.status !== 'Cancelado') {
+    return recusa('Só um contrato Encerrado ou Cancelado pode ser reaberto.')
+  }
+  if (!(STATUS_ABERTOS as string[]).includes(status)) return recusa('Escolha o status de volta.')
+  if (typeof justificativa !== 'string' || !justificativa.trim()) return recusa('Escreva a justificativa da reabertura.')
+  const semDatas = !contrato.inicio || (contrato.tipoVigencia !== 'Prazo indeterminado' && !contrato.termino)
+  if ((status === 'Ativo' || status === 'Suspenso') && semDatas) {
+    return recusa('Para voltar como Ativo ou Suspenso, o contrato precisa das datas da vigência. Edite o contrato antes.')
+  }
+  return { ok: true, mensagem: mensagemDeSucesso('Contrato reaberto.') }
+}
+
+/** Excluir o contrato (DF-33, CA-18.4): só sem nada ligado a ele, e com justificativa. */
+export async function excluirContrato(id: string, justificativa: string): Promise<ResultadoAcao> {
+  const contrato = await contratoDoAdministrador(id)
+  if (ehRecusa(contrato)) return contrato
+  if (await contratoTemItensLigados(contrato.id)) return recusa('Este contrato tem registros ligados e não pode ser excluído.')
+  if (typeof justificativa !== 'string' || !justificativa.trim()) return recusa('Escreva a justificativa da exclusão.')
+  return { ok: true, mensagem: mensagemDeSucesso('Contrato excluído.') }
 }

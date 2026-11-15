@@ -41,10 +41,11 @@ describe('página do contrato (parte 3, 5.6)', () => {
     expect(cabecalho.queryByText('Planejamento')).not.toBeInTheDocument()
   })
 
-  it('o Administrador vê Editar', async () => {
+  it('o Administrador vê Editar e o menu de ações', async () => {
     entrarComo('usr-helena')
     await abrir('ctr-vertice-manutencao')
     expect(screen.getByRole('link', { name: 'Editar' })).toHaveAttribute('href', '/contratos/ctr-vertice-manutencao/editar')
+    expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument()
   })
 
   it('os painéis aparecem na ordem da especificação', async () => {
@@ -138,12 +139,13 @@ describe('página do contrato (parte 3, 5.6)', () => {
     expect(historico).toHaveTextContent('De Proposta para Ativo')
   })
 
-  it('a Equipe vinculada vê o contrato sem Editar e sem Novo escopo', async () => {
+  it('a Equipe vinculada vê o contrato sem Editar, sem o menu e sem Novo escopo', async () => {
     entrarComo('usr-rafael')
     await abrir('ctr-vertice-manutencao')
     expect(screen.getByRole('heading', { level: 1, name: 'CT-2025-031' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Editar' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Novo escopo' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Mais ações' })).not.toBeInTheDocument()
   })
 
   it('fora do vínculo ou com id que não existe, "não encontrado" (critério 10)', async () => {

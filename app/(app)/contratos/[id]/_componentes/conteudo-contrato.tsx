@@ -12,14 +12,15 @@ import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { Button } from '@/components/ui/button'
 import { ehPlanejamento } from '@/lib/contratos/regras'
-import { obterContrato } from '@/lib/dados/contratos'
-import { listarEscoposDoContrato } from '@/lib/dados/escopos'
+import { contratoTemItensLigados, obterContrato } from '@/lib/dados/contratos'
+import { escoposQueImpedemFechar, listarEscoposDoContrato } from '@/lib/dados/escopos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { ContratoDetalhado } from '@/lib/dados/tipos'
 import { formatarData, formatarReal } from '@/lib/formato'
 import { VoltarParaContratos } from '../../_componentes/voltar-para-contratos'
+import { AcoesContrato } from './acoes-contrato'
 import { TabelaEscopos } from './tabela-escopos'
 
 const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
@@ -52,7 +53,7 @@ function Vigencia({ contrato }: { contrato: ContratoDetalhado }) {
 
 /**
  * Página do contrato (parte 3, 5.6). Fora do vínculo ou com id que não existe, "não encontrado", sem revelar que o
- * contrato existe. Só o Administrador edita; a Equipe vinculada só lê.
+ * contrato existe. Só o Administrador edita e tem o menu de ações; a Equipe vinculada só lê.
  */
 export async function ConteudoContrato({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -63,6 +64,10 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
     listarHistorico('contrato', contrato.id),
   ])
   const admin = ehAdmin(usuario)
+  // Encerrar, cancelar, reabrir e excluir: só o Administrador. Os escopos abertos impedem fechar (RN-18).
+  const [impedimentos, ligados] = admin
+    ? await Promise.all([escoposQueImpedemFechar(contrato.id), contratoTemItensLigados(contrato.id)])
+    : [[], true]
 
   return (
     <>
@@ -88,12 +93,15 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
         }
         acoes={
           admin ? (
-            <Button asChild variant="outline">
-              <Link href={`/contratos/${contrato.id}/editar`}>
-                <Pencil aria-hidden="true" />
-                Editar
-              </Link>
-            </Button>
+            <>
+              <Button asChild variant="outline">
+                <Link href={`/contratos/${contrato.id}/editar`}>
+                  <Pencil aria-hidden="true" />
+                  Editar
+                </Link>
+              </Button>
+              <AcoesContrato contrato={contrato} impedimentos={impedimentos} podeExcluir={!ligados} />
+            </>
           ) : null
         }
       />

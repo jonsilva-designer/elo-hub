@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { diasEntre } from '@/lib/contratos/vigencia'
 import { hojeEmBrasilia } from '@/lib/formato'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { listarContratos, listarContratosDoCliente, obterContrato } from './contratos'
+import { contratoTemItensLigados, listarContratos, listarContratosDoCliente, obterContrato } from './contratos'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
 vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
@@ -85,5 +85,20 @@ describe('data de hoje na requisição (cacheComponents)', () => {
     vi.mocked(connection).mockClear()
     await listarContratos()
     expect(connection).toHaveBeenCalled()
+  })
+})
+
+describe('contratoTemItensLigados (RN-13, DF-33)', () => {
+  it('nesta parte, o contrato com escopo tem itens ligados', async () => {
+    entrarComo('usr-helena')
+    expect(await contratoTemItensLigados('ctr-vertice-manutencao')).toBe(true)
+    expect(await contratoTemItensLigados('ctr-atlantica-ssma')).toBe(true)
+    expect(await contratoTemItensLigados('ctr-rede-norte-glpi')).toBe(false)
+    expect(await contratoTemItensLigados('ctr-montareal-pintura')).toBe(false)
+  })
+
+  it('fora do vínculo, não revela nada', async () => {
+    entrarComo('usr-rafael')
+    expect(await contratoTemItensLigados('ctr-montareal-montagem')).toBe(false)
   })
 })

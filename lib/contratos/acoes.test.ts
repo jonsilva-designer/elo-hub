@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { listarContratos } from '@/lib/dados/contratos'
+import { NAO_GRAVA } from '@/lib/resultado-acao'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { salvarContrato } from './acoes'
+import { cancelarContrato, encerrarContrato, excluirContrato, reabrirContrato, salvarContrato } from './acoes'
 import { ESTADO_INICIAL_SALVAR_CONTRATO } from './estados'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -140,5 +141,81 @@ describe('salvarContrato (F03, matriz 4.3, critérios 5 e 9)', () => {
     entrarComo('usr-helena')
     expect((await salvar({ valor: 'abc' })).erros.valor).toBe('Informe um valor em reais.')
     expect((await salvar({ valor: '1.234,56' })).erros).toEqual({})
+  })
+})
+
+
+describe('encerrar, cancelar, reabrir e excluir (critérios 7, 8 e 9, RN-17, RN-18, RN-22, DF-33)', () => {
+  it('a Equipe recebe a recusa nas quatro ações, mesmo em contrato vinculado', async () => {
+    entrarComo('usr-rafael')
+    const recusa = { ok: false, mensagem: SEM_PERMISSAO }
+    expect(await encerrarContrato('ctr-vertice-manutencao')).toEqual(recusa)
+    expect(await cancelarContrato('ctr-vertice-proposta')).toEqual(recusa)
+    expect(await reabrirContrato('ctr-montareal-pintura', 'Proposta', 'Retomada')).toEqual(recusa)
+    expect(await excluirContrato('ctr-rede-norte-glpi', 'Motivo')).toEqual(recusa)
+  })
+
+  it('id que não existe ou que não é texto recebe a mesma recusa', async () => {
+    entrarComo('usr-helena')
+    expect(await encerrarContrato('ctr-nao-existe')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+    expect(await encerrarContrato(42 as unknown as string)).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+  })
+
+  it('encerrar com escopos abertos é recusado, com a lista (CA-18.3)', async () => {
+    entrarComo('usr-helena')
+    const r = await encerrarContrato('ctr-vertice-manutencao')
+    expect(r.ok).toBe(false)
+    expect(r.mensagem).toBe('Não é possível encerrar este contrato enquanto houver escopos abertos.')
+    expect(r.ok === false && r.impedimentos?.map((i) => i.descricao)).toEqual(['Regularização documental', 'Programa de qualidade'])
+  })
+
+  it('encerrar sem escopos abertos passa; fora de Ativo e Suspenso, não', async () => {
+    entrarComo('usr-helena')
+    const r = await encerrarContrato('ctr-atlantica-ssma')
+    expect(r).toEqual({ ok: true, mensagem: `Contrato encerrado. ${NAO_GRAVA}` })
+    expect((await encerrarContrato('ctr-vertice-proposta')).mensagem).toBe('Só um contrato Ativo ou Suspenso pode ser encerrado.')
+  })
+
+  it('cancelar a proposta sem escopos passa; com escopo de planejamento aberto, não', async () => {
+    entrarComo('usr-helena')
+    expect(await cancelarContrato('ctr-rede-norte-glpi')).toEqual({ ok: true, mensagem: `Contrato cancelado. ${NAO_GRAVA}` })
+    const r = await cancelarContrato('ctr-vertice-proposta')
+    expect(r.mensagem).toBe('Não é possível cancelar este contrato enquanto houver escopos abertos.')
+    expect(r.ok === false && r.impedimentos?.map((i) => i.descricao)).toEqual(['Diagnóstico para nova proposta'])
+    expect((await cancelarContrato('ctr-vertice-manutencao')).mensagem).toBe(
+      'Só um contrato em Proposta ou Em contratação pode ser cancelado.',
+    )
+  })
+
+  it('reabrir pede status aberto, justificativa e, para Ativo ou Suspenso, as datas (ponto de atenção 5)', async () => {
+    entrarComo('usr-helena')
+    expect((await reabrirContrato('ctr-montareal-pintura', 'Ativo', 'Retomada')).mensagem).toBe(
+      'Para voltar como Ativo ou Suspenso, o contrato precisa das datas da vigência. Edite o contrato antes.',
+    )
+    expect((await reabrirContrato('ctr-montareal-pintura', 'Suspenso', 'Retomada')).ok).toBe(false)
+    expect(await reabrirContrato('ctr-montareal-pintura', 'Proposta', 'Retomada')).toEqual({
+      ok: true,
+      mensagem: `Contrato reaberto. ${NAO_GRAVA}`,
+    })
+    expect((await reabrirContrato('ctr-montareal-pintura', 'Encerrado', 'Retomada')).mensagem).toBe('Escolha o status de volta.')
+    expect((await reabrirContrato('ctr-montareal-pintura', 'Proposta', '  ')).mensagem).toBe(
+      'Escreva a justificativa da reabertura.',
+    )
+    expect((await reabrirContrato('ctr-ondamar-apoio', 'Ativo', 'Aditivo')).ok).toBe(true)
+    expect((await reabrirContrato('ctr-vertice-manutencao', 'Proposta', 'x')).mensagem).toBe(
+      'Só um contrato Encerrado ou Cancelado pode ser reaberto.',
+    )
+  })
+
+  it('excluir só sem nada ligado e com justificativa (CA-18.4)', async () => {
+    entrarComo('usr-helena')
+    expect((await excluirContrato('ctr-vertice-manutencao', 'x')).mensagem).toBe(
+      'Este contrato tem registros ligados e não pode ser excluído.',
+    )
+    expect((await excluirContrato('ctr-rede-norte-glpi', '  ')).mensagem).toBe('Escreva a justificativa da exclusão.')
+    expect(await excluirContrato('ctr-rede-norte-glpi', 'Proposta lançada em duplicidade')).toEqual({
+      ok: true,
+      mensagem: `Contrato excluído. ${NAO_GRAVA}`,
+    })
   })
 })

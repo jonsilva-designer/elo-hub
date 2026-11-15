@@ -4,6 +4,7 @@ import { somarDias } from '@/lib/formato'
 import { hojeDaRequisicao } from './hoje'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS, type ContratoFicticio } from './mock/contratos'
+import { ESCOPOS } from './mock/escopos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { obterDiasDoAlerta } from './parametros'
 import { podeVerCliente } from './regras'
@@ -57,4 +58,15 @@ export async function listarContratosDoCliente(clienteId: string): Promise<Contr
 export async function obterContrato(id: string): Promise<ContratoDetalhado | null> {
   const [contrato] = await lerContratos((c) => c.id === id)
   return contrato ?? null
+}
+
+/**
+ * Se o contrato tem algo ligado, que impede excluí-lo (RN-13, DF-33). Nesta parte, os escopos; documentos e
+ * demandas entram nas partes 4 a 6. Fora do vínculo, false, sem revelar nada: as ações conferem o acesso antes.
+ */
+export async function contratoTemItensLigados(id: string): Promise<boolean> {
+  const usuario = await obterUsuarioAtual()
+  const contrato = CONTRATOS.find((c) => c.id === id)
+  if (!contrato || !podeVerCliente(usuario, contrato.clienteId, VINCULOS)) return false
+  return ESCOPOS.some((e) => e.contratoId === id)
 }
