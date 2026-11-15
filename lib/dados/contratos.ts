@@ -1,6 +1,7 @@
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { vigenciaDoContrato } from '@/lib/contratos/vigencia'
-import { hojeEmBrasilia, somarDias } from '@/lib/formato'
+import { somarDias } from '@/lib/formato'
+import { hojeDaRequisicao } from './hoje'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS, type ContratoFicticio } from './mock/contratos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
@@ -33,12 +34,10 @@ function detalhar(c: ContratoFicticio, hoje: string, diasDoAlerta: number): Cont
   }
 }
 
-/** Os contratos que passam no filtro e que o usuário da sessão pode ver, já detalhados. */
+/** Os contratos que passam no filtro e que o usuário da sessão pode ver, já detalhados com a vigência de hoje. */
 async function lerContratos(filtro: (c: ContratoFicticio) => boolean): Promise<ContratoDetalhado[]> {
   const usuario = await obterUsuarioAtual()
-  // Depois da sessão: com cacheComponents, new Date() só vale numa leitura da requisição.
-  const hoje = hojeEmBrasilia(new Date())
-  const diasDoAlerta = await obterDiasDoAlerta()
+  const [hoje, diasDoAlerta] = await Promise.all([hojeDaRequisicao(), obterDiasDoAlerta()])
   return CONTRATOS.filter((c) => filtro(c) && podeVerCliente(usuario, c.clienteId, VINCULOS)).map((c) =>
     detalhar(c, hoje, diasDoAlerta),
   )

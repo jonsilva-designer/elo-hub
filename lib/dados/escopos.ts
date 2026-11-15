@@ -1,12 +1,13 @@
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { ehPlanejamento } from '@/lib/contratos/regras'
-import { hojeEmBrasilia, somarDias } from '@/lib/formato'
+import { somarDias } from '@/lib/formato'
 import { etapaAtual, progressoDaJornada } from '@/lib/jornada/regras'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS } from './mock/contratos'
 import { ESCOPOS, type EscopoFicticio } from './mock/escopos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { podeVerCliente } from './regras'
+import { hojeDaRequisicao } from './hoje'
 import { obterUsuarioAtual } from './sessao'
 import type { EscopoDetalhado, ItemQueImpede, StatusEscopo } from './tipos'
 
@@ -36,7 +37,7 @@ function detalhar(e: EscopoFicticio, hoje: string): EscopoDetalhado {
 
 async function lerEscopos(filtro: (e: EscopoFicticio) => boolean): Promise<EscopoDetalhado[]> {
   const usuario = await obterUsuarioAtual()
-  const hoje = hojeEmBrasilia(new Date())
+  const hoje = await hojeDaRequisicao()
   return ESCOPOS.filter((e) => filtro(e) && podeVerCliente(usuario, e.clienteId, VINCULOS)).map((e) => detalhar(e, hoje))
 }
 

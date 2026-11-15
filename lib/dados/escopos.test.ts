@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { escoposQueImpedemFechar, listarEscoposDoContrato } from './escopos'
@@ -66,5 +67,14 @@ describe('escoposQueImpedemFechar (RN-18)', () => {
   it('o contrato Suspenso da Atlântica só tem escopo Cancelado: nada impede', async () => {
     entrarComo('usr-helena')
     expect(await escoposQueImpedemFechar('ctr-atlantica-ssma')).toEqual([])
+  })
+})
+
+describe('data de hoje na requisição (cacheComponents)', () => {
+  it('listarEscoposDoContrato espera o connection() antes de ler a data', async () => {
+    entrarComo('usr-helena')
+    vi.mocked(connection).mockClear()
+    await listarEscoposDoContrato('ctr-vertice-manutencao')
+    expect(connection).toHaveBeenCalled()
   })
 })

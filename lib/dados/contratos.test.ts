@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { diasEntre } from '@/lib/contratos/vigencia'
 import { hojeEmBrasilia } from '@/lib/formato'
@@ -75,5 +76,14 @@ describe('listarContratosDoCliente', () => {
     ])
     entrarComo('usr-rafael')
     expect(await listarContratosDoCliente('cli-montareal')).toEqual([])
+  })
+})
+
+describe('data de hoje na requisição (cacheComponents)', () => {
+  it('listarContratos espera o connection() antes de ler a data', async () => {
+    entrarComo('usr-helena')
+    vi.mocked(connection).mockClear()
+    await listarContratos()
+    expect(connection).toHaveBeenCalled()
   })
 })

@@ -8,6 +8,13 @@ vi.mock('@/components/elo/imagens/elos-login.webp', () => ({
   default: { src: '/elos-login.webp', width: 1800, height: 2000, blurDataURL: 'data:image/webp;base64,AA' },
 }))
 
+// connection() só existe dentro de uma requisição do Next e lança fora dela. Nos testes, ele não espera nada;
+// quem precisa conferir que foi chamado usa vi.mocked(connection). O resto do next/server é o de verdade.
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/server')>()),
+  connection: vi.fn(async () => {}),
+}))
+
 // Sem globals do Vitest, a limpeza automática do Testing Library não roda.
 afterEach(() => cleanup())
 
