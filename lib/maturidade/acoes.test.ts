@@ -86,7 +86,7 @@ describe('salvarAvaliacao (F20, CA-20.1, RN-19, RN-23)', () => {
     expect(r.valores?.medias[2]).toBe('5,01')
   })
 
-  it('valor fora das listas, enviado à mão, conta como em branco; contrato de referência não há (CA-20.3)', async () => {
+  it('valor fora das listas, enviado à mão, conta como em branco, e o contrato que não existe também (CA-20.3)', async () => {
     entrarComo('usr-helena')
     const r = await salvar({
       clienteId: 'cli-montareal',
@@ -103,6 +103,20 @@ describe('salvarAvaliacao (F20, CA-20.1, RN-19, RN-23)', () => {
     expect(r.valores?.maturidadeGeral).toBe('')
     expect(r.valores?.prontidao).toBe('')
     expect(r.valores?.contratoId).toBe('')
+  })
+
+  it('o contrato de referência só aceita contrato do mesmo cliente (CA-20.3, critério 23)', async () => {
+    entrarComo('usr-helena')
+    const base = { clienteId: 'cli-vertice', data: '2026-11-14', avaliadorId: 'usr-helena' }
+    expect((await salvar({ ...base, contratoId: 'ctr-vertice-manutencao' })).valores?.contratoId).toBe('ctr-vertice-manutencao')
+    expect((await salvar({ ...base, contratoId: 'ctr-montareal-montagem' })).valores?.contratoId).toBe('')
+  })
+
+  it('na edição, vale o cliente da avaliação', async () => {
+    entrarComo('usr-helena')
+    const base = { avaliacaoId: 'ava-vertice-3', data: '2026-11-05', avaliadorId: 'usr-rafael' }
+    expect((await salvar({ ...base, contratoId: 'ctr-vertice-proposta' })).valores?.contratoId).toBe('ctr-vertice-proposta')
+    expect((await salvar({ ...base, contratoId: 'ctr-atlantica-porto' })).valores?.contratoId).toBe('')
   })
 
   it('nada muda nos dados: salvar só simula', async () => {

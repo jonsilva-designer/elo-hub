@@ -5,7 +5,9 @@ import { EstadoVazio } from '@/components/elo/estados'
 import { LinkVoltar } from '@/components/elo/link-voltar'
 import { buttonVariants } from '@/components/ui/button'
 import { nomeDoCliente } from '@/lib/clientes/filtros'
+import { opcoesDeContrato } from '@/lib/contratos/filtros'
 import { obterCliente } from '@/lib/dados/clientes'
+import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { listarAvaliadores, obterAvaliacao } from '@/lib/dados/maturidade'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { MENSAGENS_AVALIACAO } from '@/lib/maturidade/validacao'
@@ -38,6 +40,7 @@ export async function ConteudoEditarAvaliacao({ params }: { params: Promise<{ id
         avaliacao={avaliacao}
         dimensoes={avaliacao.dimensoes.map((d) => d.dimensao)}
         avaliadores={await listarAvaliadores(cliente.id)}
+        contratos={opcoesDeContrato(await listarContratosDoCliente(cliente.id))}
         usuarioAtualId={usuario.id}
       />
     )

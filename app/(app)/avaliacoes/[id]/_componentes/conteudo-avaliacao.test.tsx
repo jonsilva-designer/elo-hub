@@ -57,6 +57,16 @@ describe('página da avaliação (parte 2, 5.9)', () => {
     expect(botao('Concluir')).not.toBeInTheDocument()
   })
 
+  it('o contrato de referência aparece com link, contratante e serviços (F20, CA-20.3)', async () => {
+    entrarComo('usr-helena')
+    await abrir('ava-atlantica-1')
+    const resultado = within(screen.getByRole('region', { name: 'Resultado' }))
+    expect(resultado.getByRole('link', { name: 'CT-2024-008' })).toHaveAttribute('href', '/contratos/ctr-atlantica-porto')
+    const campo = resultado.getByText('Contrato de referência').closest('div')!
+    expect(campo).toHaveTextContent('Porto do Açu')
+    expect(campo).toHaveTextContent('Serviços Portuários e Marítimos, Movimentação de Cargas')
+  })
+
   it('os painéis aparecem na ordem da especificação', async () => {
     entrarComo('usr-helena')
     await abrir('ava-vertice-2')

@@ -93,3 +93,15 @@ export function filtrarContratos(contratos: readonly ContratoDetalhado[], filtro
     )
     .sort(pelaOrdemInicial)
 }
+
+/** Os contratos na ordem inicial da lista, sem filtro: a aba Contratos do cliente usa a mesma ordem. */
+export function ordenarContratos(contratos: readonly ContratoDetalhado[]): ContratoDetalhado[] {
+  return [...contratos].sort(pelaOrdemInicial)
+}
+
+/** As opções do contrato de referência da avaliação (CA-20.3): os contratos do cliente, na ordem da lista. */
+export function opcoesDeContrato(
+  contratos: readonly ContratoDetalhado[],
+): { valor: string; codigo: string; contratante: string }[] {
+  return ordenarContratos(contratos).map((c) => ({ valor: c.id, codigo: c.codigo, contratante: c.contratante }))
+}

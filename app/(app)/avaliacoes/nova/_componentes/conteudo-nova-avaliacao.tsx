@@ -5,7 +5,9 @@ import { EstadoVazio } from '@/components/elo/estados'
 import { LinkVoltar } from '@/components/elo/link-voltar'
 import { buttonVariants } from '@/components/ui/button'
 import { nomeDoCliente } from '@/lib/clientes/filtros'
+import { opcoesDeContrato } from '@/lib/contratos/filtros'
 import { obterCliente } from '@/lib/dados/clientes'
+import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { listarAvaliadores, listarDimensoes } from '@/lib/dados/maturidade'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { FormularioAvaliacao } from '../../_componentes/formulario-avaliacao'
@@ -34,13 +36,18 @@ export async function ConteudoNovaAvaliacao({ searchParams }: { searchParams: Pr
   } else if (cliente.status === 'Inativo') {
     conteudo = <EstadoVazio titulo="Este cliente está inativo. Reative o cliente para avaliar." acao={voltar} />
   } else {
-    const [dimensoes, avaliadores] = await Promise.all([listarDimensoes(), listarAvaliadores(cliente.id)])
+    const [dimensoes, avaliadores, contratos] = await Promise.all([
+      listarDimensoes(),
+      listarAvaliadores(cliente.id),
+      listarContratosDoCliente(cliente.id),
+    ])
     conteudo = (
       <FormularioAvaliacao
         cliente={{ id: cliente.id, nome: nomeDoCliente(cliente) }}
         avaliacao={null}
         dimensoes={dimensoes}
         avaliadores={avaliadores}
+        contratos={opcoesDeContrato(contratos)}
         usuarioAtualId={usuario.id}
       />
     )

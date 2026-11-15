@@ -12,12 +12,14 @@ import { abasDoCliente, abaValida, ROTULOS_DAS_ABAS, type AbaCliente } from '@/l
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { formatarCnpj } from '@/lib/cnpj'
 import { itensQueImpedemInativar, obterCliente, temItensLigados } from '@/lib/dados/clientes'
+import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { listarAvaliacoesDoCliente } from '@/lib/dados/maturidade'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { maturidadeDoCliente } from '@/lib/maturidade/regras'
 import { VoltarParaClientes } from '../../_componentes/voltar-para-clientes'
+import { AbaContratos } from './aba-contratos'
 import { AbaMaturidade } from './aba-maturidade'
 import { AcoesCliente } from './acoes-cliente'
 import { AbaResumo } from './aba-resumo'
@@ -29,7 +31,8 @@ const primeiro = (valor: string | string[] | undefined) => (Array.isArray(valor)
 
 /**
  * Página do cliente (parte 2, 5.6), o ponto central dos dados dele (DF-06). Fora do vínculo ou com id que
- * não existe, "não encontrado", sem revelar que o cliente existe. As partes 3 a 7 preenchem as outras abas.
+ * não existe, "não encontrado", sem revelar que o cliente existe. As partes 3 a 7 preenchem as outras abas; a
+ * parte 3 já preencheu a de Contratos.
  */
 export async function ConteudoCliente({
   params,
@@ -42,8 +45,10 @@ export async function ConteudoCliente({
   const [usuario, cliente] = await Promise.all([obterUsuarioAtual(), obterCliente(id)])
   if (!cliente) notFound()
 
-  const [avaliacoes, historico] = await Promise.all([
+  // O cadastro da ELO não tem maturidade nem contratos (DF-40).
+  const [avaliacoes, contratos, historico] = await Promise.all([
     cliente.ehCadastroElo ? Promise.resolve([]) : listarAvaliacoesDoCliente(cliente.id),
+    cliente.ehCadastroElo ? Promise.resolve([]) : listarContratosDoCliente(cliente.id),
     listarHistorico('cliente', cliente.id),
   ])
   const comparacao = maturidadeDoCliente(avaliacoes)
@@ -57,7 +62,7 @@ export async function ConteudoCliente({
   const paineis: Record<AbaCliente, React.ReactNode> = {
     resumo: <AbaResumo cliente={cliente} atual={comparacao?.atual ?? null} historico={historico} />,
     maturidade: <AbaMaturidade cliente={cliente} avaliacoes={avaliacoes} comparacao={comparacao} />,
-    contratos: <EstadoVazio titulo="Nenhum contrato deste cliente." />,
+    contratos: <AbaContratos cliente={cliente} contratos={contratos} ehAdmin={admin} />,
     escopos: <EstadoVazio titulo="Nenhum escopo deste cliente." />,
     demandas: <EstadoVazio titulo="Nenhuma demanda deste cliente." />,
     documentos: <EstadoVazio titulo="Nenhum documento deste cliente." />,

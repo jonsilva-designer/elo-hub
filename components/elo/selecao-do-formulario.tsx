@@ -1,12 +1,14 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import type { AtributosDeCampo } from '@/components/elo/campo'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 /** Valor do item que limpa a escolha: a seleção não aceita texto vazio como item. */
 const VAZIA = '__vazia__'
 
-type Opcao = string | { valor: string; rotulo: string }
+/** O rótulo pode trazer números em <Num> (JetBrains Mono em todos os números, padrão visual). */
+type Opcao = string | { valor: string; rotulo: ReactNode }
 
 const valorDe = (o: Opcao) => (typeof o === 'string' ? o : o.valor)
 const rotuloDe = (o: Opcao) => (typeof o === 'string' ? o : o.rotulo)

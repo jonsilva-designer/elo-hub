@@ -24,6 +24,8 @@ describe('editar avaliação (parte 2, 5.8)', () => {
     const { container } = render(await editar('ava-vertice-3'))
     expect(screen.getByRole('heading', { level: 1, name: 'Editar avaliação' })).toBeInTheDocument()
     expect(container.querySelector('input[type="hidden"][name="nivel-0"]')).toHaveValue('Consistente')
+    // Os contratos da Vértice são as opções do contrato de referência (CA-20.3).
+    expect(screen.getByRole('combobox', { name: /Contrato de referência/ })).toBeEnabled()
   })
 
   it('a avaliação Concluída não abre a edição e leva à página dela (critério 18)', async () => {

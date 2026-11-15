@@ -1,4 +1,4 @@
-import type { Contrato, Vigencia } from '@/lib/dados/tipos'
+import type { Contrato, ContratoDetalhado, Vigencia } from '@/lib/dados/tipos'
 import { contratoFechado, ehPlanejamento } from './regras'
 
 // Status da vigência (F04, RN-04), calculado a cada consulta com a data de hoje no horário de Brasília (RN-20).
@@ -44,4 +44,11 @@ export function textoDosDias(dias: number): string {
   const n = Math.abs(dias)
   const unidade = n === 1 ? 'dia' : 'dias'
   return dias > 0 ? `${n} ${unidade} ${n === 1 ? 'restante' : 'restantes'}` : `Vencido há ${n} ${unidade}`
+}
+
+/** Vencido e Próximo do vencimento ficam destacados nas listas de contratos (CA-04.8). */
+export function destaqueDaVigencia(c: Pick<ContratoDetalhado, 'vigencia'>): 'problema' | 'atencao' | null {
+  if (c.vigencia?.status === 'Vencido') return 'problema'
+  if (c.vigencia?.status === 'Próximo do vencimento') return 'atencao'
+  return null
 }

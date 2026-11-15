@@ -6,6 +6,7 @@ import { useActionState, useEffect, useState } from 'react'
 import { Campo } from '@/components/elo/campo'
 import { CampoData } from '@/components/elo/campo-data'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
+import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -33,12 +34,15 @@ export function FormularioAvaliacao({
   avaliacao,
   dimensoes,
   avaliadores,
+  contratos,
   usuarioAtualId,
 }: {
   cliente: { id: string; nome: string }
   avaliacao: AvaliacaoDetalhada | null
   dimensoes: string[]
   avaliadores: Usuario[]
+  /** Os contratos do cliente, as opções do contrato de referência (CA-20.3). */
+  contratos: { valor: string; codigo: string; contratante: string }[]
   usuarioAtualId: string
 }) {
   const router = useRouter()
@@ -53,6 +57,7 @@ export function FormularioAvaliacao({
   const [niveis, setNiveis] = useState<string[]>(dimensoes.map((d) => linhaDe(d)?.nivel ?? ''))
   const [maturidadeGeral, setMaturidadeGeral] = useState<string>(avaliacao?.maturidadeGeral ?? '')
   const [prontidao, setProntidao] = useState<string>(avaliacao?.prontidao ?? '')
+  const [contratoId, setContratoId] = useState(avaliacao?.contratoId ?? '')
 
   useEffect(() => {
     if (!estado.sucesso) return
@@ -87,12 +92,20 @@ export function FormularioAvaliacao({
             {(p) => (
               <SelecaoDoFormulario
                 nome="contratoId"
-                valor=""
-                aoMudar={() => {}}
-                opcoes={[]}
+                valor={contratoId}
+                aoMudar={setContratoId}
+                opcoes={contratos.map((c) => ({
+                  valor: c.valor,
+                  rotulo: (
+                    <>
+                      <Num>{c.codigo}</Num> · {c.contratante}
+                    </>
+                  ),
+                }))}
+                rotuloVazio="Sem contrato de referência"
                 atributos={p}
-                disabled
-                placeholder="Nenhum contrato deste cliente"
+                disabled={contratos.length === 0}
+                placeholder={contratos.length === 0 ? 'Nenhum contrato deste cliente' : 'Sem contrato de referência'}
               />
             )}
           </Campo>

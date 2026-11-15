@@ -12,11 +12,12 @@ import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { obterCliente } from '@/lib/dados/clientes'
+import { obterContrato } from '@/lib/dados/contratos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { obterAvaliacao } from '@/lib/dados/maturidade'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
-import type { LinhaDimensao } from '@/lib/dados/tipos'
+import type { ContratoDetalhado, LinhaDimensao } from '@/lib/dados/tipos'
 import { formatarData, VAZIO } from '@/lib/formato'
 import { formatarMedia, oQueFaltaParaConcluir } from '@/lib/maturidade/regras'
 import { AcoesAvaliacao } from './acoes-avaliacao'
@@ -54,6 +55,19 @@ function TabelaNiveis({ dimensoes }: { dimensoes: LinhaDimensao[] }) {
   )
 }
 
+/** O contrato de referência (F20): o código com link para o contrato, o contratante e os serviços. */
+function ContratoDeReferencia({ contrato }: { contrato: ContratoDetalhado | null }) {
+  if (!contrato) return apagado('Sem contrato de referência')
+  return (
+    <span>
+      <Link href={`/contratos/${contrato.id}`} className="rounded-sm text-primary underline-offset-4 hover:underline">
+        <Num>{contrato.codigo}</Num>
+      </Link>
+      {` · ${contrato.contratante} · ${contrato.servicos.join(', ')}`}
+    </span>
+  )
+}
+
 /**
  * Página da avaliação de maturidade (parte 2, 5.9). Fora do vínculo ou com id que não existe, "não encontrado",
  * sem revelar que a avaliação existe. O que falta para concluir é calculado aqui, no servidor.
@@ -62,9 +76,10 @@ export async function ConteudoAvaliacao({ params }: { params: Promise<{ id: stri
   const { id } = await params
   const [usuario, avaliacao] = await Promise.all([obterUsuarioAtual(), obterAvaliacao(id)])
   if (!avaliacao) notFound()
-  const [cliente, historico] = await Promise.all([
+  const [cliente, historico, contrato] = await Promise.all([
     obterCliente(avaliacao.clienteId),
     listarHistorico('avaliacao', avaliacao.id),
+    avaliacao.contratoId ? obterContrato(avaliacao.contratoId) : Promise.resolve(null),
   ])
   if (!cliente) notFound()
 
@@ -113,7 +128,7 @@ export async function ConteudoAvaliacao({ params }: { params: Promise<{ id: stri
               { rotulo: 'Data', valor: <Num>{formatarData(avaliacao.data)}</Num> },
               {
                 rotulo: 'Contrato de referência',
-                valor: avaliacao.contratoId ?? apagado('Sem contrato de referência'),
+                valor: <ContratoDeReferencia contrato={contrato} />,
               },
             ]}
           />

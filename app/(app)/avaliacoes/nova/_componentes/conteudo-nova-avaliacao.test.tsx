@@ -30,6 +30,17 @@ describe('nova avaliação (parte 2, 5.8)', () => {
     expect(screen.getByRole('group', { name: 'Integridade e informação' })).toBeInTheDocument()
   })
 
+  it('o contrato de referência oferece os contratos do cliente; sem contratos, fica desabilitado (CA-20.3)', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = render(await nova({ cliente: 'cli-vertice' }))
+    expect(screen.getByRole('combobox', { name: /Contrato de referência/ })).toBeEnabled()
+    unmount()
+    render(await nova({ cliente: 'cli-limpar' }))
+    const contrato = screen.getByRole('combobox', { name: /Contrato de referência/ })
+    expect(contrato).toBeDisabled()
+    expect(contrato).toHaveTextContent('Nenhum contrato deste cliente')
+  })
+
   it('fora do vínculo, sem cliente ou com cliente que não existe, não encontrado (critério 19)', async () => {
     entrarComo('usr-rafael')
     await expect(nova({ cliente: 'cli-montareal' })).rejects.toThrow('NEXT_NOT_FOUND')

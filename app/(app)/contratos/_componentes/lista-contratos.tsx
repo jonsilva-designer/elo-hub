@@ -22,6 +22,7 @@ import {
   type FiltrosContratos,
 } from '@/lib/contratos/filtros'
 import { ehPlanejamento, STATUS_CONTRATO } from '@/lib/contratos/regras'
+import { destaqueDaVigencia } from '@/lib/contratos/vigencia'
 import type { ContratoDetalhado, StatusContrato, StatusVigencia } from '@/lib/dados/tipos'
 
 const TODOS = 'todos'
@@ -66,12 +67,6 @@ const COLUNAS: Coluna<ContratoDetalhado>[] = [
   { id: 'responsavel', titulo: 'Responsável', ordenarPor: (c) => c.nomeResponsavel, celula: (c) => c.nomeResponsavel },
 ]
 
-/** Vencido e Próximo do vencimento ficam destacados na lista (CA-04.8). */
-function destaqueDaVigencia(c: ContratoDetalhado) {
-  if (c.vigencia?.status === 'Vencido') return 'problema' as const
-  if (c.vigencia?.status === 'Próximo do vencimento') return 'atencao' as const
-  return null
-}
 
 /** Grava no navegador sem quebrar a tela quando ele recusa (aba anônima, dados bloqueados). */
 function guardar(texto: string) {

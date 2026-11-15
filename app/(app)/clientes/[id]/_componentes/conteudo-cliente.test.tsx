@@ -6,14 +6,16 @@ import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { metadata } from '../page'
 import { ConteudoCliente } from './conteudo-cliente'
 
+const { push } = vi.hoisted(() => ({ push: vi.fn() }))
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
 vi.mock('next/navigation', async () => ({
   ...(await import('@/lib/testes/next-falso')).moduloNavigation,
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push, replace: vi.fn(), refresh: vi.fn() }),
   useSearchParams: () => new URLSearchParams(window.location.search),
 }))
 
 beforeEach(() => {
+  push.mockReset()
   limparCookies()
   sessionStorage.clear()
   window.history.replaceState(null, '', '/')
@@ -121,10 +123,9 @@ describe('página do cliente (parte 2, 5.6)', () => {
     expect(screen.queryByRole('link', { name: 'Nova avaliação' })).not.toBeInTheDocument()
   })
 
-  it('as abas de contratos, escopos, demandas e documentos mostram o vazio da tela', async () => {
+  it('as abas de escopos, demandas e documentos mostram o vazio da tela', async () => {
     entrarComo('usr-helena')
     for (const [aba, texto] of [
-      ['contratos', 'Nenhum contrato deste cliente.'],
       ['escopos', 'Nenhum escopo deste cliente.'],
       ['demandas', 'Nenhuma demanda deste cliente.'],
       ['documentos', 'Nenhum documento deste cliente.'],
@@ -132,6 +133,56 @@ describe('página do cliente (parte 2, 5.6)', () => {
       const { unmount } = await abrir('cli-vertice', { aba })
       expect(screen.getByText(texto)).toBeInTheDocument()
       unmount()
+    }
+  })
+
+  it('a aba Contratos lista os contratos do cliente, com Novo contrato (parte 3, 5.11)', async () => {
+    entrarComo('usr-helena')
+    await abrir('cli-vertice', { aba: 'contratos' })
+    const contratos = within(screen.getByRole('region', { name: 'Contratos' }))
+    expect(contratos.getAllByRole('row')).toHaveLength(4)
+    const proposta = contratos.getByText('PR-2026-052').closest('tr')!
+    expect(proposta).toHaveTextContent('Planejamento')
+    expect(proposta).toHaveTextContent('Proposta')
+    expect(contratos.getByRole('link', { name: 'Novo contrato' })).toHaveAttribute('href', '/contratos/novo?cliente=cli-vertice')
+  })
+
+  it('a linha da aba Contratos abre o contrato', async () => {
+    entrarComo('usr-helena')
+    await abrir('cli-vertice', { aba: 'contratos' })
+    await userEvent.click(screen.getByText('PR-2026-052'))
+    expect(push).toHaveBeenCalledWith('/contratos/ctr-vertice-proposta')
+  })
+
+  it('no cliente Inativo, Novo contrato fica bloqueado; sem contratos, o vazio', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = await abrir('cli-fortec', { aba: 'contratos' })
+    expect(screen.getByRole('button', { name: 'Novo contrato' })).toHaveAttribute('aria-disabled', 'true')
+    unmount()
+    await abrir('cli-limpar', { aba: 'contratos' })
+    expect(screen.getByText('Nenhum contrato deste cliente.')).toBeInTheDocument()
+  })
+
+  it('a Equipe vê os contratos do cliente vinculado, sem Novo contrato', async () => {
+    entrarComo('usr-rafael')
+    await abrir('cli-vertice', { aba: 'contratos' })
+    expect(within(screen.getByRole('region', { name: 'Contratos' })).getAllByRole('row')).toHaveLength(4)
+    expect(screen.queryByRole('link', { name: 'Novo contrato' })).not.toBeInTheDocument()
+  })
+
+  it('inativar a Vértice é bloqueado pela avaliação e pelos três contratos abertos (critério 22, RN-18)', async () => {
+    entrarComo('usr-helena')
+    await abrir('cli-vertice')
+    await userEvent.click(screen.getByRole('button', { name: 'Mais ações' }))
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Inativar' }))
+    const janela = within(await screen.findByRole('alertdialog'))
+    expect(janela.getByRole('link', { name: /Avaliação de 05\/11\/2026/ })).toHaveAttribute('href', '/avaliacoes/ava-vertice-3')
+    for (const [codigo, id] of [
+      ['CT-2025-031', 'ctr-vertice-manutencao'],
+      ['CT-2026-044', 'ctr-vertice-mobilizacao'],
+      ['PR-2026-052', 'ctr-vertice-proposta'],
+    ]) {
+      expect(janela.getByRole('link', { name: new RegExp(codigo) })).toHaveAttribute('href', `/contratos/${id}`)
     }
   })
 

@@ -64,13 +64,19 @@ beforeEach(() => {
   vi.mocked(avisarSalvo).mockReset()
 })
 
-function montar(avaliacao: AvaliacaoDetalhada | null = null) {
+const CONTRATOS = [
+  { valor: 'ctr-vertice-manutencao', codigo: 'CT-2025-031', contratante: 'Petrobras' },
+  { valor: 'ctr-vertice-mobilizacao', codigo: 'CT-2026-044', contratante: 'Porto do Açu' },
+]
+
+function montar(avaliacao: AvaliacaoDetalhada | null = null, contratos = CONTRATOS) {
   return render(
     <FormularioAvaliacao
       cliente={CLIENTE}
       avaliacao={avaliacao}
       dimensoes={avaliacao ? avaliacao.dimensoes.map((d) => d.dimensao) : DIMENSOES}
       avaliadores={AVALIADORES}
+      contratos={contratos}
       usuarioAtualId="usr-helena"
     />,
   )
@@ -95,8 +101,19 @@ describe('FormularioAvaliacao (F20, parte 2, 5.8)', () => {
     expect(container.querySelector('input[type="hidden"][name="data"]')).toHaveValue('2026-11-05')
   })
 
-  it('o contrato de referência fica desabilitado, sem contratos nesta parte (CA-20.3)', () => {
-    montar()
+  it('o contrato de referência oferece os contratos do cliente, com código e contratante (CA-20.3)', async () => {
+    const { container } = montar()
+    const contrato = screen.getByRole('combobox', { name: /Contrato de referência/ })
+    expect(contrato).toBeEnabled()
+    expect(contrato).toHaveTextContent('Sem contrato de referência')
+    await userEvent.click(contrato)
+    expect(await screen.findByRole('option', { name: 'Sem contrato de referência' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('option', { name: 'CT-2025-031 · Petrobras' }))
+    expect(container.querySelector('input[type="hidden"][name="contratoId"]')).toHaveValue('ctr-vertice-manutencao')
+  })
+
+  it('sem contratos no cliente, o contrato de referência fica desabilitado', () => {
+    montar(null, [])
     const contrato = screen.getByRole('combobox', { name: /Contrato de referência/ })
     expect(contrato).toBeDisabled()
     expect(contrato).toHaveTextContent('Nenhum contrato deste cliente')

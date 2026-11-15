@@ -1,6 +1,7 @@
 'use server'
 
 import { obterCliente } from '@/lib/dados/clientes'
+import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { listarAvaliadores, listarDimensoes, obterAvaliacao } from '@/lib/dados/maturidade'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -51,9 +52,10 @@ export async function salvarAvaliacao(
   dados.niveis = dados.niveis.map((n) => daLista(NIVEIS_DIMENSAO, n))
   dados.maturidadeGeral = daLista(NIVEIS_GERAIS, dados.maturidadeGeral)
   dados.prontidao = daLista(PRONTIDOES, dados.prontidao)
-  // Os contratos entram na parte 3: até lá, nenhum contrato de referência é aceito (CA-20.3).
-  dados.contratoId = ''
-  const permitidos = (await listarAvaliadores(clienteId)).map((u) => u.id)
+  // O contrato de referência só pode ser do mesmo cliente; outro, ou um que não existe, conta como vazio (CA-20.3).
+  const [contratos, avaliadores] = await Promise.all([listarContratosDoCliente(clienteId), listarAvaliadores(clienteId)])
+  if (!contratos.some((c) => c.id === dados.contratoId)) dados.contratoId = ''
+  const permitidos = avaliadores.map((u) => u.id)
   const erros = validarAvaliacao(dados, permitidos)
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
 
