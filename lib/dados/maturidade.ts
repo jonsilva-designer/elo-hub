@@ -1,9 +1,10 @@
 import { AVALIACOES } from './mock/avaliacoes'
 import { DIMENSOES } from './mock/listas'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
-import { ehAdmin, podeVerCliente, temVinculo } from './regras'
+import { podeVerCliente } from './regras'
 import { obterUsuarioAtual } from './sessao'
 import type { AvaliacaoDetalhada, AvaliacaoMaturidade, Usuario } from './tipos'
+import { listarResponsaveis } from './usuarios'
 
 // Leitura das avaliações de maturidade (F20). Como em clientes.ts, o usuário vem da sessão
 // e a regra de vínculo (RN-01) vale para a avaliação pelo cliente dela.
@@ -41,17 +42,7 @@ export async function obterAvaliacao(id: string): Promise<AvaliacaoDetalhada | n
   return avaliacao && podeVerCliente(usuario, avaliacao.clienteId, VINCULOS) ? detalhar(avaliacao) : null
 }
 
-const porNome = (a: Usuario, b: Usuario) => a.nome.localeCompare(b.nome, 'pt-BR')
-
-/**
- * Quem pode ser avaliador do cliente (RN-19): os Administradores ativos e a Equipe ativa vinculada a ele.
- * Administradores primeiro, cada grupo por nome. Vazia se o usuário não pode ver o cliente.
- */
+/** Quem pode ser avaliador do cliente (RN-19): os mesmos responsáveis dos outros registros do cliente. */
 export async function listarAvaliadores(clienteId: string): Promise<Usuario[]> {
-  const usuario = await obterUsuarioAtual()
-  if (!podeVerCliente(usuario, clienteId, VINCULOS)) return []
-  const ativos = USUARIOS.filter((u) => u.status === 'Ativo')
-  const administradores = ativos.filter(ehAdmin).sort(porNome)
-  const equipe = ativos.filter((u) => !ehAdmin(u) && temVinculo(u, clienteId, VINCULOS)).sort(porNome)
-  return [...administradores, ...equipe].map((u) => ({ ...u }))
+  return listarResponsaveis(clienteId)
 }

@@ -38,3 +38,26 @@ describe('listarHistorico (F17, CA-17.1, CA-17.3)', () => {
     expect((await listarHistorico('avaliacao', 'ava-vertice-3')).map((e) => e.descricao)).toEqual(['Avaliação criada'])
   })
 })
+
+describe('listarHistorico de contrato', () => {
+  it('traz a suspensão do contrato da Atlântica', async () => {
+    entrarComo('usr-helena')
+    const entradas = await listarHistorico('contrato', 'ctr-atlantica-ssma')
+    expect(entradas[0]).toMatchObject({ descricao: 'Status do contrato', valorAnterior: 'Ativo', valorNovo: 'Suspenso' })
+    expect(entradas.at(-1)).toMatchObject({ descricao: 'Contrato criado' })
+  })
+
+  it('a passagem de Proposta para Ativo da mobilização fica no histórico (DF-07)', async () => {
+    entrarComo('usr-rafael')
+    const entradas = await listarHistorico('contrato', 'ctr-vertice-mobilizacao')
+    expect(entradas.find((e) => e.descricao === 'Status do contrato')).toMatchObject({
+      valorAnterior: 'Proposta',
+      valorNovo: 'Ativo',
+    })
+  })
+
+  it('a Equipe recebe lista vazia fora do vínculo', async () => {
+    entrarComo('usr-rafael')
+    expect(await listarHistorico('contrato', 'ctr-montareal-montagem')).toEqual([])
+  })
+})

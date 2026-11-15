@@ -41,7 +41,7 @@ export const AVALIACOES: AvaliacaoMaturidade[] = [
     ordem: 2,
     data: '2026-08-20',
     avaliadorId: 'usr-helena',
-    contratoId: null,
+    contratoId: 'ctr-atlantica-porto',
     status: 'Concluída',
     maturidadeGeral: 'Consistente',
     prontidao: 'Pronto',

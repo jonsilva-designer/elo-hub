@@ -166,3 +166,9 @@ export function hojeEmBrasilia(agora: Date): string {
   const p = Object.fromEntries(diaDeBrasilia.formatToParts(agora).map((parte) => [parte.type, parte.value]));
   return `${p.year}-${p.month}-${p.day}`;
 }
+
+/** A data `AAAA-MM-DD` mais `dias` dias de calendário (negativo volta). Sem Date local nem horário de verão. */
+export function somarDias(data: string, dias: number): string {
+  const [ano, mes, dia] = data.split("-").map(Number);
+  return new Date(Date.UTC(ano, mes - 1, dia + dias)).toISOString().slice(0, 10);
+}

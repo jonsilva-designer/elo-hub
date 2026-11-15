@@ -79,12 +79,17 @@ describe('inativar, reativar e excluir (RN-18, DF-33, matriz 4.3)', () => {
       ok: false,
       mensagem: 'Não é possível inativar este cliente enquanto houver itens abertos ligados a ele.',
     })
-    expect(r.ok === false && r.impedimentos?.map((i) => i.href)).toEqual(['/avaliacoes/ava-vertice-3'])
+    expect(r.ok === false && r.impedimentos?.map((i) => i.href)).toEqual([
+      '/avaliacoes/ava-vertice-3',
+      '/contratos/ctr-vertice-manutencao',
+      '/contratos/ctr-vertice-mobilizacao',
+      '/contratos/ctr-vertice-proposta',
+    ])
   })
 
-  it('inativar a Atlântica passa, e avisa que nada é gravado', async () => {
+  it('inativar a Ondamar, só com contrato Encerrado, passa, e avisa que nada é gravado', async () => {
     entrarComo('usr-helena')
-    expect(await inativarCliente('cli-atlantica')).toEqual({
+    expect(await inativarCliente('cli-ondamar')).toEqual({
       ok: true,
       mensagem: 'Cliente inativado. No protótipo, os dados não são gravados.',
     })
@@ -137,9 +142,9 @@ describe('inativar, reativar e excluir (RN-18, DF-33, matriz 4.3)', () => {
 
   it('nada muda nos dados: salvar só simula', async () => {
     entrarComo('usr-helena')
-    await inativarCliente('cli-atlantica')
+    await inativarCliente('cli-ondamar')
     await excluirCliente('cli-limpar', 'Cadastro duplicado')
-    expect((await obterCliente('cli-atlantica'))?.status).toBe('Ativo')
+    expect((await obterCliente('cli-ondamar'))?.status).toBe('Ativo')
     expect(await obterCliente('cli-limpar')).not.toBeNull()
   })
 })

@@ -11,6 +11,7 @@ import {
   lerValorEmReais,
   formatarDataHora,
   hojeEmBrasilia,
+  somarDias,
 } from "@/lib/formato";
 
 describe("formatarData", () => {
@@ -199,5 +200,13 @@ describe('hojeEmBrasilia (RN-20)', () => {
   it('dá a data de Brasília, mesmo com o servidor em UTC (ponto de atenção 1)', () => {
     expect(hojeEmBrasilia(new Date('2026-11-14T01:30:00Z'))).toBe('2026-11-13')
     expect(hojeEmBrasilia(new Date('2026-11-14T03:00:00Z'))).toBe('2026-11-14')
+  })
+})
+
+describe('somarDias', () => {
+  it('soma dias de calendário, atravessando mês e ano', () => {
+    expect(somarDias('2026-11-14', 20)).toBe('2026-12-04')
+    expect(somarDias('2026-12-25', 10)).toBe('2027-01-04')
+    expect(somarDias('2027-03-01', -1)).toBe('2027-02-28')
   })
 })

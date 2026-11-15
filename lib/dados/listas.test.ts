@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { listarSegmentos } from './listas'
+import { listarContratantes, listarSegmentos, listarServicos } from './listas'
 
 describe('listarSegmentos (DF-70)', () => {
   it('devolve os 11 segmentos do Apêndice C, na ordem do PRD', async () => {
@@ -22,5 +22,16 @@ describe('listarSegmentos (DF-70)', () => {
     const lista = await listarSegmentos()
     lista.push('Inventado')
     expect(await listarSegmentos()).toHaveLength(11)
+  })
+})
+
+describe('listarServicos e listarContratantes (DF-69, DF-70)', () => {
+  it('devolvem cópias das listas oficiais', async () => {
+    const servicos = await listarServicos()
+    expect(servicos).toHaveLength(20)
+    expect(servicos[0]).toBe('Manutenção Industrial')
+    servicos.push('Inventado')
+    expect(await listarServicos()).toHaveLength(20)
+    expect(await listarContratantes()).toEqual(['Petrobras', 'Porto do Açu', 'FMC Logística'])
   })
 })

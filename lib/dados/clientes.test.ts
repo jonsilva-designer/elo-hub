@@ -62,7 +62,7 @@ describe('obterClientePorCnpj (CA-02.1)', () => {
 describe('itensQueImpedemInativar (RN-18, CA-18.3)', () => {
   it('a Vértice tem a avaliação Em elaboração do Rafael', async () => {
     entrarComo('usr-helena')
-    expect(await itensQueImpedemInativar('cli-vertice')).toEqual([
+    expect((await itensQueImpedemInativar('cli-vertice'))[0]).toEqual(
       {
         tipo: 'Avaliação de maturidade',
         descricao: 'Avaliação de 05/11/2026',
@@ -70,20 +70,37 @@ describe('itensQueImpedemInativar (RN-18, CA-18.3)', () => {
         responsavel: 'Rafael Souza',
         href: '/avaliacoes/ava-vertice-3',
       },
-    ])
+    )
   })
 
-  it('a Atlântica não tem item aberto', async () => {
+  it('a Vértice também tem os três contratos abertos, depois da avaliação (critério 22 da parte 3)', async () => {
     entrarComo('usr-helena')
-    expect(await itensQueImpedemInativar('cli-atlantica')).toEqual([])
+    const itens = await itensQueImpedemInativar('cli-vertice')
+    expect(itens.map((i) => i.href)).toEqual([
+      '/avaliacoes/ava-vertice-3',
+      '/contratos/ctr-vertice-manutencao',
+      '/contratos/ctr-vertice-mobilizacao',
+      '/contratos/ctr-vertice-proposta',
+    ])
+    expect(itens[1]).toEqual({
+      tipo: 'Contrato',
+      descricao: 'CT-2025-031 · Petrobras',
+      status: 'Ativo',
+      responsavel: 'Helena Prado',
+      href: '/contratos/ctr-vertice-manutencao',
+    })
+  })
+
+  it('a Ondamar, com o contrato Encerrado, não tem item aberto', async () => {
+    entrarComo('usr-helena')
+    expect(await itensQueImpedemInativar('cli-ondamar')).toEqual([])
   })
 })
 
 describe('temItensLigados (DF-33)', () => {
-  it('verdadeiro para quem tem avaliação, falso para os outros', async () => {
+  it('verdadeiro para quem tem avaliação ou contrato, falso para os outros', async () => {
     entrarComo('usr-helena')
-    expect(await temItensLigados('cli-vertice')).toBe(true)
-    expect(await temItensLigados('cli-atlantica')).toBe(true)
-    for (const id of ['cli-limpar', 'cli-fortec', 'cli-elo']) expect(await temItensLigados(id), id).toBe(false)
+    for (const id of ['cli-vertice', 'cli-atlantica', 'cli-fortec']) expect(await temItensLigados(id), id).toBe(true)
+    for (const id of ['cli-limpar', 'cli-elo']) expect(await temItensLigados(id), id).toBe(false)
   })
 })

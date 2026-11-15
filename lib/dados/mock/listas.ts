@@ -24,3 +24,30 @@ export const DIMENSOES: string[] = [
   'Gestão comercial e contratual',
   'Integridade e informação',
 ]
+
+// Os serviços que o cliente presta ao contratante (Apêndice C, DF-70), na ordem do PRD.
+export const SERVICOS: string[] = [
+  'Manutenção Industrial',
+  'Manutenção Mecânica',
+  'Manutenção Elétrica e Instrumentação',
+  'Engenharia',
+  'Inspeção e Integridade de Ativos',
+  'Construção e Montagem Industrial',
+  'Operação e Apoio Operacional',
+  'Logística e Transporte',
+  'Movimentação de Cargas',
+  'Serviços Portuários e Marítimos',
+  'Serviços Offshore',
+  'Limpeza e Conservação',
+  'Gestão Ambiental',
+  'Segurança, Saúde e Meio Ambiente (SSMA)',
+  'Tecnologia da Informação',
+  'Consultoria e Assessoria Técnica',
+  'Gestão de Projetos',
+  'Fornecimento de Mão de Obra Especializada',
+  'Caldeiraria e Soldagem',
+  'Facilities',
+]
+
+// Os contratantes citados nas fontes (Apêndice C, DF-69). Os demais entram com os contratos.
+export const CONTRATANTES: string[] = ['Petrobras', 'Porto do Açu', 'FMC Logística']

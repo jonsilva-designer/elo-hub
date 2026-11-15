@@ -1,6 +1,8 @@
+import { contratoFechado } from '@/lib/contratos/regras'
 import { formatarData } from '@/lib/formato'
 import { AVALIACOES } from './mock/avaliacoes'
 import { CLIENTES } from './mock/clientes'
+import { CONTRATOS } from './mock/contratos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { podeVerCliente } from './regras'
 import { obterUsuarioAtual } from './sessao'
@@ -38,25 +40,35 @@ export async function obterClientePorCnpj(cnpj: string): Promise<Cliente | null>
   return cliente && podeVerCliente(usuario, cliente.id, VINCULOS) ? cliente : null
 }
 
+const nomeDoUsuario = (id: string) => USUARIOS.find((u) => u.id === id)?.nome ?? ''
+
 /**
- * Os itens abertos ligados ao cliente, que impedem inativá-lo (RN-18, CA-18.3). Nesta parte, as avaliações
- * Em elaboração. As partes 3 e 5 acrescentam contratos e demandas.
+ * Os itens abertos ligados ao cliente, que impedem inativá-lo (RN-18, CA-18.3): as avaliações Em elaboração e
+ * os contratos que não estão Encerrados nem Cancelados. A parte 5 acrescenta as demandas.
  */
 export async function itensQueImpedemInativar(clienteId: string): Promise<ItemQueImpede[]> {
   const usuario = await obterUsuarioAtual()
   if (!podeVerCliente(usuario, clienteId, VINCULOS)) return []
-  return AVALIACOES.filter((a) => a.clienteId === clienteId && a.status === 'Em elaboração').map((a) => ({
+  const avaliacoes = AVALIACOES.filter((a) => a.clienteId === clienteId && a.status === 'Em elaboração').map((a) => ({
     tipo: 'Avaliação de maturidade',
     descricao: `Avaliação de ${formatarData(a.data)}`,
     status: a.status,
-    responsavel: USUARIOS.find((u) => u.id === a.avaliadorId)?.nome ?? '',
+    responsavel: nomeDoUsuario(a.avaliadorId),
     href: `/avaliacoes/${a.id}`,
   }))
+  const contratos = CONTRATOS.filter((c) => c.clienteId === clienteId && !contratoFechado(c.status)).map((c) => ({
+    tipo: 'Contrato',
+    descricao: `${c.codigo} · ${c.contratante}`,
+    status: c.status,
+    responsavel: nomeDoUsuario(c.responsavelId),
+    href: `/contratos/${c.id}`,
+  }))
+  return [...avaliacoes, ...contratos]
 }
 
-/** Se o cliente tem algum registro ligado, o que impede excluí-lo (DF-33). Nesta parte, avaliações. */
+/** Se o cliente tem algum registro ligado, o que impede excluí-lo (DF-33): avaliações e contratos. */
 export async function temItensLigados(clienteId: string): Promise<boolean> {
   const usuario = await obterUsuarioAtual()
   if (!podeVerCliente(usuario, clienteId, VINCULOS)) return false
-  return AVALIACOES.some((a) => a.clienteId === clienteId)
+  return AVALIACOES.some((a) => a.clienteId === clienteId) || CONTRATOS.some((c) => c.clienteId === clienteId)
 }

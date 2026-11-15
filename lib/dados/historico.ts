@@ -1,13 +1,16 @@
 import { AVALIACOES } from './mock/avaliacoes'
+import { CONTRATOS } from './mock/contratos'
 import { HISTORICO } from './mock/historico'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { podeVerCliente } from './regras'
 import { obterUsuarioAtual } from './sessao'
 import type { EntradaHistorico, TipoRegistro } from './tipos'
 
-/** O cliente de quem depende a permissão: o próprio, ou o da avaliação. */
+/** O cliente de quem depende a permissão: o próprio, ou o da avaliação ou do contrato. */
 function clienteDoRegistro(tipo: TipoRegistro, id: string): string | undefined {
-  return tipo === 'cliente' ? id : AVALIACOES.find((a) => a.id === id)?.clienteId
+  if (tipo === 'cliente') return id
+  if (tipo === 'contrato') return CONTRATOS.find((c) => c.id === id)?.clienteId
+  return AVALIACOES.find((a) => a.id === id)?.clienteId
 }
 
 /**

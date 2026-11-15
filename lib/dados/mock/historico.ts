@@ -7,6 +7,7 @@ type Entrada = [registro: string, dataHora: string, usuarioId: string, descricao
 
 const cliente = (...e: Entrada) => ({ tipo: 'cliente' as const, e })
 const avaliacao = (...e: Entrada) => ({ tipo: 'avaliacao' as const, e })
+const contrato = (...e: Entrada) => ({ tipo: 'contrato' as const, e })
 
 const ENTRADAS = [
   cliente('cli-elo', '2026-01-05T09:00:00-03:00', 'usr-helena', 'Cadastro criado'),
@@ -37,6 +38,24 @@ const ENTRADAS = [
   avaliacao('ava-ondamar-1', '2026-10-15T11:45:00-03:00', 'usr-helena', 'Status da avaliação', 'Em elaboração', 'Concluída'),
   cliente('cli-limpar', '2026-10-20T16:00:00-03:00', 'usr-helena', 'Cadastro criado'),
   avaliacao('ava-vertice-3', '2026-11-05T14:20:00-03:00', 'usr-rafael', 'Avaliação criada'),
+  // Parte 3: os contratos, registrados na plataforma depois do cadastro do cliente.
+  contrato('ctr-fortec-subestacoes', '2026-01-21T10:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-vertice-manutencao', '2026-02-03T10:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-vertice-mobilizacao', '2026-02-10T09:30:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-atlantica-porto', '2026-02-11T09:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-montareal-montagem', '2026-02-19T10:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-atlantica-ssma', '2026-02-20T15:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-montareal-pintura', '2026-02-20T11:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-vertice-mobilizacao', '2026-02-26T16:00:00-03:00', 'usr-helena', 'Status do contrato', 'Proposta', 'Ativo'),
+  contrato('ctr-vertice-mobilizacao', '2026-02-26T16:01:00-03:00', 'usr-helena', 'Início da vigência', undefined, '01/03/2026'),
+  contrato('ctr-montareal-pintura', '2026-03-16T17:00:00-03:00', 'usr-helena', 'Status do contrato', 'Proposta', 'Cancelado'),
+  contrato('ctr-atlantica-ssma', '2026-03-25T10:00:00-03:00', 'usr-helena', 'Status do contrato', 'Proposta', 'Ativo'),
+  contrato('ctr-rede-norte-rmm', '2026-04-09T10:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-ondamar-apoio', '2026-06-02T09:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-atlantica-ssma', '2026-09-15T11:20:00-03:00', 'usr-helena', 'Status do contrato', 'Ativo', 'Suspenso'),
+  contrato('ctr-rede-norte-glpi', '2026-10-05T14:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-vertice-proposta', '2026-10-21T11:00:00-03:00', 'usr-helena', 'Contrato criado'),
+  contrato('ctr-rede-norte-glpi', '2026-10-28T09:15:00-03:00', 'usr-helena', 'Status do contrato', 'Proposta', 'Em contratação'),
 ]
 
 export const HISTORICO: RegistroAlteracao[] = ENTRADAS.map(({ tipo, e }, i) => {

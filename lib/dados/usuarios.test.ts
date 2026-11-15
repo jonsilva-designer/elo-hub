@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'vitest'
-import { encontrarUsuarioPorEmail, obterExemplosDoPrototipo } from './usuarios'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
+import { encontrarUsuarioPorEmail, listarResponsaveis, obterExemplosDoPrototipo } from './usuarios'
+
+vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
+vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
+
+beforeEach(() => limparCookies())
 
 describe('encontrarUsuarioPorEmail', () => {
   it('ignora espaços nas pontas e maiúsculas', async () => {
@@ -25,5 +31,18 @@ describe('obterExemplosDoPrototipo', () => {
     expect(exemplos.equipe).toMatchObject({ nome: 'Rafael Souza', perfil: 'Equipe' })
     expect(exemplos.clientesDaEquipe).toBe(3)
     expect(exemplos.emailInativo).toBe('marcos.lima@elogovernance.com.br')
+  })
+})
+
+describe('listarResponsaveis (RN-19, CA-01.6)', () => {
+  it('traz os Administradores ativos e a Equipe ativa vinculada, sem o inativo', async () => {
+    entrarComo('usr-helena')
+    expect((await listarResponsaveis('cli-vertice')).map((u) => u.nome)).toEqual(['Helena Prado', 'Rafael Souza'])
+    expect((await listarResponsaveis('cli-montareal')).map((u) => u.nome)).toEqual(['Helena Prado'])
+  })
+
+  it('fora do vínculo, lista vazia', async () => {
+    entrarComo('usr-rafael')
+    expect(await listarResponsaveis('cli-montareal')).toEqual([])
   })
 })

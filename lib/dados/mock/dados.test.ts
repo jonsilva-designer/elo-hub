@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { cnpjValido } from '@/lib/cnpj'
+import { ETAPAS } from '@/lib/jornada/regras'
 import { AVALIACOES } from './avaliacoes'
 import { CLIENTES } from './clientes'
+import { CONTRATOS } from './contratos'
+import { ESCOPOS } from './escopos'
 import { HISTORICO } from './historico'
-import { DIMENSOES, SEGMENTOS } from './listas'
+import { CONTRATANTES, DIMENSOES, SEGMENTOS, SERVICOS } from './listas'
 import { USUARIOS, VINCULOS } from './usuarios'
 
 const digitos = (cnpj: string) => cnpj.replace(/\D/g, '')
@@ -171,5 +174,146 @@ describe('histórico de exemplo (F17, DF-16)', () => {
     const entrada = HISTORICO.find((h) => h.registroId === 'cli-vertice' && h.descricao === 'Telefone')!
     expect(entrada.valorNovo).toBe('(22) 2765-4310')
     expect(vertice.telefone).toBe('(22) 2765-4310')
+  })
+})
+
+describe('serviços e contratantes (Apêndice C)', () => {
+  it('são os do Apêndice C, na ordem do PRD (DF-69, DF-70)', () => {
+    expect(SERVICOS).toEqual([
+      'Manutenção Industrial',
+      'Manutenção Mecânica',
+      'Manutenção Elétrica e Instrumentação',
+      'Engenharia',
+      'Inspeção e Integridade de Ativos',
+      'Construção e Montagem Industrial',
+      'Operação e Apoio Operacional',
+      'Logística e Transporte',
+      'Movimentação de Cargas',
+      'Serviços Portuários e Marítimos',
+      'Serviços Offshore',
+      'Limpeza e Conservação',
+      'Gestão Ambiental',
+      'Segurança, Saúde e Meio Ambiente (SSMA)',
+      'Tecnologia da Informação',
+      'Consultoria e Assessoria Técnica',
+      'Gestão de Projetos',
+      'Fornecimento de Mão de Obra Especializada',
+      'Caldeiraria e Soldagem',
+      'Facilities',
+    ])
+    expect(CONTRATANTES).toEqual(['Petrobras', 'Porto do Açu', 'FMC Logística'])
+  })
+})
+
+const responsavelPermitido = (usuarioId: string, clienteId: string) => {
+  const u = USUARIOS.find((x) => x.id === usuarioId)
+  if (!u) return false
+  return u.perfil === 'Administrador' || VINCULOS.some((v) => v.usuarioId === u.id && v.clienteId === clienteId)
+}
+
+describe('contratos de exemplo (F03, F04)', () => {
+  it('apontam para um cliente que não é o da ELO, com contratante, serviços e responsável permitidos', () => {
+    for (const c of CONTRATOS) {
+      const cliente = CLIENTES.find((x) => x.id === c.clienteId)
+      expect(cliente, c.id).toBeDefined()
+      expect(cliente!.ehCadastroElo, c.id).toBe(false)
+      expect(CONTRATANTES, c.id).toContain(c.contratante)
+      expect(c.servicos.length, c.id).toBeGreaterThan(0)
+      for (const s of c.servicos) expect(SERVICOS, `${c.id} ${s}`).toContain(s)
+      expect(responsavelPermitido(c.responsavelId, c.clienteId), c.id).toBe(true)
+    }
+  })
+
+  it('ids não se repetem, e o código é único dentro do cliente (DF-47)', () => {
+    expect(new Set(CONTRATOS.map((c) => c.id)).size).toBe(CONTRATOS.length)
+    const chaves = CONTRATOS.map((c) => `${c.clienteId} ${c.codigo.toLowerCase()}`)
+    expect(new Set(chaves).size).toBe(CONTRATOS.length)
+  })
+
+  it('a vigência segue o status e o tipo (RN-03, DF-68)', () => {
+    for (const c of CONTRATOS) {
+      if (c.status === 'Proposta' || c.status === 'Em contratação') {
+        expect(c.inicio, c.id).toBeNull()
+        expect(c.termino, c.id).toBeNull()
+        expect(c.terminoEmDias, c.id).toBeUndefined()
+      }
+      if (c.tipoVigencia === 'Prazo indeterminado') {
+        expect(c.termino, c.id).toBeNull()
+        expect(c.terminoEmDias, c.id).toBeUndefined()
+      }
+      if ((c.status === 'Ativo' || c.status === 'Suspenso') && c.tipoVigencia !== 'Prazo indeterminado') {
+        expect(c.inicio, c.id).not.toBeNull()
+        expect(c.termino !== null || c.terminoEmDias !== undefined, c.id).toBe(true)
+      }
+    }
+  })
+
+  it('cliente Inativo só tem contratos Encerrados ou Cancelados (RN-18)', () => {
+    const inativos = CLIENTES.filter((c) => c.status === 'Inativo').map((c) => c.id)
+    for (const c of CONTRATOS.filter((x) => inativos.includes(x.clienteId))) {
+      expect(['Encerrado', 'Cancelado'], c.id).toContain(c.status)
+    }
+  })
+})
+
+describe('escopos de exemplo (F05, F06)', () => {
+  it('são do mesmo cliente do contrato e têm as 5 etapas na ordem (RN-02, CA-06.1)', () => {
+    for (const e of ESCOPOS) {
+      const contrato = CONTRATOS.find((c) => c.id === e.contratoId)
+      expect(contrato, e.id).toBeDefined()
+      expect(e.clienteId, e.id).toBe(contrato!.clienteId)
+      expect(e.etapas.map((l) => l.etapa), e.id).toEqual(ETAPAS)
+      expect(responsavelPermitido(e.responsavelId, e.clienteId), e.id).toBe(true)
+    }
+    expect(new Set(ESCOPOS.map((e) => e.id)).size).toBe(ESCOPOS.length)
+  })
+
+  it('o ciclo anterior é do mesmo cliente (DF-57)', () => {
+    for (const e of ESCOPOS.filter((x) => x.cicloAnteriorId)) {
+      const anterior = ESCOPOS.find((x) => x.id === e.cicloAnteriorId)
+      expect(anterior?.clienteId, e.id).toBe(e.clienteId)
+    }
+  })
+
+  it('etapa Concluída tem data de conclusão, e o responsável da etapa é permitido (CA-06.3, RN-19)', () => {
+    for (const e of ESCOPOS) {
+      for (const l of e.etapas) {
+        if (l.status === 'Concluída') expect(l.conclusao, `${e.id} ${l.etapa}`).not.toBeNull()
+        if (l.responsavelId) expect(responsavelPermitido(l.responsavelId, e.clienteId), `${e.id} ${l.etapa}`).toBe(true)
+      }
+    }
+  })
+
+  it('escopo de contrato fechado está fechado, e o Concluído tem a data efetiva (RN-18, DF-08)', () => {
+    for (const e of ESCOPOS) {
+      const contrato = CONTRATOS.find((c) => c.id === e.contratoId)!
+      if (contrato.status === 'Encerrado' || contrato.status === 'Cancelado') {
+        expect(['Concluído', 'Cancelado'], e.id).toContain(e.status)
+      }
+      if (e.status === 'Concluído') expect(e.conclusaoEfetiva, e.id).not.toBeNull()
+    }
+  })
+})
+
+describe('contrato de referência das avaliações (CA-20.3)', () => {
+  it('é sempre do mesmo cliente', () => {
+    for (const a of AVALIACOES.filter((x) => x.contratoId)) {
+      const contrato = CONTRATOS.find((c) => c.id === a.contratoId)
+      expect(contrato?.clienteId, a.id).toBe(a.clienteId)
+    }
+    expect(AVALIACOES.find((a) => a.id === 'ava-atlantica-1')!.contratoId).toBe('ctr-atlantica-porto')
+  })
+})
+
+describe('histórico dos contratos (F17)', () => {
+  it('todo contrato tem "Contrato criado", a entrada mais antiga dele, depois do cadastro do cliente', () => {
+    for (const c of CONTRATOS) {
+      const entradas = HISTORICO.filter((h) => h.tipo === 'contrato' && h.registroId === c.id).sort(
+        (x, y) => Date.parse(x.dataHora) - Date.parse(y.dataHora),
+      )
+      expect(entradas[0]?.descricao, c.id).toBe('Contrato criado')
+      const cadastro = HISTORICO.find((h) => h.tipo === 'cliente' && h.registroId === c.clienteId && h.descricao === 'Cadastro criado')
+      expect(Date.parse(entradas[0].dataHora), c.id).toBeGreaterThan(Date.parse(cadastro!.dataHora))
+    }
   })
 })
