@@ -1,4 +1,4 @@
-import type { EntradaHistorico, ItemQueImpede, MaturidadeGeral, NivelDimensao } from '@/lib/dados/tipos'
+import type { EntradaHistorico, ItemQueImpede, MaturidadeGeral, NivelDimensao, TipoVigencia, Vigencia } from '@/lib/dados/tipos'
 import { STATUS_POR_TOM, type Criticidade, type Prioridade, type TomDeStatus } from '@/lib/design/status'
 
 /** Dados fictícios da página /designsystem. Datas sempre em texto fixo. */
@@ -122,3 +122,16 @@ export const IMPEDIMENTO_EXEMPLO: ItemQueImpede = {
   responsavel: 'Rafael Souza',
   href: '/designsystem',
 }
+
+/** Os quatro jeitos de mostrar a vigência do contrato (F04). Datas em texto fixo. */
+export const VIGENCIAS_EXEMPLO: { rotulo: string; vigencia: Vigencia | null; termino: string | null; tipoVigencia: TipoVigencia }[] = [
+  { rotulo: 'Vigente', vigencia: { status: 'Vigente', diasRestantes: 228 }, termino: '2027-06-30', tipoVigencia: 'Prazo determinado' },
+  {
+    rotulo: 'Próximo do vencimento',
+    vigencia: { status: 'Próximo do vencimento', diasRestantes: 20 },
+    termino: '2026-12-04',
+    tipoVigencia: 'Prazo determinado',
+  },
+  { rotulo: 'Vencido', vigencia: { status: 'Vencido', diasRestantes: -75 }, termino: '2026-08-31', tipoVigencia: 'Prazo determinado' },
+  { rotulo: 'Prazo indeterminado', vigencia: { status: 'Vigente', diasRestantes: null }, termino: null, tipoVigencia: 'Prazo indeterminado' },
+]

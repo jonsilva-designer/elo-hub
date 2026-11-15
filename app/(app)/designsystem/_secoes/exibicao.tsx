@@ -1,4 +1,5 @@
 import { CartaoIndicador, GradeIndicadores } from '@/components/elo/cartao-indicador'
+import { IndicadorVigencia } from '@/components/elo/indicador-vigencia'
 import { ListaCampos } from '@/components/elo/lista-campos'
 import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
@@ -23,6 +24,7 @@ import {
   GRUPOS_DE_STATUS,
   HISTORICO_EXEMPLO,
   NIVEIS_EXEMPLO,
+  VIGENCIAS_EXEMPLO,
 } from '../exemplos'
 import { Exemplo, Subsecao } from './secao'
 
@@ -175,6 +177,11 @@ export function Exibicao() {
           <PainelHistorico entradas={[]} />
         </div>
       </Exemplo>
+      {VIGENCIAS_EXEMPLO.map((v) => (
+        <Exemplo key={v.rotulo} rotulo={`Vigência do contrato, ${v.rotulo.toLocaleLowerCase('pt-BR')}`}>
+          <IndicadorVigencia vigencia={v.vigencia} termino={v.termino} tipoVigencia={v.tipoVigencia} />
+        </Exemplo>
+      ))}
       <Exemplo rotulo="Progresso de atividades">
         <div className="w-full sm:max-w-xs">
           <ProgressoAtividades concluidas={3} total={8} />
