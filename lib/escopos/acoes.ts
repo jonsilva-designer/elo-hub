@@ -2,17 +2,19 @@
 
 import { contratoFechado } from '@/lib/contratos/regras'
 import { obterContrato } from '@/lib/dados/contratos'
-import { listarEscoposDoCliente, obterEscopo } from '@/lib/dados/escopos'
+import { escopoTemItensLigados, etapasQueImpedemFechar, listarEscoposDoCliente, obterEscopo } from '@/lib/dados/escopos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
+import type { EscopoDetalhado } from '@/lib/dados/tipos'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
-import { mensagemDeSucesso, SEM_PERMISSAO } from '@/lib/resultado-acao'
+import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoSalvarEscopo } from './estados'
-import { CRITICIDADES, PRIORIDADES } from './regras'
-import { avisoDaVigencia, lerDadosEscopo, MENSAGENS_ESCOPO, validarEscopo } from './validacao'
+import { CRITICIDADES, escopoFechado, PRIORIDADES, STATUS_ESCOPO_ABERTOS } from './regras'
+import { avisoDaVigencia, dataValida, lerDadosEscopo, MENSAGENS_ESCOPO, validarEscopo } from './validacao'
 
-// Ações do escopo (parte 3, 5.8 e 5.9). Só o Administrador cadastra e edita (matriz 4.3). Conferem tudo no
-// servidor, mesmo quando a tela esconde o botão. No protótipo, salvar só simula: nada é gravado.
+// Ações do escopo (parte 3, 5.8 e 5.9). Só o Administrador cadastra, edita, reclassifica, conclui, cancela, reabre,
+// move e exclui (matriz 4.3). Conferem tudo no servidor, mesmo quando a tela esconde o botão. No protótipo, salvar
+// só simula: nada é gravado.
 
 const texto = (valor: FormDataEntryValue | null) => (typeof valor === 'string' ? valor.trim() : '')
 
@@ -69,4 +71,95 @@ export async function salvarEscopo(_estado: EstadoSalvarEscopo, formData: FormDa
       destino: atual ? `/escopos/${atual.id}` : `/contratos/${contrato.id}`,
     },
   }
+}
+
+const recusa = (mensagem: string): ResultadoAcao => ({ ok: false, mensagem })
+
+const temTexto = (valor: unknown): valor is string => typeof valor === 'string' && valor.trim() !== ''
+
+/**
+ * O escopo ao alcance do Administrador, ou a recusa. Os argumentos vêm do navegador e podem ser forjados: quem não
+ * é Administrador, ou um id que não existe, recebe a mesma recusa, sem saber se o escopo existe.
+ */
+async function escopoDoAdministrador(id: unknown): Promise<EscopoDetalhado | ResultadoAcao> {
+  const usuario = await obterUsuarioAtual()
+  if (!ehAdmin(usuario) || typeof id !== 'string') return recusa(SEM_PERMISSAO)
+  return (await obterEscopo(id)) ?? recusa(SEM_PERMISSAO)
+}
+
+const ehRecusa = (x: EscopoDetalhado | ResultadoAcao): x is ResultadoAcao => 'ok' in x
+
+/** Reclassificar a criticidade do escopo aberto, com justificativa (F05, CA-05.2). Fica no histórico. */
+export async function reclassificarCriticidade(id: string, criticidade: string, justificativa: string): Promise<ResultadoAcao> {
+  const escopo = await escopoDoAdministrador(id)
+  if (ehRecusa(escopo)) return escopo
+  if (escopoFechado(escopo.status)) return recusa('A criticidade de um escopo fechado não muda.')
+  if (!(CRITICIDADES as unknown[]).includes(criticidade)) return recusa(MENSAGENS_ESCOPO.criticidade)
+  if (!temTexto(justificativa)) return recusa(MENSAGENS_ESCOPO.justificativaCriticidade)
+  return { ok: true, mensagem: mensagemDeSucesso('Criticidade reclassificada.') }
+}
+
+/** Concluir ou cancelar: só o escopo aberto, e recusado enquanto houver etapas Em andamento, com a lista (DF-59). */
+async function fechar(escopo: EscopoDetalhado, verbo: 'concluir' | 'cancelar'): Promise<ResultadoAcao | null> {
+  const participio = verbo === 'concluir' ? 'concluído' : 'cancelado'
+  if (escopoFechado(escopo.status)) return recusa(`Só um escopo aberto pode ser ${participio}.`)
+  const impedimentos = await etapasQueImpedemFechar(escopo.id)
+  if (impedimentos.length > 0) {
+    return { ok: false, mensagem: `Não é possível ${verbo} este escopo enquanto houver etapas Em andamento.`, impedimentos }
+  }
+  return null
+}
+
+/** Concluir o escopo aberto, com a data efetiva de conclusão. As etapas Não iniciadas podem ficar (DF-59). */
+export async function concluirEscopo(id: string, dataEfetiva: string): Promise<ResultadoAcao> {
+  const escopo = await escopoDoAdministrador(id)
+  if (ehRecusa(escopo)) return escopo
+  const impedido = await fechar(escopo, 'concluir')
+  if (impedido) return impedido
+  if (typeof dataEfetiva !== 'string' || !dataValida(dataEfetiva)) return recusa('Informe a data efetiva de conclusão.')
+  return { ok: true, mensagem: mensagemDeSucesso('Escopo concluído.') }
+}
+
+/** Cancelar o escopo aberto: ele sai do andamento sem ser concluído. */
+export async function cancelarEscopo(id: string): Promise<ResultadoAcao> {
+  const escopo = await escopoDoAdministrador(id)
+  if (ehRecusa(escopo)) return escopo
+  return (await fechar(escopo, 'cancelar')) ?? { ok: true, mensagem: mensagemDeSucesso('Escopo cancelado.') }
+}
+
+/**
+ * Reabrir o escopo Concluído ou Cancelado para um status aberto, com justificativa (RN-17, RN-22). Com o contrato
+ * fechado, não: o contrato é reaberto antes (RN-23).
+ */
+export async function reabrirEscopo(id: string, status: string, justificativa: string): Promise<ResultadoAcao> {
+  const escopo = await escopoDoAdministrador(id)
+  if (ehRecusa(escopo)) return escopo
+  if (!escopoFechado(escopo.status)) return recusa('Só um escopo Concluído ou Cancelado pode ser reaberto.')
+  if (contratoFechado(escopo.statusContrato)) return recusa('O contrato está fechado. Reabra o contrato antes.')
+  if (!(STATUS_ESCOPO_ABERTOS as unknown[]).includes(status)) return recusa('Escolha o status de volta.')
+  if (!temTexto(justificativa)) return recusa('Escreva a justificativa da reabertura.')
+  return { ok: true, mensagem: mensagemDeSucesso('Escopo reaberto.') }
+}
+
+/**
+ * Mover o escopo para outro contrato aberto do mesmo cliente (DF-45). Planos, atividades, Jornada, documentos e
+ * demandas vão junto. O destino forjado (o próprio contrato, um fechado ou de outro cliente) é recusado.
+ */
+export async function moverEscopo(id: string, contratoId: string): Promise<ResultadoAcao> {
+  const escopo = await escopoDoAdministrador(id)
+  if (ehRecusa(escopo)) return escopo
+  const destino = typeof contratoId === 'string' ? await obterContrato(contratoId) : null
+  if (!destino || destino.id === escopo.contratoId || destino.clienteId !== escopo.clienteId || contratoFechado(destino.status)) {
+    return recusa('Escolha outro contrato aberto do mesmo cliente.')
+  }
+  return { ok: true, mensagem: mensagemDeSucesso('Escopo movido.') }
+}
+
+/** Excluir o escopo (DF-33, RN-13): só sem nada ligado a ele, e com justificativa. */
+export async function excluirEscopo(id: string, justificativa: string): Promise<ResultadoAcao> {
+  const escopo = await escopoDoAdministrador(id)
+  if (ehRecusa(escopo)) return escopo
+  if (await escopoTemItensLigados(escopo.id)) return recusa('Este escopo tem registros ligados e não pode ser excluído.')
+  if (!temTexto(justificativa)) return recusa('Escreva a justificativa da exclusão.')
+  return { ok: true, mensagem: mensagemDeSucesso('Escopo excluído.') }
 }

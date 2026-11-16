@@ -11,7 +11,10 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { Button } from '@/components/ui/button'
-import { obterEscopo } from '@/lib/dados/escopos'
+import { opcoesDeContrato } from '@/lib/contratos/filtros'
+import { contratoFechado } from '@/lib/contratos/regras'
+import { listarContratosDoCliente } from '@/lib/dados/contratos'
+import { escopoTemItensLigados, etapasQueImpedemFechar, obterEscopo } from '@/lib/dados/escopos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -21,7 +24,9 @@ import { escopoFechado } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
 import { mudancasDaEtapa, podeAtualizarEtapa } from '@/lib/jornada/regras'
 import { VoltarParaEscopos } from '../../_componentes/voltar-para-escopos'
+import { AcoesEscopo } from './acoes-escopo'
 import { AtualizarEtapa } from './atualizar-etapa'
+import { ReclassificarCriticidade } from './reclassificar-criticidade'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -83,16 +88,34 @@ async function acoesDaJornada(escopo: EscopoDetalhado, usuario: Usuario): Promis
 }
 
 /**
+ * Os dados do menu de ações do Administrador: as etapas Em andamento que impedem concluir e cancelar (DF-59), se o
+ * escopo pode ser excluído (RN-13) e os outros contratos abertos do cliente, para onde ele pode ser movido (DF-45).
+ */
+async function dadosDoMenu(escopo: EscopoDetalhado) {
+  const [impedimentos, ligados, contratos] = await Promise.all([
+    etapasQueImpedemFechar(escopo.id),
+    escopoTemItensLigados(escopo.id),
+    listarContratosDoCliente(escopo.clienteId),
+  ])
+  const destinos = contratos.filter((c) => c.id !== escopo.contratoId && !contratoFechado(c.status))
+  return { impedimentos, contratosDestino: opcoesDeContrato(destinos), podeExcluir: !ligados }
+}
+
+/**
  * Página do escopo (parte 3, 5.9). Fora do vínculo ou com id que não existe, "não encontrado", sem revelar que o
- * escopo existe. Só o Administrador edita; a Equipe vinculada lê. A Tarefa 7 do plano 3B acrescenta o menu de ações
- * e o Reclassificar.
+ * escopo existe. Só o Administrador edita, reclassifica e tem o menu de ações; a Equipe vinculada lê e atualiza as
+ * etapas que pode.
  */
 export async function ConteudoEscopo({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const [usuario, escopo] = await Promise.all([obterUsuarioAtual(), obterEscopo(id)])
   if (!escopo) notFound()
-  const [historico, acoes] = await Promise.all([listarHistorico('escopo', escopo.id), acoesDaJornada(escopo, usuario)])
   const admin = ehAdmin(usuario)
+  const [historico, acoes, menu] = await Promise.all([
+    listarHistorico('escopo', escopo.id),
+    acoesDaJornada(escopo, usuario),
+    admin ? dadosDoMenu(escopo) : null,
+  ])
 
   return (
     <>
@@ -117,12 +140,15 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
         }
         acoes={
           admin ? (
-            <Button asChild variant="outline">
-              <Link href={`/escopos/${escopo.id}/editar`}>
-                <Pencil aria-hidden="true" />
-                Editar
-              </Link>
-            </Button>
+            <>
+              <Button asChild variant="outline">
+                <Link href={`/escopos/${escopo.id}/editar`}>
+                  <Pencil aria-hidden="true" />
+                  Editar
+                </Link>
+              </Button>
+              {menu ? <AcoesEscopo escopo={escopo} {...menu} /> : null}
+            </>
           ) : null
         }
       />
@@ -130,7 +156,10 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
         <Painel titulo="Dados do escopo">
           <ListaCampos itens={camposDoEscopo(escopo)} />
         </Painel>
-        <Painel titulo="Criticidade">
+        <Painel
+          titulo="Criticidade"
+          acao={admin && !escopoFechado(escopo.status) ? <ReclassificarCriticidade escopo={escopo} /> : null}
+        >
           <div className="space-y-3">
             <EtiquetaCriticidade criticidade={escopo.criticidade} />
             <p className="text-sm text-foreground">{escopo.justificativaCriticidade}</p>

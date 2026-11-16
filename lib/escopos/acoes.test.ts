@@ -1,7 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { hojeEmBrasilia, somarDias } from '@/lib/formato'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { salvarEscopo } from './acoes'
+import {
+  cancelarEscopo,
+  concluirEscopo,
+  excluirEscopo,
+  moverEscopo,
+  reabrirEscopo,
+  reclassificarCriticidade,
+  salvarEscopo,
+} from './acoes'
 import { ESTADO_INICIAL_SALVAR_ESCOPO } from './estados'
 import { MENSAGENS_ESCOPO } from './validacao'
 
@@ -188,5 +196,184 @@ describe('edição do escopo', () => {
       prioridade: 'Média',
     })
     expect(estado.erros).toEqual({ status: MENSAGENS_ESCOPO.fechado })
+  })
+})
+
+describe('ações do escopo: só o Administrador (matriz 4.3; critério 9)', () => {
+  it('o Rafael é recusado nas seis ações, mesmo num escopo da Vértice', async () => {
+    entrarComo('usr-rafael')
+    const id = 'esc-vertice-qualidade'
+    for (const resultado of [
+      await reclassificarCriticidade(id, 'Alta', 'Motivo'),
+      await concluirEscopo(id, '2026-11-15'),
+      await cancelarEscopo(id),
+      await reabrirEscopo('esc-atlantica-2025', 'Em andamento', 'Motivo'),
+      await moverEscopo(id, 'ctr-vertice-mobilizacao'),
+      await excluirEscopo(id, 'Motivo'),
+    ]) {
+      expect(resultado).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+    }
+  })
+
+  it('escopo que não existe ou id que não é texto: a mesma recusa', async () => {
+    entrarComo('usr-helena')
+    expect(await cancelarEscopo('esc-nao-existe')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+    expect(await cancelarEscopo(42 as unknown as string)).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+  })
+})
+
+describe('reclassificarCriticidade (F05, CA-05.2)', () => {
+  it('pede a justificativa e uma criticidade da lista', async () => {
+    entrarComo('usr-helena')
+    expect(await reclassificarCriticidade('esc-vertice-qualidade', 'Alta', '  ')).toEqual({
+      ok: false,
+      mensagem: 'Escreva a justificativa da criticidade.',
+    })
+    expect(await reclassificarCriticidade('esc-vertice-qualidade', 'Urgente', 'Motivo')).toEqual({
+      ok: false,
+      mensagem: 'Escolha a criticidade.',
+    })
+    expect(await reclassificarCriticidade('esc-vertice-qualidade', 'Alta', 'A auditoria deu prazo.')).toEqual({
+      ok: true,
+      mensagem: 'Criticidade reclassificada. No protótipo, os dados não são gravados.',
+    })
+  })
+
+  it('o escopo fechado não muda de criticidade', async () => {
+    entrarComo('usr-helena')
+    expect(await reclassificarCriticidade('esc-atlantica-2025', 'Alta', 'Motivo')).toEqual({
+      ok: false,
+      mensagem: 'A criticidade de um escopo fechado não muda.',
+    })
+  })
+})
+
+describe('concluirEscopo e cancelarEscopo (DF-59, critério 18)', () => {
+  it('a etapa Em andamento impede concluir, com a lista', async () => {
+    entrarComo('usr-helena')
+    const resultado = await concluirEscopo('esc-vertice-documental', '2026-11-15')
+    expect(resultado).toMatchObject({
+      ok: false,
+      mensagem: 'Não é possível concluir este escopo enquanto houver etapas Em andamento.',
+    })
+    expect(resultado.ok ? [] : resultado.impedimentos?.map((i) => i.descricao)).toEqual(['Estruturar'])
+  })
+
+  it('concluir pede a data efetiva, que precisa existir', async () => {
+    entrarComo('usr-helena')
+    const semData = { ok: false, mensagem: 'Informe a data efetiva de conclusão.' }
+    expect(await concluirEscopo('esc-vertice-qualidade', '')).toEqual(semData)
+    expect(await concluirEscopo('esc-vertice-qualidade', '2026-02-30')).toEqual(semData)
+    expect(await concluirEscopo('esc-vertice-qualidade', '2026-11-15')).toEqual({
+      ok: true,
+      mensagem: 'Escopo concluído. No protótipo, os dados não são gravados.',
+    })
+  })
+
+  it('as etapas Não iniciadas não impedem concluir', async () => {
+    entrarComo('usr-helena')
+    expect((await concluirEscopo('esc-rede-norte-rmm', '2026-11-15')).ok).toBe(true)
+  })
+
+  it('a etapa Em andamento impede cancelar; sem ela, cancela', async () => {
+    entrarComo('usr-helena')
+    expect(await cancelarEscopo('esc-vertice-mobilizacao')).toMatchObject({
+      ok: false,
+      mensagem: 'Não é possível cancelar este escopo enquanto houver etapas Em andamento.',
+    })
+    expect(await cancelarEscopo('esc-vertice-qualidade')).toEqual({
+      ok: true,
+      mensagem: 'Escopo cancelado. No protótipo, os dados não são gravados.',
+    })
+  })
+
+  it('o escopo fechado não é concluído nem cancelado de novo', async () => {
+    entrarComo('usr-helena')
+    expect(await concluirEscopo('esc-atlantica-2025', '2026-11-15')).toEqual({
+      ok: false,
+      mensagem: 'Só um escopo aberto pode ser concluído.',
+    })
+    expect(await cancelarEscopo('esc-atlantica-ssma')).toEqual({ ok: false, mensagem: 'Só um escopo aberto pode ser cancelado.' })
+  })
+})
+
+describe('reabrirEscopo (RN-17, RN-22, RN-23)', () => {
+  it('reabre o Concluído para um status aberto, com justificativa', async () => {
+    entrarComo('usr-helena')
+    expect(await reabrirEscopo('esc-atlantica-2025', 'Em andamento', 'Novo pedido')).toEqual({
+      ok: true,
+      mensagem: 'Escopo reaberto. No protótipo, os dados não são gravados.',
+    })
+    expect(await reabrirEscopo('esc-atlantica-2025', 'Concluído', 'Novo pedido')).toEqual({
+      ok: false,
+      mensagem: 'Escolha o status de volta.',
+    })
+    expect(await reabrirEscopo('esc-atlantica-2025', 'Em andamento', ' ')).toEqual({
+      ok: false,
+      mensagem: 'Escreva a justificativa da reabertura.',
+    })
+  })
+
+  it('só o Concluído e o Cancelado são reabertos', async () => {
+    entrarComo('usr-helena')
+    expect(await reabrirEscopo('esc-vertice-qualidade', 'Planejado', 'x')).toEqual({
+      ok: false,
+      mensagem: 'Só um escopo Concluído ou Cancelado pode ser reaberto.',
+    })
+  })
+})
+
+describe('moverEscopo (DF-45; ponto de atenção 4)', () => {
+  it('move para outro contrato aberto do mesmo cliente', async () => {
+    entrarComo('usr-helena')
+    expect(await moverEscopo('esc-vertice-documental', 'ctr-vertice-mobilizacao')).toEqual({
+      ok: true,
+      mensagem: 'Escopo movido. No protótipo, os dados não são gravados.',
+    })
+  })
+
+  it('o próprio contrato, outro cliente ou um contrato que não existe: recusa', async () => {
+    entrarComo('usr-helena')
+    for (const destino of ['ctr-vertice-manutencao', 'ctr-montareal-montagem', 'ctr-nao-existe']) {
+      expect(await moverEscopo('esc-vertice-documental', destino), destino).toEqual({
+        ok: false,
+        mensagem: 'Escolha outro contrato aberto do mesmo cliente.',
+      })
+    }
+  })
+
+  it('contrato fechado do mesmo cliente não recebe o escopo (RN-23)', async () => {
+    entrarComo('usr-helena')
+    expect(await moverEscopo('esc-montareal-montagem', 'ctr-montareal-pintura')).toEqual({
+      ok: false,
+      mensagem: 'Escolha outro contrato aberto do mesmo cliente.',
+    })
+  })
+
+  it('o escopo fechado também pode mudar de contrato, e o destino aberto pode estar Suspenso', async () => {
+    entrarComo('usr-helena')
+    expect((await moverEscopo('esc-atlantica-2025', 'ctr-atlantica-ssma')).ok).toBe(true)
+  })
+})
+
+describe('excluirEscopo (RN-13, DF-33; critério 19)', () => {
+  it('a Jornada mexida impede excluir', async () => {
+    entrarComo('usr-helena')
+    expect(await excluirEscopo('esc-vertice-documental', 'x')).toEqual({
+      ok: false,
+      mensagem: 'Este escopo tem registros ligados e não pode ser excluído.',
+    })
+  })
+
+  it('pede a justificativa; com ela, exclui', async () => {
+    entrarComo('usr-helena')
+    expect(await excluirEscopo('esc-vertice-qualidade', '  ')).toEqual({
+      ok: false,
+      mensagem: 'Escreva a justificativa da exclusão.',
+    })
+    expect(await excluirEscopo('esc-vertice-qualidade', 'Cadastrado em duplicidade.')).toEqual({
+      ok: true,
+      mensagem: 'Escopo excluído. No protótipo, os dados não são gravados.',
+    })
   })
 })

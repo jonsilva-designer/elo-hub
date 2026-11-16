@@ -85,7 +85,7 @@ export function lerDadosEscopo(formData: FormData): DadosEscopo {
 }
 
 /** A data no formato AAAA-MM-DD e que existe no calendário: 31/02 não vira 03/03. */
-function dataValida(data: string): boolean {
+export function dataValida(data: string): boolean {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(data)
   return m !== null && dataExiste(Number(m[1]), Number(m[2]), Number(m[3]))
 }

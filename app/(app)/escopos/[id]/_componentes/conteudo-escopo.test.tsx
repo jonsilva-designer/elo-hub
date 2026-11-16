@@ -156,17 +156,28 @@ describe('página do escopo (parte 3, 5.9)', () => {
     expect(screen.queryByRole('button', { name: /^Atualizar / })).not.toBeInTheDocument()
   })
 
-  it('o Administrador vê Editar', async () => {
+  it('o Administrador vê Editar, Mais ações e Reclassificar', async () => {
     entrarComo('usr-helena')
     await abrir('esc-vertice-documental')
     expect(screen.getByRole('link', { name: 'Editar' })).toHaveAttribute('href', '/escopos/esc-vertice-documental/editar')
+    expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument()
+    expect(painel('Criticidade').getByRole('button', { name: 'Reclassificar' })).toBeInTheDocument()
   })
 
-  it('a Equipe vinculada vê o escopo, sem Editar', async () => {
+  it('no escopo fechado, o Administrador tem Mais ações, sem Reclassificar', async () => {
+    entrarComo('usr-helena')
+    await abrir('esc-atlantica-2025')
+    expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reclassificar' })).not.toBeInTheDocument()
+  })
+
+  it('a Equipe vinculada vê o escopo, sem Editar, Mais ações nem Reclassificar', async () => {
     entrarComo('usr-rafael')
     await abrir('esc-vertice-documental')
     expect(screen.getByRole('heading', { level: 1, name: 'Regularização documental' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Editar' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Mais ações' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reclassificar' })).not.toBeInTheDocument()
   })
 
   it('fora do vínculo ou com id que não existe, "não encontrado" (critério 10)', async () => {
