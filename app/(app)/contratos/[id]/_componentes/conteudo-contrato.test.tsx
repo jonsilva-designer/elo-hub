@@ -107,10 +107,23 @@ describe('página do contrato (parte 3, 5.6)', () => {
     expect(push).toHaveBeenCalledWith('/escopos/esc-vertice-documental')
   })
 
-  it('o Administrador vê Novo escopo bloqueado até o plano 3B', async () => {
+  it('o Administrador cadastra escopo pelo Novo escopo do painel', async () => {
     entrarComo('usr-helena')
     await abrir('ctr-vertice-manutencao')
-    expect(painel('Escopos').getByRole('button', { name: 'Novo escopo' })).toHaveAttribute('aria-disabled', 'true')
+    expect(painel('Escopos').getByRole('link', { name: /Novo escopo/ })).toHaveAttribute(
+      'href',
+      '/escopos/novo?contrato=ctr-vertice-manutencao',
+    )
+  })
+
+  it('no contrato fechado, Novo escopo fica bloqueado com a dica de reabrir (RN-23)', async () => {
+    entrarComo('usr-helena')
+    await abrir('ctr-ondamar-apoio')
+    const botao = painel('Escopos').getByRole('button', { name: /Novo escopo/ })
+    expect(botao).toHaveAttribute('aria-disabled', 'true')
+    expect(painel('Escopos').queryByRole('link', { name: /Novo escopo/ })).not.toBeInTheDocument()
+    await userEvent.hover(botao)
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Contrato fechado: reabra o contrato para cadastrar escopos')
   })
 
   it('Documentos e Histórico', async () => {
@@ -156,7 +169,8 @@ describe('página do contrato (parte 3, 5.6)', () => {
     await abrir('ctr-vertice-manutencao')
     expect(screen.getByRole('heading', { level: 1, name: 'CT-2025-031' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Editar' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Novo escopo' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Novo escopo/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Novo escopo/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Mais ações' })).not.toBeInTheDocument()
   })
 

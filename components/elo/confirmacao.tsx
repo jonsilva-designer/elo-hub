@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
+import { Num } from '@/components/elo/num'
 import type { ItemQueImpede } from '@/lib/dados/tipos'
 
 /**
@@ -105,6 +106,14 @@ export function ListaImpedimentos({ itens }: { itens: ItemQueImpede[] }) {
 }
 
 /** Aviso dentro da página, com borda âmbar, para confirmar um salvamento atípico. */
+/**
+ * A mensagem com cada número, como uma data "05/12/2026", em <Num> (JetBrains Mono em todos os números, padrão
+ * visual). A mensagem vem pronta do servidor, como o aviso da RN-21.
+ */
+function comNumeros(texto: string) {
+  return texto.split(/(\d(?:[\d/.,:]*\d)?)/).map((parte, i) => (i % 2 === 1 ? <Num key={i}>{parte}</Num> : parte))
+}
+
 export function AvisoConfirmacao({
   mensagem,
   onConfirmar,
@@ -116,7 +125,7 @@ export function AvisoConfirmacao({
 }) {
   return (
     <Alert className="border-[var(--elo-status-atencao)]">
-      <AlertDescription className="text-foreground">{mensagem}</AlertDescription>
+      <AlertDescription className="text-foreground">{comNumeros(mensagem)}</AlertDescription>
       {/* type="button": o aviso costuma ficar dentro do formulário que ele confirma, e não deve enviá-lo. */}
       <div className="mt-2 flex gap-2">
         <Button type="button" onClick={onConfirmar}>

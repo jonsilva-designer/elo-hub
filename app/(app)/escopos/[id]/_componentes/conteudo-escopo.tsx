@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -9,8 +10,11 @@ import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
+import { Button } from '@/components/ui/button'
 import { obterEscopo } from '@/lib/dados/escopos'
 import { listarHistorico } from '@/lib/dados/historico'
+import { ehAdmin } from '@/lib/dados/regras'
+import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { EscopoDetalhado } from '@/lib/dados/tipos'
 import { escopoFechado } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
@@ -48,14 +52,15 @@ function camposDoEscopo(escopo: EscopoDetalhado): { rotulo: string; valor: React
 
 /**
  * Página do escopo (parte 3, 5.9). Fora do vínculo ou com id que não existe, "não encontrado", sem revelar que o
- * escopo existe. As Tarefas 5 a 7 do plano 3B acrescentam Editar, o menu de ações, o Reclassificar e o Atualizar
- * das etapas.
+ * escopo existe. Só o Administrador edita; a Equipe vinculada lê. As Tarefas 6 e 7 do plano 3B acrescentam o
+ * Atualizar das etapas, o menu de ações e o Reclassificar.
  */
 export async function ConteudoEscopo({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const escopo = await obterEscopo(id)
+  const [usuario, escopo] = await Promise.all([obterUsuarioAtual(), obterEscopo(id)])
   if (!escopo) notFound()
   const historico = await listarHistorico('escopo', escopo.id)
+  const admin = ehAdmin(usuario)
 
   return (
     <>
@@ -77,6 +82,16 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
             <EtiquetaStatus status={escopo.status} />
             {escopo.planejamento ? <EtiquetaPlanejamento /> : null}
           </span>
+        }
+        acoes={
+          admin ? (
+            <Button asChild variant="outline">
+              <Link href={`/escopos/${escopo.id}/editar`}>
+                <Pencil aria-hidden="true" />
+                Editar
+              </Link>
+            </Button>
+          ) : null
         }
       />
       <div className="space-y-5">

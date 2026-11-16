@@ -144,6 +144,20 @@ describe('AvisoConfirmacao', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Revisar' }))
     expect(onRevisar).toHaveBeenCalledTimes(1)
   })
+
+  it('os números da mensagem, como a data, ficam em fonte de número', () => {
+    render(
+      <AvisoConfirmacao
+        mensagem="A conclusão prevista é depois do término da vigência do contrato (05/12/2026). Salvar mesmo assim?"
+        onConfirmar={vi.fn()}
+        onRevisar={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('05/12/2026')).toHaveClass('font-mono')
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'A conclusão prevista é depois do término da vigência do contrato (05/12/2026). Salvar mesmo assim?',
+    )
+  })
 })
 
 describe('botões dentro de um formulário', () => {

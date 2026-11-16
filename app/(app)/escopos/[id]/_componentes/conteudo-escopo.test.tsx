@@ -135,10 +135,17 @@ describe('página do escopo (parte 3, 5.9)', () => {
     expect(painel('Jornada ELO').getByText('As etapas não mudam com o escopo fechado.')).toBeInTheDocument()
   })
 
-  it('a Equipe vinculada vê o escopo', async () => {
+  it('o Administrador vê Editar', async () => {
+    entrarComo('usr-helena')
+    await abrir('esc-vertice-documental')
+    expect(screen.getByRole('link', { name: 'Editar' })).toHaveAttribute('href', '/escopos/esc-vertice-documental/editar')
+  })
+
+  it('a Equipe vinculada vê o escopo, sem Editar', async () => {
     entrarComo('usr-rafael')
     await abrir('esc-vertice-documental')
     expect(screen.getByRole('heading', { level: 1, name: 'Regularização documental' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Editar' })).not.toBeInTheDocument()
   })
 
   it('fora do vínculo ou com id que não existe, "não encontrado" (critério 10)', async () => {

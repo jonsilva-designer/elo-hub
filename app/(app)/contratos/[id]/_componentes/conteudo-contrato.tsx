@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { BotaoBloqueado } from '@/components/elo/botao-bloqueado'
@@ -11,7 +11,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { Button } from '@/components/ui/button'
-import { ehPlanejamento } from '@/lib/contratos/regras'
+import { contratoFechado, ehPlanejamento } from '@/lib/contratos/regras'
 import { contratoTemItensLigados, obterContrato } from '@/lib/dados/contratos'
 import { escoposQueImpedemFechar, listarEscoposDoContrato } from '@/lib/dados/escopos'
 import { listarHistorico } from '@/lib/dados/historico'
@@ -125,11 +125,20 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
         <Painel
           titulo="Escopos"
           acao={
-            admin ? (
-              <BotaoBloqueado variant="outline" motivo="O cadastro de escopos entra na próxima etapa da parte 3.">
+            !admin ? null : contratoFechado(contrato.status) ? (
+              // Contrato fechado não recebe escopo novo (RN-23).
+              <BotaoBloqueado variant="outline" motivo="Contrato fechado: reabra o contrato para cadastrar escopos">
+                <Plus aria-hidden="true" />
                 Novo escopo
               </BotaoBloqueado>
-            ) : null
+            ) : (
+              <Button asChild variant="outline">
+                <Link href={`/escopos/novo?contrato=${contrato.id}`}>
+                  <Plus aria-hidden="true" />
+                  Novo escopo
+                </Link>
+              </Button>
+            )
           }
           semRespiro
         >
