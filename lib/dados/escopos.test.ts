@@ -1,7 +1,15 @@
 import { connection } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { escoposQueImpedemFechar, listarEscoposDoContrato } from './escopos'
+import {
+  escopoTemItensLigados,
+  escoposQueImpedemFechar,
+  etapasQueImpedemFechar,
+  listarEscopos,
+  listarEscoposDoCliente,
+  listarEscoposDoContrato,
+  obterEscopo,
+} from './escopos'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
 vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
@@ -76,5 +84,90 @@ describe('data de hoje na requisição (cacheComponents)', () => {
     vi.mocked(connection).mockClear()
     await listarEscoposDoContrato('ctr-vertice-manutencao')
     expect(connection).toHaveBeenCalled()
+  })
+})
+
+describe('listarEscopos e listarEscoposDoCliente (RN-01, critério 1)', () => {
+  it('o Administrador vê os 9 escopos; a Equipe, só os dos clientes vinculados', async () => {
+    entrarComo('usr-helena')
+    expect(await listarEscopos()).toHaveLength(9)
+    entrarComo('usr-rafael')
+    const doRafael = await listarEscopos()
+    expect(doRafael).toHaveLength(8)
+    expect(doRafael.map((e) => e.id)).not.toContain('esc-montareal-montagem')
+  })
+
+  it('os escopos do cliente', async () => {
+    entrarComo('usr-helena')
+    expect((await listarEscoposDoCliente('cli-atlantica')).map((e) => e.id)).toEqual([
+      'esc-atlantica-2025',
+      'esc-atlantica-2026',
+      'esc-atlantica-ssma',
+    ])
+    entrarComo('usr-rafael')
+    expect(await listarEscoposDoCliente('cli-montareal')).toEqual([])
+  })
+})
+
+describe('obterEscopo (critérios 10 e 20)', () => {
+  it('fora do vínculo, null', async () => {
+    entrarComo('usr-rafael')
+    expect(await obterEscopo('esc-montareal-montagem')).toBeNull()
+  })
+
+  it('id que não existe, null', async () => {
+    entrarComo('usr-helena')
+    expect(await obterEscopo('esc-nao-existe')).toBeNull()
+  })
+
+  it('traz o status do contrato, quem classificou e o responsável de cada etapa', async () => {
+    entrarComo('usr-helena')
+    const escopo = await obterEscopo('esc-vertice-documental')
+    expect(escopo).toMatchObject({ statusContrato: 'Ativo', nomeClassificadoPor: 'Helena Prado' })
+    expect(escopo?.etapas[0]).toMatchObject({ etapa: 'Diagnosticar', nomeResponsavel: 'Rafael Souza' })
+    expect(escopo?.etapas[3]).toMatchObject({ etapa: 'Monitorar', nomeResponsavel: '' })
+  })
+
+  it('liga os ciclos do contrato recorrente nos dois sentidos (DF-46)', async () => {
+    entrarComo('usr-helena')
+    const ciclo2026 = await obterEscopo('esc-atlantica-2026')
+    expect(ciclo2026?.cicloAnterior).toEqual({ id: 'esc-atlantica-2025', nome: 'Gestão do contrato portuário, ciclo 2025' })
+    expect(ciclo2026?.cicloSeguinte).toBeNull()
+    const ciclo2025 = await obterEscopo('esc-atlantica-2025')
+    expect(ciclo2025?.cicloSeguinte).toEqual({ id: 'esc-atlantica-2026', nome: 'Gestão do contrato portuário, ciclo 2026' })
+    expect(ciclo2025?.cicloAnterior).toBeNull()
+  })
+})
+
+describe('etapasQueImpedemFechar (DF-59)', () => {
+  it('lista as etapas Em andamento do escopo', async () => {
+    entrarComo('usr-helena')
+    expect(await etapasQueImpedemFechar('esc-vertice-documental')).toEqual([
+      {
+        tipo: 'Etapa da Jornada',
+        descricao: 'Estruturar',
+        status: 'Em andamento',
+        responsavel: 'Rafael Souza',
+        href: '/escopos/esc-vertice-documental',
+      },
+    ])
+  })
+
+  it('sem etapa Em andamento, lista vazia', async () => {
+    entrarComo('usr-helena')
+    expect(await etapasQueImpedemFechar('esc-vertice-qualidade')).toEqual([])
+  })
+})
+
+describe('escopoTemItensLigados (RN-13, DF-33)', () => {
+  it('a Jornada recém-criada não conta; a Jornada mexida conta', async () => {
+    entrarComo('usr-helena')
+    expect(await escopoTemItensLigados('esc-vertice-qualidade')).toBe(false)
+    expect(await escopoTemItensLigados('esc-vertice-documental')).toBe(true)
+  })
+
+  it('fora do vínculo, falso', async () => {
+    entrarComo('usr-rafael')
+    expect(await escopoTemItensLigados('esc-montareal-montagem')).toBe(false)
   })
 })

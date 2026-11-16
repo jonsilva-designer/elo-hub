@@ -61,3 +61,38 @@ describe('listarHistorico de contrato', () => {
     expect(await listarHistorico('contrato', 'ctr-montareal-montagem')).toEqual([])
   })
 })
+
+describe('listarHistorico de escopo', () => {
+  it('a reclassificação da criticidade guarda a justificativa (CA-05.2)', async () => {
+    entrarComo('usr-helena')
+    const entradas = await listarHistorico('escopo', 'esc-vertice-documental')
+    expect(entradas.find((e) => e.descricao === 'Criticidade')).toMatchObject({
+      usuario: 'Helena Prado',
+      valorAnterior: 'Moderada',
+      valorNovo: 'Alta',
+      justificativa: 'Três certidões vencem antes da próxima medição, e o contratante pode reter o pagamento sem elas.',
+    })
+    expect(entradas.at(-1)).toMatchObject({ descricao: 'Escopo criado', usuario: 'Helena Prado' })
+  })
+
+  it('o escopo movido de contrato fica no histórico (DF-45)', async () => {
+    entrarComo('usr-rafael')
+    const entradas = await listarHistorico('escopo', 'esc-vertice-mobilizacao')
+    expect(entradas.find((e) => e.descricao === 'Contrato')).toMatchObject({
+      valorAnterior: 'CT-2025-031',
+      valorNovo: 'CT-2026-044',
+    })
+  })
+
+  it('entrada sem justificativa não traz o campo', async () => {
+    entrarComo('usr-helena')
+    const entradas = await listarHistorico('escopo', 'esc-atlantica-ssma')
+    expect(entradas[0]).toMatchObject({ descricao: 'Status do escopo', valorAnterior: 'Em andamento', valorNovo: 'Cancelado' })
+    expect(entradas[0]).not.toHaveProperty('justificativa')
+  })
+
+  it('a Equipe recebe lista vazia fora do vínculo', async () => {
+    entrarComo('usr-rafael')
+    expect(await listarHistorico('escopo', 'esc-montareal-montagem')).toEqual([])
+  })
+})

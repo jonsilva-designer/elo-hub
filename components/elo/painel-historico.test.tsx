@@ -54,6 +54,22 @@ describe('PainelHistorico (F17, CA-17.3)', () => {
     expect(screen.getByRole('listitem')).toHaveTextContent('Rafael Souza')
   })
 
+  it('mostra a justificativa abaixo da mudança, quando a entrada tem uma (RN-22, CA-05.2)', () => {
+    const criticidade: EntradaHistorico = {
+      id: 'h4',
+      dataHora: '2026-10-02T10:00:00-03:00',
+      usuario: 'Helena Prado',
+      descricao: 'Criticidade',
+      valorAnterior: 'Moderada',
+      valorNovo: 'Alta',
+      justificativa: 'Certidões vencendo antes da medição.',
+    }
+    render(<PainelHistorico entradas={[criticidade, status]} />)
+    const [comJustificativa, semJustificativa] = within(screen.getByRole('list')).getAllByRole('listitem')
+    expect(within(comJustificativa).getByText('Justificativa: Certidões vencendo antes da medição.')).toBeInTheDocument()
+    expect(semJustificativa).not.toHaveTextContent('Justificativa')
+  })
+
   it('sem entradas, diz que não há alteração', () => {
     render(<PainelHistorico entradas={[]} />)
     expect(screen.getByText('Nenhuma alteração registrada.')).toBeInTheDocument()

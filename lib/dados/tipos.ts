@@ -77,7 +77,7 @@ export type AvaliacaoDetalhada = AvaliacaoMaturidade & { nomeAvaliador: string }
 
 // Histórico de alterações (F17, DF-16): só leitura. Na Etapa 3, o banco grava sozinho (arquitetura 4.4).
 
-export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato'
+export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo'
 
 export type RegistroAlteracao = {
   id: string
@@ -89,6 +89,8 @@ export type RegistroAlteracao = {
   descricao: string
   valorAnterior?: string
   valorNovo?: string
+  /** A justificativa da correção, da reabertura ou da criticidade (RN-22, CA-05.2). */
+  justificativa?: string
 }
 
 /** Uma linha do histórico como a tela mostra, com o nome do usuário. */
@@ -99,6 +101,8 @@ export type EntradaHistorico = {
   descricao: string
   valorAnterior?: string
   valorNovo?: string
+  /** A justificativa da correção, da reabertura ou da criticidade (RN-22, CA-05.2). */
+  justificativa?: string
 }
 
 /** Item aberto que impede inativar o cliente (RN-18, CA-18.3). */
@@ -177,12 +181,21 @@ export type Escopo = {
   etapas: LinhaEtapa[]
 }
 
-export type EscopoDetalhado = Escopo & {
+/** A etapa com o nome do responsável; '' sem responsável. */
+export type LinhaEtapaDetalhada = LinhaEtapa & { nomeResponsavel: string }
+
+export type EscopoDetalhado = Omit<Escopo, 'etapas'> & {
+  etapas: LinhaEtapaDetalhada[]
   nomeResponsavel: string
   codigoContrato: string
+  statusContrato: StatusContrato
   nomeCliente: string
+  nomeClassificadoPor: string
   etapaAtual: EtapaJornada | 'Não iniciada'
   progresso: { concluidas: number; aplicaveis: number }
   /** Contrato em Proposta ou Em contratação (DF-48). */
   planejamento: boolean
+  /** Os ciclos do contrato recorrente (DF-46): o seguinte é o escopo que aponta para este como anterior. */
+  cicloAnterior: { id: string; nome: string } | null
+  cicloSeguinte: { id: string; nome: string } | null
 }

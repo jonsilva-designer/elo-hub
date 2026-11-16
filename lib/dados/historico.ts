@@ -1,15 +1,17 @@
 import { AVALIACOES } from './mock/avaliacoes'
 import { CONTRATOS } from './mock/contratos'
+import { ESCOPOS } from './mock/escopos'
 import { HISTORICO } from './mock/historico'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { podeVerCliente } from './regras'
 import { obterUsuarioAtual } from './sessao'
 import type { EntradaHistorico, TipoRegistro } from './tipos'
 
-/** O cliente de quem depende a permissão: o próprio, ou o da avaliação ou do contrato. */
+/** O cliente de quem depende a permissão: o próprio, ou o da avaliação, do contrato ou do escopo. */
 function clienteDoRegistro(tipo: TipoRegistro, id: string): string | undefined {
   if (tipo === 'cliente') return id
   if (tipo === 'contrato') return CONTRATOS.find((c) => c.id === id)?.clienteId
+  if (tipo === 'escopo') return ESCOPOS.find((e) => e.id === id)?.clienteId
   return AVALIACOES.find((a) => a.id === id)?.clienteId
 }
 
@@ -30,5 +32,6 @@ export async function listarHistorico(tipo: TipoRegistro, id: string): Promise<E
       descricao: h.descricao,
       ...(h.valorAnterior === undefined ? {} : { valorAnterior: h.valorAnterior }),
       ...(h.valorNovo === undefined ? {} : { valorNovo: h.valorNovo }),
+      ...(h.justificativa === undefined ? {} : { justificativa: h.justificativa }),
     }))
 }

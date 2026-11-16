@@ -32,6 +32,7 @@ export function PainelHistorico({ entradas }: { entradas: EntradaHistorico[] }) 
                   {e.descricao}
                 </p>
                 {valor ? <p className="text-sm text-foreground">{valor}</p> : null}
+                {e.justificativa ? <p className="text-sm text-foreground">Justificativa: {e.justificativa}</p> : null}
                 <p className="text-secundario text-muted-foreground">
                   <Num>{formatarDataHora(e.dataHora)}</Num> · {e.usuario}
                 </p>
