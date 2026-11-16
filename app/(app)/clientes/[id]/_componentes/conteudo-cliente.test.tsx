@@ -123,10 +123,9 @@ describe('página do cliente (parte 2, 5.6)', () => {
     expect(screen.queryByRole('link', { name: 'Nova avaliação' })).not.toBeInTheDocument()
   })
 
-  it('as abas de escopos, demandas e documentos mostram o vazio da tela', async () => {
+  it('as abas de demandas e documentos mostram o vazio da tela', async () => {
     entrarComo('usr-helena')
     for (const [aba, texto] of [
-      ['escopos', 'Nenhum escopo deste cliente.'],
       ['demandas', 'Nenhuma demanda deste cliente.'],
       ['documentos', 'Nenhum documento deste cliente.'],
     ]) {
@@ -161,6 +160,38 @@ describe('página do cliente (parte 2, 5.6)', () => {
     unmount()
     await abrir('cli-limpar', { aba: 'contratos' })
     expect(screen.getByText('Nenhum contrato deste cliente.')).toBeInTheDocument()
+  })
+
+  it('a aba Escopos lista os escopos do cliente na ordem da lista, sem ação (parte 3, 5.11)', async () => {
+    entrarComo('usr-helena')
+    await abrir('cli-vertice', { aba: 'escopos' })
+    const painel = screen.getByRole('region', { name: 'Escopos' })
+    const escopos = within(painel)
+    const linhas = escopos.getAllByRole('row').slice(1)
+    expect(linhas).toHaveLength(4)
+    expect(linhas[0]).toHaveTextContent('Mobilização de equipe')
+    expect(within(linhas[0]).getByText('CT-2026-044')).toHaveClass('font-mono')
+    expect(linhas[0]).toHaveTextContent('Implementar · 0 de 3')
+    expect(escopos.getByText('Diagnóstico para nova proposta').closest('tr')).toHaveTextContent('Planejamento')
+    expect(escopos.queryByRole('link')).not.toBeInTheDocument()
+    expect(painel.querySelector('h2')?.parentElement?.querySelector('button')).toBeNull()
+  })
+
+  it('a linha da aba Escopos abre o escopo', async () => {
+    entrarComo('usr-helena')
+    await abrir('cli-vertice', { aba: 'escopos' })
+    await userEvent.click(screen.getByText('Regularização documental'))
+    expect(push).toHaveBeenCalledWith('/escopos/esc-vertice-documental')
+  })
+
+  it('cliente sem escopos mostra o vazio; a Equipe vê os do cliente vinculado', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = await abrir('cli-limpar', { aba: 'escopos' })
+    expect(screen.getByText('Nenhum escopo deste cliente.')).toBeInTheDocument()
+    unmount()
+    entrarComo('usr-rafael')
+    await abrir('cli-atlantica', { aba: 'escopos' })
+    expect(within(screen.getByRole('region', { name: 'Escopos' })).getAllByRole('row').slice(1)).toHaveLength(3)
   })
 
   it('a Equipe vê os contratos do cliente vinculado, sem Novo contrato', async () => {
