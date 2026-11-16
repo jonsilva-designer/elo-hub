@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { EtiquetaCriticidade, EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
@@ -42,7 +43,16 @@ const COLUNAS: Coluna<EscopoDetalhado>[] = [
   { id: 'responsavel', titulo: 'Responsável', ordenarPor: (e) => e.nomeResponsavel, celula: (e) => e.nomeResponsavel },
 ]
 
-/** Os escopos do contrato (parte 3, 5.6). As linhas passam a abrir o escopo no plano 3B, com a página dele. */
+/** Os escopos do contrato (parte 3, 5.6). A linha abre a página do escopo. */
 export function TabelaEscopos({ escopos, vazio }: { escopos: EscopoDetalhado[]; vazio: ReactNode }) {
-  return <TabelaDados colunas={COLUNAS} linhas={escopos} chave={(e) => e.id} vazio={vazio} />
+  const router = useRouter()
+  return (
+    <TabelaDados
+      colunas={COLUNAS}
+      linhas={escopos}
+      chave={(e) => e.id}
+      aoClicarLinha={(e) => router.push(`/escopos/${e.id}`)}
+      vazio={vazio}
+    />
+  )
 }

@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { formatarReal } from '@/lib/formato'
@@ -7,12 +8,16 @@ import { metadata } from '../page'
 import { ConteudoContrato } from './conteudo-contrato'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
+const { push } = vi.hoisted(() => ({ push: vi.fn() }))
 vi.mock('next/navigation', async () => ({
   ...(await import('@/lib/testes/next-falso')).moduloNavigation,
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push, replace: vi.fn(), refresh: vi.fn() }),
 }))
 
-beforeEach(() => limparCookies())
+beforeEach(() => {
+  limparCookies()
+  push.mockReset()
+})
 
 const conteudo = (id: string) => ConteudoContrato({ params: Promise.resolve({ id }) })
 
@@ -93,6 +98,13 @@ describe('página do contrato (parte 3, 5.6)', () => {
     expect(documental).toHaveTextContent('Alta')
     expect(documental).toHaveTextContent('Rafael Souza')
     expect(escopos.getByRole('cell', { name: 'Programa de qualidade' })).toBeInTheDocument()
+  })
+
+  it('a linha do escopo abre a página dele', async () => {
+    entrarComo('usr-helena')
+    await abrir('ctr-vertice-manutencao')
+    await userEvent.click(painel('Escopos').getByText('Regularização documental'))
+    expect(push).toHaveBeenCalledWith('/escopos/esc-vertice-documental')
   })
 
   it('o Administrador vê Novo escopo bloqueado até o plano 3B', async () => {

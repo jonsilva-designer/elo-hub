@@ -1,11 +1,12 @@
 import { CartaoIndicador, GradeIndicadores } from '@/components/elo/cartao-indicador'
 import { IndicadorVigencia } from '@/components/elo/indicador-vigencia'
+import { Jornada } from '@/components/elo/jornada'
 import { ListaCampos } from '@/components/elo/lista-campos'
 import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
-import { ProgressoAtividades } from '@/components/elo/progresso-atividades'
+import { Progresso } from '@/components/elo/progresso'
 import { Button } from '@/components/ui/button'
 import {
   EtiquetaCriticidade,
@@ -18,6 +19,7 @@ import {
   CONTRATO_EXEMPLO,
   CRITICIDADES,
   INDICADORES_EXEMPLO,
+  JORNADA_EXEMPLO,
   ESCOPO_EXEMPLO,
   NUMEROS_EXEMPLO,
   PRIORIDADES,
@@ -184,11 +186,27 @@ export function Exibicao() {
       ))}
       <Exemplo rotulo="Progresso de atividades">
         <div className="w-full sm:max-w-xs">
-          <ProgressoAtividades concluidas={3} total={8} />
+          <Progresso
+            feitas={3}
+            total={8}
+            rotulo="concluídas"
+            vazio="Sem atividades"
+            rotuloAcessivel="Atividades concluídas"
+          />
         </div>
       </Exemplo>
       <Exemplo rotulo="Progresso sem atividades">
-        <ProgressoAtividades concluidas={0} total={0} />
+        <Progresso feitas={0} total={0} rotulo="concluídas" vazio="Sem atividades" rotuloAcessivel="Atividades concluídas" />
+      </Exemplo>
+      <Exemplo largo rotulo="Jornada ELO, com a etapa atual, uma etapa Concluída e uma Não aplicável">
+        <div data-demo className="w-full">
+          <Jornada
+            etapas={JORNADA_EXEMPLO}
+            etapaAtual="Estruturar"
+            progresso={{ concluidas: 1, aplicaveis: 4 }}
+            fechado={false}
+          />
+        </div>
       </Exemplo>
     </Subsecao>
   )

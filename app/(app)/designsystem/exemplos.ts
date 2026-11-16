@@ -1,4 +1,12 @@
-import type { EntradaHistorico, ItemQueImpede, MaturidadeGeral, NivelDimensao, TipoVigencia, Vigencia } from '@/lib/dados/tipos'
+import type {
+  EntradaHistorico,
+  ItemQueImpede,
+  LinhaEtapaDetalhada,
+  MaturidadeGeral,
+  NivelDimensao,
+  TipoVigencia,
+  Vigencia,
+} from '@/lib/dados/tipos'
 import { STATUS_POR_TOM, type Criticidade, type Prioridade, type TomDeStatus } from '@/lib/design/status'
 
 /** Dados fictícios da página /designsystem. Datas sempre em texto fixo. */
@@ -134,4 +142,29 @@ export const VIGENCIAS_EXEMPLO: { rotulo: string; vigencia: Vigencia | null; ter
   },
   { rotulo: 'Vencido', vigencia: { status: 'Vencido', diasRestantes: -75 }, termino: '2026-08-31', tipoVigencia: 'Prazo determinado' },
   { rotulo: 'Prazo indeterminado', vigencia: { status: 'Vigente', diasRestantes: null }, termino: null, tipoVigencia: 'Prazo indeterminado' },
+]
+
+/** Jornada fictícia (F06): Diagnosticar Concluída, Estruturar em andamento (a etapa atual) e Monitorar Não aplicável. */
+export const JORNADA_EXEMPLO: LinhaEtapaDetalhada[] = [
+  {
+    etapa: 'Diagnosticar',
+    status: 'Concluída',
+    responsavelId: 'usr-exemplo',
+    nomeResponsavel: 'Rafael Souza',
+    inicio: '2026-03-02',
+    conclusao: '2026-04-17',
+    observacoes: '',
+  },
+  {
+    etapa: 'Estruturar',
+    status: 'Em andamento',
+    responsavelId: 'usr-exemplo',
+    nomeResponsavel: 'Rafael Souza',
+    inicio: '2026-04-20',
+    conclusao: null,
+    observacoes: '',
+  },
+  { etapa: 'Implementar', status: 'Não iniciada', responsavelId: null, nomeResponsavel: '', inicio: null, conclusao: null, observacoes: '' },
+  { etapa: 'Monitorar', status: 'Não aplicável', responsavelId: null, nomeResponsavel: '', inicio: null, conclusao: null, observacoes: '' },
+  { etapa: 'Evoluir', status: 'Não iniciada', responsavelId: null, nomeResponsavel: '', inicio: null, conclusao: null, observacoes: '' },
 ]
