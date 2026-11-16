@@ -1,4 +1,4 @@
-import { Num } from '@/components/elo/num'
+import { ComNumeros, Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import type { EntradaHistorico } from '@/lib/dados/tipos'
 import { formatarData, formatarDataHora } from '@/lib/formato'
@@ -31,7 +31,11 @@ export function PainelHistorico({ entradas }: { entradas: EntradaHistorico[] }) 
                 <p data-slot="descricao" className="text-sm font-medium text-foreground">
                   {e.descricao}
                 </p>
-                {valor ? <p className="text-sm text-foreground">{valor}</p> : null}
+                {valor ? (
+                  <p className="text-sm text-foreground">
+                    <ComNumeros texto={valor} />
+                  </p>
+                ) : null}
                 {e.justificativa ? <p className="text-sm text-foreground">Justificativa: {e.justificativa}</p> : null}
                 <p className="text-secundario text-muted-foreground">
                   <Num>{formatarDataHora(e.dataHora)}</Num> · {e.usuario}

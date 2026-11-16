@@ -59,6 +59,29 @@ function camposDoEscopo(escopo: EscopoDetalhado): { rotulo: string; valor: React
 }
 
 /**
+ * Quem classificou a criticidade e quando (F05). O responsável muda a cada reclassificação (CA-05.2), então ele fica
+ * junto da última alteração; sem alteração, junto da classificação.
+ */
+function AutoriaDaCriticidade({ escopo }: { escopo: EscopoDetalhado }) {
+  const classificada = <Num>{formatarData(escopo.classificadoEm)}</Num>
+  return (
+    <p className="text-secundario text-muted-foreground">
+      {escopo.criticidadeAlteradaEm === escopo.classificadoEm ? (
+        <>
+          Classificada por {escopo.nomeClassificadoPor} em {classificada}
+        </>
+      ) : (
+        <>
+          Classificada em {classificada}
+          <span aria-hidden="true"> · </span>
+          Última alteração por {escopo.nomeClassificadoPor} em <Num>{formatarData(escopo.criticidadeAlteradaEm)}</Num>
+        </>
+      )}
+    </p>
+  )
+}
+
+/**
  * O "Atualizar" de cada etapa que o perfil pode mudar (RN-23, DF-24), com os destinos e o motivo calculados aqui,
  * no servidor. O Administrador escolhe o responsável entre quem tem vínculo com o cliente (RN-19).
  */
@@ -163,11 +186,7 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
           <div className="space-y-3">
             <EtiquetaCriticidade criticidade={escopo.criticidade} />
             <p className="text-sm text-foreground">{escopo.justificativaCriticidade}</p>
-            <p className="text-secundario text-muted-foreground">
-              Classificada por {escopo.nomeClassificadoPor} em <Num>{formatarData(escopo.classificadoEm)}</Num>
-              <span aria-hidden="true"> · </span>
-              Última alteração em <Num>{formatarData(escopo.criticidadeAlteradaEm)}</Num>
-            </p>
+            <AutoriaDaCriticidade escopo={escopo} />
           </div>
         </Painel>
         <Jornada

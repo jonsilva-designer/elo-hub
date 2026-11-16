@@ -131,6 +131,20 @@ describe('ListaImpedimentos (RN-18, CA-18.3)', () => {
     expect(item).toHaveTextContent('Em elaboração')
     expect(item).toHaveTextContent('Rafael Souza')
   })
+
+  it('a data e o código no nome do item ficam em fonte de número (padrão visual)', () => {
+    render(
+      <ListaImpedimentos
+        itens={[
+          { tipo: 'Avaliação de maturidade', descricao: 'Avaliação de 05/11/2026', status: 'Em elaboração', responsavel: '', href: '/a' },
+          { tipo: 'Contrato', descricao: 'CT-2025-031 · Petrobras', status: 'Ativo', responsavel: '', href: '/c' },
+        ]}
+      />,
+    )
+    expect(screen.getByText('05/11/2026')).toHaveClass('font-mono')
+    expect(screen.getByText('CT-2025-031')).toHaveClass('font-mono')
+    expect(screen.getByRole('link', { name: 'CT-2025-031 · Petrobras' })).toBeInTheDocument()
+  })
 })
 
 describe('AvisoConfirmacao', () => {

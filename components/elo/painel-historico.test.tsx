@@ -44,7 +44,7 @@ describe('PainelHistorico (F17, CA-17.3)', () => {
   it('mostra o valor anterior e o novo, ou só o novo', () => {
     render(<PainelHistorico entradas={[status, telefone]} />)
     expect(screen.getByText('De Prospect para Ativo')).toBeInTheDocument()
-    expect(screen.getByText('(22) 2765-4310')).toBeInTheDocument()
+    expect(screen.getByRole('list')).toHaveTextContent('(22) 2765-4310')
   })
 
   it('mostra a data e a hora em fonte de número, e o usuário', () => {
@@ -68,6 +68,21 @@ describe('PainelHistorico (F17, CA-17.3)', () => {
     const [comJustificativa, semJustificativa] = within(screen.getByRole('list')).getAllByRole('listitem')
     expect(within(comJustificativa).getByText('Justificativa: Certidões vencendo antes da medição.')).toBeInTheDocument()
     expect(semJustificativa).not.toHaveTextContent('Justificativa')
+  })
+
+  it('as datas e os códigos da mudança ficam em fonte de número (padrão visual)', () => {
+    const movido: EntradaHistorico = {
+      id: 'h5',
+      dataHora: '2026-03-02T09:00:00-03:00',
+      usuario: 'Helena Prado',
+      descricao: 'Contrato',
+      valorAnterior: 'CT-2025-031',
+      valorNovo: 'CT-2026-044',
+    }
+    render(<PainelHistorico entradas={[movido]} />)
+    expect(screen.getByRole('listitem')).toHaveTextContent('De CT-2025-031 para CT-2026-044')
+    expect(screen.getByText('CT-2025-031')).toHaveClass('font-mono')
+    expect(screen.getByText('CT-2026-044')).toHaveClass('font-mono')
   })
 
   it('sem entradas, diz que não há alteração', () => {

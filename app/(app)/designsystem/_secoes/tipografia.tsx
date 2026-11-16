@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Num } from '@/components/elo/num'
+import { ComNumeros, Num } from '@/components/elo/num'
 import { Exemplo, Linhas, Secao } from './secao'
 
 // A classe é o token de tamanho (padrão 4.2): é ela que as telas usam, e nunca o tamanho escrito à mão.
@@ -62,6 +62,14 @@ export function Tipografia() {
         <Exemplo rotulo="Número no meio do texto" nota={<Legenda fonte="JetBrains Mono" tamanho="14px" peso="400" nota="Mesmo tamanho do texto ao redor" />}>
           <p className="text-sm">
             Venceu em <Num>09/11/2026</Num>, com <Num>5</Num> atividades abertas.
+          </p>
+        </Exemplo>
+        <Exemplo
+          rotulo="Números num texto pronto"
+          nota="ComNumeros: datas e códigos inteiros de um texto vindo dos dados, como o histórico e os avisos"
+        >
+          <p className="text-sm">
+            <ComNumeros texto="De CT-2025-031 para CT-2026-044 em 02/03/2026" />
           </p>
         </Exemplo>
       </Linhas>

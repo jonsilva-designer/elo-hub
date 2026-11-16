@@ -77,9 +77,18 @@ describe('página do escopo (parte 3, 5.9)', () => {
     const criticidade = screen.getByRole('region', { name: 'Criticidade' })
     expect(within(criticidade).getByText('Alta')).toBeInTheDocument()
     expect(criticidade).toHaveTextContent('Três certidões vencem antes da próxima medição')
-    expect(criticidade).toHaveTextContent('Classificada por Helena Prado em 04/02/2026')
-    expect(criticidade).toHaveTextContent('Última alteração em 02/10/2026')
+    // O responsável muda a cada reclassificação (CA-05.2): ele fica junto da última alteração, não da primeira data.
+    expect(criticidade).toHaveTextContent('Classificada em 04/02/2026 · Última alteração por Helena Prado em 02/10/2026')
+    expect(within(criticidade).getByText('04/02/2026')).toHaveClass('font-mono')
     expect(within(criticidade).getByText('02/10/2026')).toHaveClass('font-mono')
+  })
+
+  it('a criticidade nunca alterada diz só quem classificou e quando', async () => {
+    entrarComo('usr-helena')
+    await abrir('esc-vertice-qualidade')
+    const criticidade = screen.getByRole('region', { name: 'Criticidade' })
+    expect(criticidade).toHaveTextContent('Classificada por Helena Prado em 04/02/2026')
+    expect(criticidade).not.toHaveTextContent('Última alteração')
   })
 
   it('a Jornada mostra a etapa atual e o progresso (critério 15)', async () => {
