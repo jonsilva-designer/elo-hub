@@ -15,10 +15,13 @@ import { obterEscopo } from '@/lib/dados/escopos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
-import type { EscopoDetalhado } from '@/lib/dados/tipos'
+import type { EscopoDetalhado, EtapaJornada, Usuario } from '@/lib/dados/tipos'
+import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { escopoFechado } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
+import { mudancasDaEtapa, podeAtualizarEtapa } from '@/lib/jornada/regras'
 import { VoltarParaEscopos } from '../../_componentes/voltar-para-escopos'
+import { AtualizarEtapa } from './atualizar-etapa'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -51,15 +54,44 @@ function camposDoEscopo(escopo: EscopoDetalhado): { rotulo: string; valor: React
 }
 
 /**
+ * O "Atualizar" de cada etapa que o perfil pode mudar (RN-23, DF-24), com os destinos e o motivo calculados aqui,
+ * no servidor. O Administrador escolhe o responsável entre quem tem vínculo com o cliente (RN-19).
+ */
+async function acoesDaJornada(escopo: EscopoDetalhado, usuario: Usuario): Promise<Partial<Record<EtapaJornada, ReactNode>>> {
+  const atualizaveis = escopo.etapas.filter((l) => podeAtualizarEtapa(l, usuario.perfil, escopo.status))
+  if (atualizaveis.length === 0) return {}
+  const responsaveis = ehAdmin(usuario)
+    ? (await listarResponsaveis(escopo.clienteId)).map((u) => ({ valor: u.id, rotulo: u.nome }))
+    : []
+  return Object.fromEntries(
+    atualizaveis.map((l) => {
+      const { destinos, motivo } = mudancasDaEtapa(l, escopo.etapas, usuario.perfil, escopo.status)
+      return [
+        l.etapa,
+        <AtualizarEtapa
+          key={l.etapa}
+          escopoId={escopo.id}
+          etapa={l}
+          perfil={usuario.perfil}
+          destinos={destinos}
+          motivo={motivo}
+          responsaveis={responsaveis}
+        />,
+      ]
+    }),
+  )
+}
+
+/**
  * Página do escopo (parte 3, 5.9). Fora do vínculo ou com id que não existe, "não encontrado", sem revelar que o
- * escopo existe. Só o Administrador edita; a Equipe vinculada lê. As Tarefas 6 e 7 do plano 3B acrescentam o
- * Atualizar das etapas, o menu de ações e o Reclassificar.
+ * escopo existe. Só o Administrador edita; a Equipe vinculada lê. A Tarefa 7 do plano 3B acrescenta o menu de ações
+ * e o Reclassificar.
  */
 export async function ConteudoEscopo({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const [usuario, escopo] = await Promise.all([obterUsuarioAtual(), obterEscopo(id)])
   if (!escopo) notFound()
-  const historico = await listarHistorico('escopo', escopo.id)
+  const [historico, acoes] = await Promise.all([listarHistorico('escopo', escopo.id), acoesDaJornada(escopo, usuario)])
   const admin = ehAdmin(usuario)
 
   return (
@@ -114,6 +146,7 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
           etapaAtual={escopo.etapaAtual}
           progresso={escopo.progresso}
           fechado={escopoFechado(escopo.status)}
+          acoes={acoes}
         />
         <Painel titulo="Planos e atividades">
           <EstadoVazio titulo="Nenhum plano neste escopo." />

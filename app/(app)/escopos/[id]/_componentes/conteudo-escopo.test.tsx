@@ -135,6 +135,27 @@ describe('página do escopo (parte 3, 5.9)', () => {
     expect(painel('Jornada ELO').getByText('As etapas não mudam com o escopo fechado.')).toBeInTheDocument()
   })
 
+  it('a Equipe atualiza as etapas Não iniciadas e Em andamento; o Administrador, todas (critério 16)', async () => {
+    const comAtualizar = () =>
+      screen
+        .getAllByRole('article')
+        .filter((cartao) => within(cartao).queryByRole('button', { name: /^Atualizar / }))
+        .map((cartao) => cartao.getAttribute('aria-label'))
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('esc-vertice-documental')
+    expect(comAtualizar()).toEqual(['Estruturar', 'Implementar', 'Monitorar', 'Evoluir'])
+    unmount()
+    entrarComo('usr-helena')
+    await abrir('esc-vertice-documental')
+    expect(comAtualizar()).toEqual(['Diagnosticar', 'Estruturar', 'Implementar', 'Monitorar', 'Evoluir'])
+  })
+
+  it('no escopo fechado, nenhuma etapa tem Atualizar (RN-23)', async () => {
+    entrarComo('usr-helena')
+    await abrir('esc-atlantica-2025')
+    expect(screen.queryByRole('button', { name: /^Atualizar / })).not.toBeInTheDocument()
+  })
+
   it('o Administrador vê Editar', async () => {
     entrarComo('usr-helena')
     await abrir('esc-vertice-documental')
