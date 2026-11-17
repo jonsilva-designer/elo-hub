@@ -55,6 +55,19 @@ export function EtiquetaStatus({ status }: { status: string }) {
   );
 }
 
+/**
+ * Sinal que não é status, no formato da etiqueta de status e com um tom fixo (parte 5, 5.13): "E-mail já cadastrado"
+ * (DF-50), "Trocar especialista" (DF-51) e "Vencida".
+ */
+export function EtiquetaSinal({ texto, tom }: { texto: string; tom: "atencao" | "problema" }) {
+  return (
+    <span data-tom={tom} className={cn(BASE, "gap-1.5 border-border bg-card", TEXTO_POR_TOM[tom])}>
+      <span aria-hidden="true" className={cn("size-1.5 shrink-0 rounded-full", PONTO_POR_TOM[tom])} />
+      {texto}
+    </span>
+  );
+}
+
 const CRITICIDADE: Record<Criticidade, string> = {
   Crítica: "border-transparent bg-[var(--elo-crit-critica-fundo)] text-[var(--elo-crit-critica-texto)]",
   Alta: "border-transparent bg-[var(--elo-crit-alta-fundo)] text-[var(--elo-crit-alta-texto)]",

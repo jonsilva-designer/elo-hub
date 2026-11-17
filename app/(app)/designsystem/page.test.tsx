@@ -139,6 +139,14 @@ describe('página /designsystem', () => {
     expect(within(componentes).getAllByText('Atrasada').length).toBeGreaterThan(0)
     expect(within(componentes).getAllByText('Próxima do prazo').length).toBeGreaterThan(0)
   })
+
+  it('mostra a etiqueta de sinal da parte 5, nos dois tons', () => {
+    renderizar()
+    const componentes = secao('Componentes')
+    expect(within(componentes).getByText('Etiqueta de sinal')).toBeInTheDocument()
+    expect(within(componentes).getAllByText('E-mail já cadastrado').length).toBeGreaterThan(0)
+    expect(within(componentes).getAllByText('Trocar especialista').length).toBeGreaterThan(0)
+  })
 })
 
 describe('seção Estados de interface', () => {

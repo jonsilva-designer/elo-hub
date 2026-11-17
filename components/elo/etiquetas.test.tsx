@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   EtiquetaCriticidade,
   EtiquetaPlanejamento,
+  EtiquetaSinal,
   EtiquetaStatus,
   IndicadorPrioridade,
 } from "./etiquetas";
@@ -81,3 +82,12 @@ describe("mesma altura", () => {
     etiquetas.forEach((el) => expect(el).toHaveClass("border"));
   });
 });
+
+describe('EtiquetaSinal (parte 5, 5.13)', () => {
+  it('mostra o texto com o ponto do tom pedido', () => {
+    const { container } = render(<EtiquetaSinal texto="Trocar especialista" tom="problema" />)
+    const etiqueta = container.firstElementChild as HTMLElement
+    expect(etiqueta).toHaveTextContent('Trocar especialista')
+    expect(etiqueta).toHaveAttribute('data-tom', 'problema')
+  })
+})

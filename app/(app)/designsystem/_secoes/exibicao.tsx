@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import {
   EtiquetaCriticidade,
   EtiquetaPlanejamento,
+  EtiquetaSinal,
   EtiquetaStatus,
   IndicadorPrioridade,
 } from '@/components/elo/etiquetas'
@@ -208,6 +209,12 @@ export function Exibicao() {
         <div className="flex flex-col gap-2">
           <ResumoAtividades compacto resumo={{ total: 5, concluidas: 1, atrasadas: 1 }} />
           <ResumoAtividades compacto resumo={{ total: 2, concluidas: 2, atrasadas: 0 }} />
+        </div>
+      </Exemplo>
+      <Exemplo rotulo="Etiqueta de sinal">
+        <div className="flex flex-wrap items-center gap-2">
+          <EtiquetaSinal texto="E-mail já cadastrado" tom="atencao" />
+          <EtiquetaSinal texto="Trocar especialista" tom="problema" />
         </div>
       </Exemplo>
       <Exemplo rotulo="Situação do prazo da atividade">
