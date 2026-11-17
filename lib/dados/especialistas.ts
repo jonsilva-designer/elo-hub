@@ -1,4 +1,5 @@
 import { nomeDoCliente } from '@/lib/clientes/filtros'
+import { escopoFechado } from '@/lib/escopos/regras'
 import { mesmoEmail } from '@/lib/especialistas/regras'
 import { CLIENTES } from './mock/clientes'
 import { ESCOPOS } from './mock/escopos'
@@ -81,4 +82,10 @@ export async function candidaturasComOMesmoEmail(
 export async function especialistaTemItensLigados(id: string): Promise<boolean> {
   await obterUsuarioAtual()
   return ESCOPOS.some((e) => e.especialistaIds.includes(id))
+}
+
+/** O especialista está ligado a algum escopo aberto, de qualquer cliente: ao inativá-lo, o vínculo fica para troca (DF-51). */
+export async function especialistaTemVinculoAberto(id: string): Promise<boolean> {
+  await obterUsuarioAtual()
+  return ESCOPOS.some((e) => e.especialistaIds.includes(id) && !escopoFechado(e.status))
 }
