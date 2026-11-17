@@ -6,6 +6,7 @@ import { etapaAtual, progressoDaJornada } from '@/lib/jornada/regras'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS } from './mock/contratos'
 import { ESCOPOS, type EscopoFicticio } from './mock/escopos'
+import { ESPECIALISTAS } from './mock/especialistas'
 import { PLANOS } from './mock/planos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { podeVerCliente } from './regras'
@@ -39,6 +40,10 @@ function detalhar(e: EscopoFicticio, hoje: string): EscopoDetalhado {
     planejamento: contrato ? ehPlanejamento(contrato.status) : false,
     cicloAnterior: ciclo(ESCOPOS.find((outro) => outro.id === e.cicloAnteriorId)),
     cicloSeguinte: ciclo(ESCOPOS.find((outro) => outro.cicloAnteriorId === e.id)),
+    especialistas: e.especialistaIds.flatMap((id) => {
+      const x = ESPECIALISTAS.find((esp) => esp.id === id)
+      return x ? [{ id: x.id, nome: x.nome, especialidade: x.especialidade, status: x.status }] : []
+    }),
   }
 }
 

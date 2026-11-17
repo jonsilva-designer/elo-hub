@@ -6,8 +6,9 @@ import { AVALIACOES } from './avaliacoes'
 import { CLIENTES } from './clientes'
 import { CONTRATOS } from './contratos'
 import { ESCOPOS } from './escopos'
+import { ESPECIALISTAS } from './especialistas'
 import { HISTORICO } from './historico'
-import { CONTRATANTES, DIMENSOES, SEGMENTOS, SERVICOS } from './listas'
+import { CONTRATANTES, DIMENSOES, ESPECIALIDADES, SEGMENTOS, SERVICOS } from './listas'
 import { PLANOS } from './planos'
 import { USUARIOS, VINCULOS } from './usuarios'
 
@@ -367,6 +368,28 @@ describe('planos e atividades de exemplo (F07, F08)', () => {
   it('todo plano tem "Plano criado" no histórico', () => {
     for (const p of PLANOS) {
       expect(HISTORICO.some((h) => h.tipo === 'plano' && h.registroId === p.id && h.descricao === 'Plano criado'), p.id).toBe(true)
+    }
+  })
+})
+
+describe('especialistas de exemplo (F11)', () => {
+  it('têm os obrigatórios da DF-27 e especialidade da lista oficial, sem repetir id', () => {
+    for (const e of ESPECIALISTAS) {
+      expect(e.nome && e.email && e.telefone, e.id).toBeTruthy()
+      expect(ESPECIALIDADES, e.id).toContain(e.especialidade)
+    }
+    expect(new Set(ESPECIALISTAS.map((e) => e.id)).size).toBe(ESPECIALISTAS.length)
+  })
+
+  it('a candidatura do site nasce Em análise; o cadastro interno não tem candidatura (CA-11.1)', () => {
+    for (const e of ESPECIALISTAS.filter((x) => x.origem === 'Site')) {
+      expect(HISTORICO.some((h) => h.registroId === e.id && h.descricao === 'Candidatura recebida pelo site'), e.id).toBe(true)
+    }
+  })
+
+  it('os escopos só ligam especialistas que existem', () => {
+    for (const e of ESCOPOS) {
+      for (const id of e.especialistaIds) expect(ESPECIALISTAS.some((x) => x.id === id), `${e.id} ${id}`).toBe(true)
     }
   })
 })

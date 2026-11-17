@@ -49,6 +49,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-02-04',
     criticidadeAlteradaEm: '2026-10-02',
     cicloAnteriorId: null,
+    especialistaIds: ['esp-juridico'],
     observacoes: '',
     etapas: jornada({
       Diagnosticar: concluida('usr-rafael', '2026-02-09', '2026-04-30', 'Levantamento de 42 documentos obrigatórios.'),
@@ -73,6 +74,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-02-04',
     criticidadeAlteradaEm: '2026-02-04',
     cicloAnteriorId: null,
+    especialistaIds: [],
     observacoes: '',
     etapas: jornada(),
   },
@@ -96,6 +98,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-02-27',
     criticidadeAlteradaEm: '2026-02-27',
     cicloAnteriorId: null,
+    especialistaIds: ['esp-financeiro'],
     observacoes: 'O diagnóstico e a estruturação foram feitos pelo contratante.',
     etapas: jornada({
       Diagnosticar: NAO_APLICAVEL,
@@ -121,6 +124,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-10-22',
     criticidadeAlteradaEm: '2026-10-22',
     cicloAnteriorId: null,
+    especialistaIds: [],
     observacoes: '',
     etapas: jornada({ Diagnosticar: emAndamento('usr-helena', '2026-10-22') }),
   },
@@ -142,6 +146,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-02-12',
     criticidadeAlteradaEm: '2026-02-12',
     cicloAnteriorId: null,
+    especialistaIds: [],
     observacoes: '',
     etapas: jornada({
       Diagnosticar: concluida('usr-rafael', '2025-01-06', '2025-02-28'),
@@ -169,6 +174,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-02-12',
     criticidadeAlteradaEm: '2026-02-12',
     cicloAnteriorId: 'esc-atlantica-2025',
+    especialistaIds: [],
     observacoes: '',
     etapas: jornada({
       Estruturar: emAndamento('usr-rafael', '2026-03-02', 'Revisão dos procedimentos de pátio.'),
@@ -193,6 +199,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-03-26',
     criticidadeAlteradaEm: '2026-03-26',
     cicloAnteriorId: null,
+    especialistaIds: [],
     observacoes: 'Cancelado com a suspensão do contrato.',
     etapas: jornada({ Diagnosticar: concluida('usr-helena', '2026-04-01', '2026-05-15') }),
   },
@@ -215,6 +222,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-06-02',
     criticidadeAlteradaEm: '2026-06-02',
     cicloAnteriorId: null,
+    especialistaIds: [],
     observacoes: '',
     etapas: jornada({
       Diagnosticar: concluida('usr-helena', '2023-06-01', '2023-07-31'),
@@ -242,6 +250,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-04-09',
     criticidadeAlteradaEm: '2026-04-09',
     cicloAnteriorId: null,
+    especialistaIds: [],
     observacoes: '',
     etapas: jornada({
       Diagnosticar: concluida('usr-rafael', '2026-04-13', '2026-05-29'),
@@ -266,6 +275,7 @@ export const ESCOPOS: EscopoFicticio[] = [
     classificadoEm: '2026-02-19',
     criticidadeAlteradaEm: '2026-02-19',
     cicloAnteriorId: null,
+    especialistaIds: ['esp-juridico'],
     observacoes: '',
     etapas: jornada({ Implementar: emAndamento('usr-helena', '2026-03-02') }),
   },

@@ -77,7 +77,7 @@ export type AvaliacaoDetalhada = AvaliacaoMaturidade & { nomeAvaliador: string }
 
 // Histórico de alterações (F17, DF-16): só leitura. Na Etapa 3, o banco grava sozinho (arquitetura 4.4).
 
-export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo' | 'plano' | 'atividade'
+export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo' | 'plano' | 'atividade' | 'especialista'
 
 export type RegistroAlteracao = {
   id: string
@@ -179,6 +179,8 @@ export type Escopo = {
   observacoes: string
   /** As 5 etapas, na ordem de ETAPAS. */
   etapas: LinhaEtapa[]
+  /** Os especialistas ligados ao escopo (UC-14, DF-32). O Inativo continua, sinalizado para troca (DF-51). */
+  especialistaIds: string[]
 }
 
 /** A etapa com o nome do responsável; '' sem responsável. */
@@ -198,6 +200,7 @@ export type EscopoDetalhado = Omit<Escopo, 'etapas'> & {
   /** Os ciclos do contrato recorrente (DF-46): o seguinte é o escopo que aponta para este como anterior. */
   cicloAnterior: { id: string; nome: string } | null
   cicloSeguinte: { id: string; nome: string } | null
+  especialistas: EspecialistaLigado[]
 }
 
 // Planos de ação e atividades (F07, F08). O atraso e a proximidade do prazo são calculados (RN-09, RN-10).
@@ -273,3 +276,37 @@ export type PlanoDetalhado = Plano & {
   terminoDoContrato: string | null
   resumo: ResumoAtividades
 }
+
+// Especialistas (F11). Todos os usuários logados leem (DF-02); só o Administrador cadastra e edita.
+
+export type StatusEspecialista = 'Em análise' | 'Ativo' | 'Inativo'
+
+export type OrigemEspecialista = 'Site' | 'Cadastro interno'
+
+export type Especialista = {
+  id: string
+  nome: string
+  /** AAAA-MM-DD; opcional (DF-27). */
+  dataNascimento: string | null
+  especialidade: string
+  subespecialidade: string
+  email: string
+  telefone: string
+  cidade: string
+  uf: string
+  empresa: string
+  /** Link do currículo ou do LinkedIn, sem arquivo (DF-27). */
+  curriculo: string
+  origem: OrigemEspecialista
+  status: StatusEspecialista
+  /** Uso interno. */
+  observacoes: string
+  /** AAAA-MM-DD: a data da candidatura ou do cadastro. */
+  cadastradoEm: string
+}
+
+/** O especialista com a marca da candidatura repetida (DF-50). */
+export type EspecialistaDetalhado = Especialista & { emailRepetido: boolean }
+
+/** O especialista como aparece ligado a um escopo ou a uma demanda. */
+export type EspecialistaLigado = { id: string; nome: string; especialidade: string; status: StatusEspecialista }

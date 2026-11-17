@@ -2,6 +2,7 @@ import { ATIVIDADES } from './mock/atividades'
 import { AVALIACOES } from './mock/avaliacoes'
 import { CONTRATOS } from './mock/contratos'
 import { ESCOPOS } from './mock/escopos'
+import { ESPECIALISTAS } from './mock/especialistas'
 import { HISTORICO } from './mock/historico'
 import { PLANOS } from './mock/planos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
@@ -40,8 +41,13 @@ function entradasDoRegistro(tipo: TipoRegistro, id: string): { h: (typeof HISTOR
  */
 export async function listarHistorico(tipo: TipoRegistro, id: string): Promise<EntradaHistorico[]> {
   const usuario = await obterUsuarioAtual()
-  const clienteId = clienteDoRegistro(tipo, id)
-  if (!clienteId || !podeVerCliente(usuario, clienteId, VINCULOS)) return []
+  // O especialista não tem cliente: todos os usuários logados o leem, e o histórico dele também (DF-02, F17).
+  if (tipo === 'especialista') {
+    if (!ESPECIALISTAS.some((e) => e.id === id)) return []
+  } else {
+    const clienteId = clienteDoRegistro(tipo, id)
+    if (!clienteId || !podeVerCliente(usuario, clienteId, VINCULOS)) return []
+  }
   return entradasDoRegistro(tipo, id)
     .sort((a, b) => Date.parse(b.h.dataHora) - Date.parse(a.h.dataHora))
     .map(({ h, prefixo }) => ({

@@ -51,3 +51,14 @@ export const SERVICOS: string[] = [
 
 // Os contratantes citados nas fontes (Apêndice C, DF-69). Os demais entram com os contratos.
 export const CONTRATANTES: string[] = ['Petrobras', 'Porto do Açu', 'FMC Logística']
+
+// As especialidades dos especialistas (Apêndice C, DF-70), na ordem do PRD.
+export const ESPECIALIDADES: string[] = [
+  'Jurídico (contratos, cláusulas e compliance)',
+  'Gestão de contratos',
+  'Financeiro',
+  'Suprimentos e compras',
+  'Gestão de riscos',
+  'ESG e sustentabilidade',
+  'Gestão e desenvolvimento de fornecedores',
+]
