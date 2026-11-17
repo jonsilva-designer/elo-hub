@@ -2,6 +2,7 @@ import { CartaoIndicador, GradeIndicadores } from '@/components/elo/cartao-indic
 import { IndicadorVigencia } from '@/components/elo/indicador-vigencia'
 import { Jornada } from '@/components/elo/jornada'
 import { ListaCampos } from '@/components/elo/lista-campos'
+import { ListaComentarios } from '@/components/elo/lista-comentarios'
 import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { Num } from '@/components/elo/num'
@@ -209,6 +210,32 @@ export function Exibicao() {
         <div className="flex flex-col gap-2">
           <ResumoAtividades compacto resumo={{ total: 5, concluidas: 1, atrasadas: 1 }} />
           <ResumoAtividades compacto resumo={{ total: 2, concluidas: 2, atrasadas: 0 }} />
+        </div>
+      </Exemplo>
+      <Exemplo largo rotulo="Lista de comentários">
+        <div className="w-full">
+          <ListaComentarios
+            comentarios={[
+              {
+                id: 'exemplo-1',
+                autor: 'Rafael Souza',
+                dataHora: '2026-04-03T10:20:00-03:00',
+                tipo: 'Comentário',
+                texto: 'Pedi ao cliente a lista das certidões vencidas.',
+                nomeEspecialista: '',
+                dataContato: null,
+              },
+              {
+                id: 'exemplo-2',
+                autor: 'Rafael Souza',
+                dataHora: '2026-04-06T15:45:00-03:00',
+                tipo: 'Contato com especialista',
+                texto: 'Enviado o recorte das cláusulas para análise.',
+                nomeEspecialista: 'Beatriz Fontes',
+                dataContato: '2026-04-06',
+              },
+            ]}
+          />
         </div>
       </Exemplo>
       <Exemplo rotulo="Etiqueta de sinal">

@@ -147,6 +147,13 @@ describe('página /designsystem', () => {
     expect(within(componentes).getAllByText('E-mail já cadastrado').length).toBeGreaterThan(0)
     expect(within(componentes).getAllByText('Trocar especialista').length).toBeGreaterThan(0)
   })
+
+  it('mostra a lista de comentários da demanda, com o contato com especialista', () => {
+    renderizar()
+    const componentes = secao('Componentes')
+    expect(within(componentes).getByText('Lista de comentários')).toBeInTheDocument()
+    expect(within(componentes).getAllByText(/Contato com especialista ·/).length).toBeGreaterThan(0)
+  })
 })
 
 describe('seção Estados de interface', () => {
