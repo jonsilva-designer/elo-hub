@@ -5,7 +5,8 @@ import type { ReactNode } from 'react'
 import { EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
-import { atividadeFechada, compararAtividades } from '@/lib/atividades/regras'
+import { ordenarAtividades } from '@/lib/atividades/filtros'
+import { atividadeFechada } from '@/lib/atividades/regras'
 import type { AtividadeDetalhada, Perfil } from '@/lib/dados/tipos'
 import { formatarData } from '@/lib/formato'
 import { PRIORIDADES } from '@/lib/escopos/regras'
@@ -13,10 +14,6 @@ import { PRIORIDADES } from '@/lib/escopos/regras'
 /** Quem pode abrir a atividade (parte 4, 5.1): o Administrador sempre; a Equipe, só a aberta (RN-17). */
 export const podeAbrirAtividade = (atividade: AtividadeDetalhada, perfil: Perfil) =>
   perfil === 'Administrador' || !atividadeFechada(atividade.status)
-
-/** A ordem inicial (CA-08.4): as abertas pelo prazo, as fechadas no fim; depois pelo nome. */
-export const ordenarAtividades = (atividades: readonly AtividadeDetalhada[]) =>
-  [...atividades].sort((a, b) => compararAtividades(a, b) || a.nome.localeCompare(b.nome, 'pt-BR'))
 
 function colunas(comCliente: boolean, comPlano: boolean): Coluna<AtividadeDetalhada>[] {
   return [
