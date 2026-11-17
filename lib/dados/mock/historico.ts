@@ -17,6 +17,8 @@ const cliente = (...e: Entrada) => ({ tipo: 'cliente' as const, e })
 const avaliacao = (...e: Entrada) => ({ tipo: 'avaliacao' as const, e })
 const contrato = (...e: Entrada) => ({ tipo: 'contrato' as const, e })
 const escopo = (...e: Entrada) => ({ tipo: 'escopo' as const, e })
+const plano = (...e: Entrada) => ({ tipo: 'plano' as const, e })
+const atividade = (...e: Entrada) => ({ tipo: 'atividade' as const, e })
 
 const ENTRADAS = [
   cliente('cli-elo', '2026-01-05T09:00:00-03:00', 'usr-helena', 'Cadastro criado'),
@@ -88,6 +90,34 @@ const ENTRADAS = [
     'Três certidões vencem antes da próxima medição, e o contratante pode reter o pagamento sem elas.',
   ),
   escopo('esc-vertice-diagnostico', '2026-10-22T09:00:00-03:00', 'usr-helena', 'Escopo criado'),
+  // Planos e atividades (parte 4, 5.2). As alterações das atividades aparecem no histórico do plano.
+  plano('pla-atlantica-fechamento', '2026-02-12T10:00:00-03:00', 'usr-helena', 'Plano criado'),
+  plano('pla-atlantica-fechamento', '2026-02-12T10:20:00-03:00', 'usr-helena', 'Status do plano', 'Aberto', 'Concluído'),
+  atividade('atv-fechamento-relatorio', '2026-02-12T10:10:00-03:00', 'usr-helena', 'Atividade criada'),
+  plano('pla-montareal-estruturas', '2026-03-02T09:00:00-03:00', 'usr-helena', 'Plano criado'),
+  plano('pla-atlantica-indicadores', '2026-03-02T10:00:00-03:00', 'usr-rafael', 'Plano criado'),
+  plano('pla-vertice-mobilizacao', '2026-03-03T08:30:00-03:00', 'usr-helena', 'Plano criado'),
+  plano('pla-vertice-mobilizacao', '2026-03-10T09:00:00-03:00', 'usr-helena', 'Status do plano', 'Aberto', 'Em andamento'),
+  plano('pla-rede-norte-implantacao', '2026-04-13T09:00:00-03:00', 'usr-rafael', 'Plano criado'),
+  plano('pla-vertice-licencas', '2026-05-04T09:00:00-03:00', 'usr-rafael', 'Plano criado'),
+  atividade('atv-licencas-levantamento', '2026-05-04T09:10:00-03:00', 'usr-rafael', 'Atividade criada'),
+  atividade('atv-licencas-protocolo', '2026-05-04T09:15:00-03:00', 'usr-rafael', 'Atividade criada'),
+  atividade('atv-licencas-levantamento', '2026-05-06T11:00:00-03:00', 'usr-rafael', 'Prazo', '08/05/2026', '15/05/2026'),
+  plano('pla-vertice-licencas', '2026-05-11T08:00:00-03:00', 'usr-rafael', 'Status do plano', 'Aberto', 'Em andamento'),
+  atividade('atv-licencas-levantamento', '2026-05-18T17:00:00-03:00', 'usr-rafael', 'Status da atividade', 'Em andamento', 'Concluída'),
+  atividade(
+    'atv-licencas-levantamento',
+    '2026-05-19T10:00:00-03:00',
+    'usr-helena',
+    'Status da atividade',
+    'Concluída',
+    'Em andamento',
+    'Faltou a licença do depósito de inflamáveis no levantamento.',
+  ),
+  atividade('atv-licencas-levantamento', '2026-05-20T16:30:00-03:00', 'usr-rafael', 'Status da atividade', 'Em andamento', 'Concluída'),
+  atividade('atv-licencas-alvara', '2026-07-02T11:00:00-03:00', 'usr-rafael', 'Status da atividade', 'Não iniciada', 'Cancelada'),
+  plano('pla-rede-norte-implantacao', '2026-09-02T14:00:00-03:00', 'usr-helena', 'Status do plano', 'Em andamento', 'Cancelado'),
+  plano('pla-vertice-desenvolvimento', '2026-10-26T15:00:00-03:00', 'usr-helena', 'Plano criado'),
 ]
 
 export const HISTORICO: RegistroAlteracao[] = ENTRADAS.map(({ tipo, e }, i) => {

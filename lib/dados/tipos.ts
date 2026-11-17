@@ -77,7 +77,7 @@ export type AvaliacaoDetalhada = AvaliacaoMaturidade & { nomeAvaliador: string }
 
 // Histórico de alterações (F17, DF-16): só leitura. Na Etapa 3, o banco grava sozinho (arquitetura 4.4).
 
-export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo'
+export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo' | 'plano' | 'atividade'
 
 export type RegistroAlteracao = {
   id: string
@@ -208,3 +208,68 @@ export type StatusAtividade = 'Não iniciada' | 'Em andamento' | 'Concluída' | 
 
 /** Indicador calculado, não é status (RN-09, RN-10). */
 export type SituacaoPrazo = 'Atrasada' | 'Próxima do prazo'
+
+export type Plano = {
+  id: string
+  escopoId: string
+  /** Herdado do escopo (RN-02). */
+  clienteId: string
+  nome: string
+  descricao: string
+  responsavelId: string
+  /** AAAA-MM-DD, como as outras datas do plano. */
+  criadoEm: string
+  prazo: string | null
+  status: StatusPlano
+  /** A avaliação de maturidade da qual o plano saiu, do mesmo cliente (DF-80). */
+  avaliacaoId: string | null
+  observacoes: string
+}
+
+export type Atividade = {
+  id: string
+  planoId: string
+  /** Herdado do plano (RN-02). */
+  clienteId: string
+  nome: string
+  descricao: string
+  responsavelId: string
+  /** Quem executa, quando não é o responsável: só o nome, sem acesso à plataforma (DF-71). '' sem executor. */
+  executor: string
+  criadaEm: string
+  /** Obrigatório (DF-10). */
+  prazo: string
+  prioridade: Prioridade
+  status: StatusAtividade
+  /** Registrada ao concluir e apagada na reabertura (DF-43). */
+  conclusao: string | null
+  observacoes: string
+}
+
+/** O total, as concluídas e as atrasadas do plano (CA-07.2). */
+export type ResumoAtividades = { total: number; concluidas: number; atrasadas: number }
+
+export type AtividadeDetalhada = Atividade & {
+  nomeResponsavel: string
+  nomePlano: string
+  statusPlano: StatusPlano
+  escopoId: string
+  nomeEscopo: string
+  nomeCliente: string
+  situacao: SituacaoPrazo | null
+}
+
+export type PlanoDetalhado = Plano & {
+  nomeResponsavel: string
+  nomeEscopo: string
+  statusEscopo: StatusEscopo
+  contratoId: string
+  codigoContrato: string
+  nomeCliente: string
+  /** Contrato em Proposta ou Em contratação (DF-48, CA-05.9). */
+  planejamento: boolean
+  avaliacao: { id: string; data: string; status: StatusAvaliacao } | null
+  /** O término do contrato que conta para a RN-21: null sem vigência ou em Prazo indeterminado. */
+  terminoDoContrato: string | null
+  resumo: ResumoAtividades
+}

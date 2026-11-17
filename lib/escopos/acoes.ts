@@ -3,6 +3,7 @@
 import { contratoFechado } from '@/lib/contratos/regras'
 import { obterContrato } from '@/lib/dados/contratos'
 import { escopoTemItensLigados, etapasQueImpedemFechar, listarEscoposDoCliente, obterEscopo } from '@/lib/dados/escopos'
+import { planosQueImpedemFechar } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { EscopoDetalhado } from '@/lib/dados/tipos'
@@ -101,13 +102,18 @@ export async function reclassificarCriticidade(id: string, criticidade: string, 
   return { ok: true, mensagem: mensagemDeSucesso('Criticidade reclassificada.') }
 }
 
-/** Concluir ou cancelar: só o escopo aberto, e recusado enquanto houver etapas Em andamento, com a lista (DF-59). */
+/**
+ * Concluir ou cancelar: só o escopo aberto, e recusado enquanto houver etapas Em andamento ou planos abertos, com a
+ * lista (RN-18, DF-59).
+ */
 async function fechar(escopo: EscopoDetalhado, verbo: 'concluir' | 'cancelar'): Promise<ResultadoAcao | null> {
   const participio = verbo === 'concluir' ? 'concluído' : 'cancelado'
   if (escopoFechado(escopo.status)) return recusa(`Só um escopo aberto pode ser ${participio}.`)
-  const impedimentos = await etapasQueImpedemFechar(escopo.id)
+  const [etapas, planos] = await Promise.all([etapasQueImpedemFechar(escopo.id), planosQueImpedemFechar(escopo.id)])
+  const impedimentos = [...etapas, ...planos]
   if (impedimentos.length > 0) {
-    return { ok: false, mensagem: `Não é possível ${verbo} este escopo enquanto houver etapas Em andamento.`, impedimentos }
+    const mensagem = `Não é possível ${verbo} este escopo enquanto houver etapas Em andamento ou planos abertos.`
+    return { ok: false, mensagem, impedimentos }
   }
   return null
 }

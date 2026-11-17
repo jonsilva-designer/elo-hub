@@ -96,3 +96,24 @@ describe('listarHistorico de escopo', () => {
     expect(await listarHistorico('escopo', 'esc-montareal-montagem')).toEqual([])
   })
 })
+
+describe('listarHistorico de plano (parte 4, 5.2)', () => {
+  it('junta as entradas do plano e as das atividades, com o nome da atividade na frente', async () => {
+    entrarComo('usr-rafael')
+    const entradas = await listarHistorico('plano', 'pla-vertice-licencas')
+    const descricoes = entradas.map((e) => e.descricao)
+    expect(descricoes).toContain('Plano criado')
+    expect(descricoes).toContain('Status do plano')
+    expect(descricoes).toContain('Levantar as licenças vencidas · Status da atividade')
+    expect(entradas.find((e) => e.justificativa)).toMatchObject({
+      descricao: 'Levantar as licenças vencidas · Status da atividade',
+      valorAnterior: 'Concluída',
+      valorNovo: 'Em andamento',
+    })
+  })
+
+  it('a Equipe recebe lista vazia fora do vínculo', async () => {
+    entrarComo('usr-rafael')
+    expect(await listarHistorico('plano', 'pla-montareal-estruturas')).toEqual([])
+  })
+})

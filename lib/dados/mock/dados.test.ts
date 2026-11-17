@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { cnpjValido } from '@/lib/cnpj'
 import { ETAPAS } from '@/lib/jornada/regras'
+import { ATIVIDADES } from './atividades'
 import { AVALIACOES } from './avaliacoes'
 import { CLIENTES } from './clientes'
 import { CONTRATOS } from './contratos'
 import { ESCOPOS } from './escopos'
 import { HISTORICO } from './historico'
 import { CONTRATANTES, DIMENSOES, SEGMENTOS, SERVICOS } from './listas'
+import { PLANOS } from './planos'
 import { USUARIOS, VINCULOS } from './usuarios'
 
 const digitos = (cnpj: string) => cnpj.replace(/\D/g, '')
@@ -314,6 +316,57 @@ describe('histórico dos contratos (F17)', () => {
       expect(entradas[0]?.descricao, c.id).toBe('Contrato criado')
       const cadastro = HISTORICO.find((h) => h.tipo === 'cliente' && h.registroId === c.clienteId && h.descricao === 'Cadastro criado')
       expect(Date.parse(entradas[0].dataHora), c.id).toBeGreaterThan(Date.parse(cadastro!.dataHora))
+    }
+  })
+})
+
+describe('planos e atividades de exemplo (F07, F08)', () => {
+  it('o plano é do cliente do escopo, e a atividade do cliente do plano (RN-02)', () => {
+    for (const p of PLANOS) {
+      const escopo = ESCOPOS.find((e) => e.id === p.escopoId)
+      expect(escopo, p.id).toBeDefined()
+      expect(p.clienteId, p.id).toBe(escopo!.clienteId)
+      expect(responsavelPermitido(p.responsavelId, p.clienteId), p.id).toBe(true)
+    }
+    for (const a of ATIVIDADES) {
+      const plano = PLANOS.find((p) => p.id === a.planoId)
+      expect(plano, a.id).toBeDefined()
+      expect(a.clienteId, a.id).toBe(plano!.clienteId)
+      expect(responsavelPermitido(a.responsavelId, a.clienteId), a.id).toBe(true)
+    }
+    expect(new Set(PLANOS.map((p) => p.id)).size).toBe(PLANOS.length)
+    expect(new Set(ATIVIDADES.map((a) => a.id)).size).toBe(ATIVIDADES.length)
+  })
+
+  it('a avaliação do plano é do mesmo cliente (RN-02, DF-80)', () => {
+    for (const p of PLANOS.filter((x) => x.avaliacaoId)) {
+      expect(AVALIACOES.find((a) => a.id === p.avaliacaoId)?.clienteId, p.id).toBe(p.clienteId)
+    }
+  })
+
+  it('toda atividade tem prazo e prioridade (DF-10); só a Concluída tem data de conclusão (DF-43)', () => {
+    for (const a of ATIVIDADES) {
+      expect(a.prazo !== '' || a.prazoEmDias !== undefined, a.id).toBe(true)
+      expect(['Baixa', 'Média', 'Alta'], a.id).toContain(a.prioridade)
+      expect(a.conclusao !== null, a.id).toBe(a.status === 'Concluída')
+    }
+  })
+
+  it('escopo fechado só tem planos fechados, e plano fechado só tem atividades fechadas (RN-18)', () => {
+    const fechado = (s: string) => ['Concluído', 'Cancelado', 'Concluída', 'Cancelada'].includes(s)
+    for (const p of PLANOS) {
+      const escopo = ESCOPOS.find((e) => e.id === p.escopoId)!
+      if (fechado(escopo.status)) expect(fechado(p.status), p.id).toBe(true)
+    }
+    for (const a of ATIVIDADES) {
+      const plano = PLANOS.find((p) => p.id === a.planoId)!
+      if (fechado(plano.status)) expect(fechado(a.status), a.id).toBe(true)
+    }
+  })
+
+  it('todo plano tem "Plano criado" no histórico', () => {
+    for (const p of PLANOS) {
+      expect(HISTORICO.some((h) => h.tipo === 'plano' && h.registroId === p.id && h.descricao === 'Plano criado'), p.id).toBe(true)
     }
   })
 })

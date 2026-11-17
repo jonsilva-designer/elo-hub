@@ -6,6 +6,7 @@ import { etapaAtual, progressoDaJornada } from '@/lib/jornada/regras'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS } from './mock/contratos'
 import { ESCOPOS, type EscopoFicticio } from './mock/escopos'
+import { PLANOS } from './mock/planos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { podeVerCliente } from './regras'
 import { hojeDaRequisicao } from './hoje'
@@ -92,10 +93,10 @@ export async function etapasQueImpedemFechar(escopoId: string): Promise<ItemQueI
 }
 
 /**
- * O escopo tem itens ligados e não pode ser excluído (RN-13, DF-33). Nesta parte, só a Jornada mexida conta: as 5
- * etapas criadas com o escopo não contam enquanto ninguém mexeu nelas. Fora do vínculo, falso.
+ * O escopo tem itens ligados e não pode ser excluído (RN-13, DF-33): a Jornada mexida ou um plano de ação (parte 4).
+ * As 5 etapas criadas com o escopo não contam enquanto ninguém mexeu nelas. Fora do vínculo, falso.
  */
 export async function escopoTemItensLigados(id: string): Promise<boolean> {
   const escopo = await obterEscopo(id)
-  return escopo ? jornadaMexida(escopo.etapas) : false
+  return escopo ? jornadaMexida(escopo.etapas) || PLANOS.some((p) => p.escopoId === id) : false
 }
