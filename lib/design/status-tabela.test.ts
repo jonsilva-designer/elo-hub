@@ -22,4 +22,9 @@ describe('STATUS_POR_TOM', () => {
     expect(tomDoStatus('Inconclusivo')).toBe('neutro')
     expect(STATUS_POR_TOM.neutro).toContain('Inconclusivo')
   })
+
+  it('a situação do prazo da atividade usa os tons do contrato (parte 4, 5.10)', () => {
+    expect(tomDoStatus('Atrasada')).toBe('problema')
+    expect(tomDoStatus('Próxima do prazo')).toBe('atencao')
+  })
 })

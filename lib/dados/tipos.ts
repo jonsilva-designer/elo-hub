@@ -199,3 +199,12 @@ export type EscopoDetalhado = Omit<Escopo, 'etapas'> & {
   cicloAnterior: { id: string; nome: string } | null
   cicloSeguinte: { id: string; nome: string } | null
 }
+
+// Planos de ação e atividades (F07, F08). O atraso e a proximidade do prazo são calculados (RN-09, RN-10).
+
+export type StatusPlano = 'Aberto' | 'Em andamento' | 'Concluído' | 'Cancelado'
+
+export type StatusAtividade = 'Não iniciada' | 'Em andamento' | 'Concluída' | 'Cancelada'
+
+/** Indicador calculado, não é status (RN-09, RN-10). */
+export type SituacaoPrazo = 'Atrasada' | 'Próxima do prazo'

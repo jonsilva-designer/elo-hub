@@ -14,10 +14,10 @@ export type Prioridade = "Baixa" | "Média" | "Alta";
 export const STATUS_POR_TOM: Readonly<Record<TomDeStatus, readonly string[]>> = {
   neutro: ["Prospect", "Proposta", "Planejado", "Não iniciada", "Nova", "Em análise", "Em elaboração", "Não aplicável", "Superado", "Inconclusivo"],
   "em-curso": ["Em contratação", "Em andamento", "Em triagem", "Em atendimento", "Aberto"],
-  atencao: ["Em espera", "Aguardando retorno", "Próximo do vencimento", "Pronto com condições"],
+  atencao: ["Em espera", "Aguardando retorno", "Próximo do vencimento", "Pronto com condições", "Próxima do prazo"],
   suspenso: ["Suspenso"],
   concluido: ["Ativo", "Vigente", "Concluído", "Concluída", "Resolvida", "Pronto"],
-  problema: ["Vencido", "Não pronto no momento"],
+  problema: ["Vencido", "Não pronto no momento", "Atrasada"],
   fechado: ["Inativo", "Encerrado", "Encerrada", "Cancelado", "Cancelada"],
 };
 
