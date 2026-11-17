@@ -123,6 +123,22 @@ describe('página /designsystem', () => {
     }
     expect(within(componentes).getByText('Nenhuma alteração registrada.')).toBeInTheDocument()
   })
+
+  it('mostra os componentes da parte 4: o resumo das atividades, com e sem atraso, e a situação do prazo', () => {
+    renderizar()
+    const componentes = secao('Componentes')
+    for (const rotulo of [
+      'Resumo das atividades do plano',
+      'Resumo das atividades, compacto',
+      'Situação do prazo da atividade',
+    ]) {
+      expect(within(componentes).getByText(rotulo)).toBeInTheDocument()
+    }
+    const alertas = within(componentes).getAllByText((_, el) => el?.tagName === 'SPAN' && el.textContent === '2 atrasadas')
+    expect(alertas.length).toBeGreaterThan(0)
+    expect(within(componentes).getAllByText('Atrasada').length).toBeGreaterThan(0)
+    expect(within(componentes).getAllByText('Próxima do prazo').length).toBeGreaterThan(0)
+  })
 })
 
 describe('seção Estados de interface', () => {

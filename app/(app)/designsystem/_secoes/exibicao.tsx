@@ -7,6 +7,7 @@ import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { Progresso } from '@/components/elo/progresso'
+import { ResumoAtividades } from '@/components/elo/resumo-atividades'
 import { Button } from '@/components/ui/button'
 import {
   EtiquetaCriticidade,
@@ -197,6 +198,25 @@ export function Exibicao() {
       </Exemplo>
       <Exemplo rotulo="Progresso sem atividades">
         <Progresso feitas={0} total={0} rotulo="concluídas" vazio="Sem atividades" rotuloAcessivel="Atividades concluídas" />
+      </Exemplo>
+      <Exemplo rotulo="Resumo das atividades do plano">
+        <div className="w-full sm:max-w-xs">
+          <ResumoAtividades resumo={{ total: 8, concluidas: 3, atrasadas: 2 }} />
+        </div>
+      </Exemplo>
+      <Exemplo rotulo="Resumo das atividades, compacto">
+        <div className="flex flex-col gap-2">
+          <ResumoAtividades compacto resumo={{ total: 5, concluidas: 1, atrasadas: 1 }} />
+          <ResumoAtividades compacto resumo={{ total: 2, concluidas: 2, atrasadas: 0 }} />
+        </div>
+      </Exemplo>
+      <Exemplo rotulo="Situação do prazo da atividade">
+        <div className="flex flex-wrap items-center gap-2">
+          <EtiquetaStatus status="Em andamento" />
+          <EtiquetaStatus status="Atrasada" />
+          <EtiquetaStatus status="Não iniciada" />
+          <EtiquetaStatus status="Próxima do prazo" />
+        </div>
       </Exemplo>
       <Exemplo largo rotulo="Jornada ELO, com a etapa atual, uma etapa Concluída e uma Não aplicável">
         <div data-demo className="w-full">

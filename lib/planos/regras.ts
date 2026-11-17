@@ -10,3 +10,16 @@ export const STATUS_PLANO_ABERTOS: StatusPlano[] = ['Aberto', 'Em andamento']
 export function planoFechado(status: StatusPlano): boolean {
   return status === 'Concluído' || status === 'Cancelado'
 }
+
+/** A ordem das tabelas de planos: os abertos antes dos fechados; em cada grupo, pelo prazo (sem prazo no fim) e pelo nome. */
+export function compararPlanos(
+  a: { nome: string; prazo: string | null; status: StatusPlano },
+  b: { nome: string; prazo: string | null; status: StatusPlano },
+): number {
+  return (
+    Number(planoFechado(a.status)) - Number(planoFechado(b.status)) ||
+    Number(a.prazo === null) - Number(b.prazo === null) ||
+    (a.prazo ?? '').localeCompare(b.prazo ?? '') ||
+    a.nome.localeCompare(b.nome, 'pt-BR')
+  )
+}

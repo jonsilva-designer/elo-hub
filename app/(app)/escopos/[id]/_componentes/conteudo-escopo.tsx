@@ -1,7 +1,8 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
+import { BotaoBloqueado } from '@/components/elo/botao-bloqueado'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaCriticidade, EtiquetaPlanejamento, EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
@@ -16,6 +17,7 @@ import { contratoFechado } from '@/lib/contratos/regras'
 import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { escopoTemItensLigados, etapasQueImpedemFechar, obterEscopo } from '@/lib/dados/escopos'
 import { listarHistorico } from '@/lib/dados/historico'
+import { listarPlanosDoEscopo, planosQueImpedemFechar } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { EscopoDetalhado, EtapaJornada, Usuario } from '@/lib/dados/tipos'
@@ -23,6 +25,7 @@ import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { escopoFechado } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
 import { mudancasDaEtapa, podeAtualizarEtapa } from '@/lib/jornada/regras'
+import { TabelaPlanos } from '../../../planos/_componentes/tabela-planos'
 import { VoltarParaEscopos } from '../../_componentes/voltar-para-escopos'
 import { AcoesEscopo } from './acoes-escopo'
 import { AtualizarEtapa } from './atualizar-etapa'
@@ -111,17 +114,39 @@ async function acoesDaJornada(escopo: EscopoDetalhado, usuario: Usuario): Promis
 }
 
 /**
- * Os dados do menu de ações do Administrador: as etapas Em andamento que impedem concluir e cancelar (DF-59), se o
- * escopo pode ser excluído (RN-13) e os outros contratos abertos do cliente, para onde ele pode ser movido (DF-45).
+ * Os dados do menu de ações do Administrador: as etapas Em andamento e os planos abertos que impedem concluir e
+ * cancelar (RN-18, DF-59), se o escopo pode ser excluído (RN-13) e os outros contratos abertos do cliente, para onde
+ * ele pode ser movido (DF-45).
  */
 async function dadosDoMenu(escopo: EscopoDetalhado) {
-  const [impedimentos, ligados, contratos] = await Promise.all([
+  const [etapas, planos, ligados, contratos] = await Promise.all([
     etapasQueImpedemFechar(escopo.id),
+    planosQueImpedemFechar(escopo.id),
     escopoTemItensLigados(escopo.id),
     listarContratosDoCliente(escopo.clienteId),
   ])
   const destinos = contratos.filter((c) => c.id !== escopo.contratoId && !contratoFechado(c.status))
-  return { impedimentos, contratosDestino: opcoesDeContrato(destinos), podeExcluir: !ligados }
+  return { impedimentos: [...etapas, ...planos], contratosDestino: opcoesDeContrato(destinos), podeExcluir: !ligados }
+}
+
+/** "Novo plano", para o Administrador e a Equipe vinculada; bloqueado no escopo fechado (RN-23). */
+function NovoPlano({ escopo }: { escopo: EscopoDetalhado }) {
+  if (escopoFechado(escopo.status)) {
+    return (
+      <BotaoBloqueado variant="outline" motivo="Escopo fechado: não recebe planos novos">
+        <Plus aria-hidden="true" />
+        Novo plano
+      </BotaoBloqueado>
+    )
+  }
+  return (
+    <Button asChild variant="outline">
+      <Link href={`/planos/novo?escopo=${escopo.id}`}>
+        <Plus aria-hidden="true" />
+        Novo plano
+      </Link>
+    </Button>
+  )
 }
 
 /**
@@ -134,10 +159,11 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
   const [usuario, escopo] = await Promise.all([obterUsuarioAtual(), obterEscopo(id)])
   if (!escopo) notFound()
   const admin = ehAdmin(usuario)
-  const [historico, acoes, menu] = await Promise.all([
+  const [historico, acoes, menu, planos] = await Promise.all([
     listarHistorico('escopo', escopo.id),
     acoesDaJornada(escopo, usuario),
     admin ? dadosDoMenu(escopo) : null,
+    listarPlanosDoEscopo(escopo.id),
   ])
 
   return (
@@ -196,8 +222,8 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
           fechado={escopoFechado(escopo.status)}
           acoes={acoes}
         />
-        <Painel titulo="Planos e atividades">
-          <EstadoVazio titulo="Nenhum plano neste escopo." />
+        <Painel titulo="Planos e atividades" acao={<NovoPlano escopo={escopo} />} semRespiro>
+          <TabelaPlanos planos={planos} onde="escopo" vazio={<EstadoVazio titulo="Nenhum plano neste escopo." />} />
         </Painel>
         <Painel titulo="Especialistas">
           <EstadoVazio titulo="Nenhum especialista vinculado." />

@@ -112,14 +112,29 @@ describe('página da avaliação (parte 2, 5.9)', () => {
     expect(within(linhaDa('Sustentação financeira')).getByText('—')).toBeInTheDocument()
   })
 
-  it('as observações internas trazem a nota de uso interno; planos e documentos, o estado vazio', async () => {
+  it('os planos ligados à avaliação, com o resumo das atividades (CA-20.7, DF-80)', async () => {
+    entrarComo('usr-rafael')
+    await abrir('ava-vertice-2')
+    const planos = within(screen.getByRole('region', { name: 'Planos de desenvolvimento' }))
+    expect(planos.getAllByRole('columnheader').map((c) => c.textContent)).toEqual(['Plano', 'Escopo', 'Status', 'Atividades'])
+    const linha = planos.getByText('Plano de desenvolvimento da gestão').closest('tr')!
+    expect(linha).toHaveTextContent('Diagnóstico para nova proposta')
+    expect(linha).toHaveTextContent('0 de 2 concluídas')
+  })
+
+  it('as observações internas trazem a nota de uso interno; documentos, o estado vazio', async () => {
     entrarComo('usr-helena')
     await abrir('ava-vertice-2')
     const observacoes = within(screen.getByRole('region', { name: 'Observações internas' }))
     expect(observacoes.getByText('Uso interno. Não sai na Visão Executiva nem no PDF.')).toBeInTheDocument()
     expect(observacoes.getByText(/^Evolução clara desde março/)).toBeInTheDocument()
-    expect(screen.getByText('Nenhum plano ligado a esta avaliação.')).toBeInTheDocument()
     expect(screen.getByText('Nenhum documento ligado a esta avaliação.')).toBeInTheDocument()
+  })
+
+  it('avaliação sem plano ligado mostra o vazio', async () => {
+    entrarComo('usr-helena')
+    await abrir('ava-vertice-1')
+    expect(screen.getByText('Nenhum plano ligado a esta avaliação.')).toBeInTheDocument()
   })
 
   it('o histórico mostra o valor anterior e o novo, e a página mostra quem criou e quem alterou (critério 20)', async () => {

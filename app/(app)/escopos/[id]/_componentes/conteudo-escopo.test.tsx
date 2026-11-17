@@ -100,10 +100,44 @@ describe('página do escopo (parte 3, 5.9)', () => {
     expect(within(jornada).queryByText('As etapas não mudam com o escopo fechado.')).not.toBeInTheDocument()
   })
 
+  it('os planos do escopo, com o resumo das atividades e a linha que abre o plano (parte 4, 5.4)', async () => {
+    entrarComo('usr-rafael')
+    await abrir('esc-vertice-documental')
+    const planos = painel('Planos e atividades')
+    expect(planos.getAllByRole('columnheader').map((c) => c.textContent)).toEqual([
+      'Plano',
+      'Responsável',
+      'Prazo',
+      'Status',
+      'Atividades',
+    ])
+    const linha = planos.getByText('Regularização das licenças').closest('tr')!
+    expect(linha).toHaveTextContent('Rafael Souza')
+    expect(linha).toHaveTextContent('1 de 5 concluídas · 1 atrasada')
+    expect(planos.getByRole('link', { name: /Novo plano/ })).toHaveAttribute('href', '/planos/novo?escopo=esc-vertice-documental')
+  })
+
+  it('escopo fechado: Novo plano bloqueado (RN-23); escopo sem plano: o vazio', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = await abrir('esc-atlantica-2025')
+    const bloqueado = painel('Planos e atividades').getByRole('button', { name: /Novo plano/ })
+    expect(bloqueado).toHaveAttribute('aria-disabled', 'true')
+    expect(painel('Planos e atividades').getByText('Fechamento do ciclo 2025')).toBeInTheDocument()
+    unmount()
+    await abrir('esc-vertice-qualidade')
+    expect(painel('Planos e atividades').getByText('Nenhum plano neste escopo.')).toBeInTheDocument()
+  })
+
+  it('o plano de contrato em Proposta aparece como planejamento (CA-05.9)', async () => {
+    entrarComo('usr-helena')
+    await abrir('esc-vertice-diagnostico')
+    const linha = painel('Planos e atividades').getByText('Plano de desenvolvimento da gestão').closest('tr')!
+    expect(within(linha).getByText('Planejamento')).toBeInTheDocument()
+  })
+
   it('os painéis das próximas partes ficam vazios', async () => {
     entrarComo('usr-helena')
     await abrir('esc-vertice-documental')
-    expect(painel('Planos e atividades').getByText('Nenhum plano neste escopo.')).toBeInTheDocument()
     expect(painel('Especialistas').getByText('Nenhum especialista vinculado.')).toBeInTheDocument()
     expect(painel('Documentos').getByText('Nenhum documento ligado a este escopo.')).toBeInTheDocument()
     expect(painel('Demandas').getByText('Nenhuma demanda ligada a este escopo.')).toBeInTheDocument()

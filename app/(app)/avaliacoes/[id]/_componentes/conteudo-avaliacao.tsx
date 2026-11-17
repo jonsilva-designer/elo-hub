@@ -15,11 +15,13 @@ import { obterCliente } from '@/lib/dados/clientes'
 import { obterContrato } from '@/lib/dados/contratos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { obterAvaliacao } from '@/lib/dados/maturidade'
+import { listarPlanosDaAvaliacao } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { ContratoDetalhado, LinhaDimensao } from '@/lib/dados/tipos'
 import { formatarData, VAZIO } from '@/lib/formato'
 import { formatarMedia, oQueFaltaParaConcluir } from '@/lib/maturidade/regras'
+import { TabelaPlanos } from '../../../planos/_componentes/tabela-planos'
 import { AcoesAvaliacao } from './acoes-avaliacao'
 
 const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
@@ -76,10 +78,11 @@ export async function ConteudoAvaliacao({ params }: { params: Promise<{ id: stri
   const { id } = await params
   const [usuario, avaliacao] = await Promise.all([obterUsuarioAtual(), obterAvaliacao(id)])
   if (!avaliacao) notFound()
-  const [cliente, historico, contrato] = await Promise.all([
+  const [cliente, historico, contrato, planos] = await Promise.all([
     obterCliente(avaliacao.clienteId),
     listarHistorico('avaliacao', avaliacao.id),
     avaliacao.contratoId ? obterContrato(avaliacao.contratoId) : Promise.resolve(null),
+    listarPlanosDaAvaliacao(avaliacao.id),
   ])
   if (!cliente) notFound()
 
@@ -151,8 +154,9 @@ export async function ConteudoAvaliacao({ params }: { params: Promise<{ id: stri
             <p className="text-sm text-foreground">{ouTraco(avaliacao.observacoesInternas)}</p>
           </div>
         </Painel>
-        <Painel titulo="Planos de desenvolvimento">
-          <EstadoVazio titulo="Nenhum plano ligado a esta avaliação." />
+        {/* O plano nasce no escopo e escolhe a avaliação de origem (DF-80, CA-20.7). */}
+        <Painel titulo="Planos de desenvolvimento" semRespiro>
+          <TabelaPlanos planos={planos} onde="avaliacao" vazio={<EstadoVazio titulo="Nenhum plano ligado a esta avaliação." />} />
         </Painel>
         <Painel titulo="Documentos">
           <EstadoVazio titulo="Nenhum documento ligado a esta avaliação." />
