@@ -46,3 +46,14 @@ describe('itensDoPerfil', () => {
     ])
   })
 })
+
+describe('itemAtivo nas rotas da parte 4', () => {
+  it('o plano fica dentro de Escopos, e a atividade dentro de Minhas atividades', () => {
+    expect(itemAtivo('/planos/pla-x', '/escopos')).toBe(true)
+    expect(itemAtivo('/planos/novo', '/escopos')).toBe(true)
+    expect(itemAtivo('/atividades/atv-x/editar', '/minhas-atividades')).toBe(true)
+    expect(itemAtivo('/atividades/nova', '/minhas-atividades')).toBe(true)
+    expect(itemAtivo('/planos/pla-x', '/minhas-atividades')).toBe(false)
+    expect(itemAtivo('/atividades/atv-x/editar', '/escopos')).toBe(false)
+  })
+})

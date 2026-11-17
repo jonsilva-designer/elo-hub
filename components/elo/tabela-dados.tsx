@@ -52,6 +52,7 @@ export function TabelaDados<T>({
   linhas,
   chave,
   aoClicarLinha,
+  linhaClicavel,
   destaque,
   porPagina = 20,
   vazio,
@@ -60,6 +61,8 @@ export function TabelaDados<T>({
   linhas: T[]
   chave: (linha: T) => string
   aoClicarLinha?: (linha: T) => void
+  /** Com `aoClicarLinha`, diz quais linhas abrem; as outras não são focáveis nem clicáveis. Sem ela, todas abrem. */
+  linhaClicavel?: (linha: T) => boolean
   destaque?: (linha: T) => Destaque | null
   porPagina?: number
   vazio: ReactNode
@@ -157,15 +160,16 @@ export function TabelaDados<T>({
         <TableBody>
           {visiveis.map((linha) => {
             const marca = destaque?.(linha) ?? null
+            const clicavel = aoClicarLinha !== undefined && (linhaClicavel?.(linha) ?? true)
             return (
               <TableRow
                 key={chave(linha)}
                 data-destaque={marca ?? undefined}
-                tabIndex={aoClicarLinha ? 0 : undefined}
-                onClick={aoClicarLinha ? (e) => aoClicar(e, linha) : undefined}
-                onKeyDown={aoClicarLinha ? (e) => aoTeclar(e, linha) : undefined}
+                tabIndex={clicavel ? 0 : undefined}
+                onClick={clicavel ? (e) => aoClicar(e, linha) : undefined}
+                onKeyDown={clicavel ? (e) => aoTeclar(e, linha) : undefined}
                 className={cn(
-                  aoClicarLinha && 'cursor-pointer hover:bg-papel',
+                  clicavel && 'cursor-pointer hover:bg-papel',
                   marca && CLASSE_DESTAQUE[marca],
                 )}
               >

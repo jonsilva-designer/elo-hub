@@ -40,13 +40,21 @@ export const ITENS_MENU: ItemMenu[] = [
 
 const dentroDe = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`)
 
-/**
- * Ativo na rota exata ou em qualquer subrota. Todo `/configuracoes/*` ativa Configurações, e as avaliações
- * (`/avaliacoes/*`) ficam dentro de Clientes (parte 2, 5.1).
- */
+/** Rotas sem item próprio no menu e o item em que ficam: avaliações em Clientes (parte 2, 5.1), planos em Escopos e
+ * atividades em Minhas atividades (parte 4, 5.1). */
+const DENTRO_DE: Record<string, string> = {
+  '/avaliacoes': '/clientes',
+  '/planos': '/escopos',
+  '/atividades': '/minhas-atividades',
+}
+
+/** Ativo na rota exata ou em qualquer subrota. Todo `/configuracoes/*` ativa Configurações. */
 export function itemAtivo(pathname: string, href: string): boolean {
   const base = href.startsWith('/configuracoes') ? '/configuracoes' : href
-  return dentroDe(pathname, base) || (base === '/clientes' && dentroDe(pathname, '/avaliacoes'))
+  return (
+    dentroDe(pathname, base) ||
+    Object.entries(DENTRO_DE).some(([rota, item]) => item === base && dentroDe(pathname, rota))
+  )
 }
 
 /** Sem perfil (`null`, enquanto o usuário não chegou), só os itens comuns aos dois perfis. */

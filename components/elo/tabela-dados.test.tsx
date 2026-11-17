@@ -94,6 +94,28 @@ describe('TabelaDados', () => {
     expect(aoClicar).toHaveBeenCalledTimes(2)
   })
 
+  it('com linhaClicavel, só as linhas permitidas abrem e são focáveis (parte 4)', async () => {
+    const aoClicar = vi.fn()
+    render(
+      <TabelaDados
+        colunas={COLUNAS}
+        linhas={CONTRATOS}
+        chave={(l) => l.id}
+        aoClicarLinha={aoClicar}
+        linhaClicavel={(l) => l.id === CONTRATOS[0].id}
+        vazio={VAZIO}
+      />,
+    )
+    const [, primeira, segunda] = screen.getAllByRole('row')
+    expect(primeira).toHaveAttribute('tabindex', '0')
+    expect(segunda).not.toHaveAttribute('tabindex')
+    expect(segunda.className).not.toContain('cursor-pointer')
+    await userEvent.click(segunda)
+    expect(aoClicar).not.toHaveBeenCalled()
+    await userEvent.click(primeira)
+    expect(aoClicar).toHaveBeenCalledWith(CONTRATOS[0])
+  })
+
   it('sem aoClicarLinha, a linha não é focável', () => {
     render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
     expect(screen.getAllByRole('row')[1]).not.toHaveAttribute('tabindex')
