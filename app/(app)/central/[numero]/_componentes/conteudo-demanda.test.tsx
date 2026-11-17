@@ -79,6 +79,15 @@ describe('página da demanda (parte 5, 5.10)', () => {
     expect(atendimento.getByText('18/03/2026')).toBeInTheDocument()
   })
 
+  it('o menu Mudar status aparece na aberta e, para a Equipe, some na Encerrada (RN-17)', async () => {
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('ELO-2026-0010')
+    expect(screen.getByRole('button', { name: /Mudar status/ })).toBeInTheDocument()
+    unmount()
+    await abrir('ELO-2026-0001')
+    expect(screen.queryByRole('button', { name: /Mudar status/ })).not.toBeInTheDocument()
+  })
+
   it('o Rafael não abre a demanda da Montareal que ele mesmo registrou (CA-09.9)', async () => {
     entrarComo('usr-rafael')
     await expect(conteudo('ELO-2026-0011')).rejects.toThrow('NEXT_NOT_FOUND')

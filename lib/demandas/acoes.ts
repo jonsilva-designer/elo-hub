@@ -4,13 +4,22 @@ import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import {
   clientesParaNovaDemanda,
   numeroDaProximaDemanda,
+  obterDemanda,
   responsaveisParaTriagem,
 } from '@/lib/dados/demandas'
 import { listarEscoposDoCliente } from '@/lib/dados/escopos'
 import { obterInicioDaOperacao } from '@/lib/dados/parametros'
+import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
-import { mensagemDeSucesso } from '@/lib/resultado-acao'
+import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoRegistrarDemanda } from './estados'
+import {
+  acoesDaDemanda,
+  demandaFechada,
+  faltaParaAtendimento,
+  STATUS_DEMANDA_ABERTOS,
+  type AcaoDemanda,
+} from './regras'
 import { lerDadosNovaDemanda, validarNovaDemanda } from './validacao'
 
 // Ações da demanda da Central ELO (parte 5, 5.9 a 5.11). O Administrador e a Equipe registram, triam e atendem
@@ -62,4 +71,72 @@ export async function registrarDemanda(
     inicio ? 'O e-mail de aviso sai para a triagem e para a Central.' : 'O e-mail de aviso só sai depois do início oficial da operação.',
   ]
   return { erros: {}, valores: dados, sucesso: { mensagem: mensagemDeSucesso(frases.join(' ')), destino: '/central' } }
+}
+
+const recusa = (mensagem: string): ResultadoAcao => ({ ok: false, mensagem })
+
+const temTexto = (valor: unknown): valor is string => typeof valor === 'string' && valor.trim() !== ''
+
+/** O que cada mudança de status exige escrito, e a mensagem quando falta (CA-09.3, CA-09.4, CA-09.8, CA-09.11). */
+const TEXTO_EXIGIDO: Partial<Record<AcaoDemanda, string>> = {
+  resolver: 'Escreva a solução.',
+  'voltar-ao-atendimento': 'Escreva o motivo da volta ao atendimento.',
+  encerrar: 'Escreva o retorno dado ao cliente.',
+  'encerrar-sem-resolver': 'Escreva a justificativa do encerramento.',
+}
+
+const SUCESSO: Record<Exclude<AcaoDemanda, 'reabrir'>, string> = {
+  'iniciar-triagem': 'Demanda em triagem.',
+  'iniciar-atendimento': 'Atendimento iniciado.',
+  'aguardar-retorno': 'Demanda aguardando retorno.',
+  'retomar-atendimento': 'Atendimento retomado.',
+  resolver: 'Demanda resolvida.',
+  'voltar-ao-atendimento': 'Demanda de volta ao atendimento.',
+  encerrar: 'Demanda encerrada.',
+  'encerrar-sem-resolver': 'Demanda encerrada.',
+}
+
+const faltaParaAtender = (falta: string[]) => `Falta para iniciar o atendimento: ${falta.join(', ')}.`
+
+/**
+ * Uma mudança de status da 6.1 (parte 5, 5.10). A demanda precisa estar ao alcance do usuário (RN-01); a mudança
+ * precisa valer para o status, e o usuário precisa poder fazê-la (encerrar: CA-09.8, DF-61). Cada uma confere o que
+ * exige: os campos da triagem para atender, o texto para resolver, voltar e encerrar. A solução, o retorno e o motivo
+ * da volta (que vira comentário, DF-42) seriam gravados com a mudança.
+ */
+export async function mudarStatusDemanda(numero: string, acao: string, texto: string): Promise<ResultadoAcao> {
+  const usuario = await obterUsuarioAtual()
+  const demanda = typeof numero === 'string' ? await obterDemanda(numero) : null
+  if (!demanda || acao === 'reabrir') return recusa(SEM_PERMISSAO)
+  const doStatus = acoesDaDemanda(demanda, { id: '', perfil: 'Administrador' })
+  if (!(doStatus as string[]).includes(acao)) return recusa('Esta mudança não vale para a demanda neste status.')
+  const escolhida = acao as Exclude<AcaoDemanda, 'reabrir'>
+  if (!acoesDaDemanda(demanda, usuario).includes(escolhida)) return recusa(SEM_PERMISSAO)
+
+  if (escolhida === 'iniciar-atendimento') {
+    const falta = faltaParaAtendimento(demanda)
+    if (falta.length > 0) return recusa(faltaParaAtender(falta))
+  }
+  const exigido = TEXTO_EXIGIDO[escolhida]
+  if (exigido && !temTexto(texto)) return recusa(exigido)
+  return { ok: true, mensagem: mensagemDeSucesso(SUCESSO[escolhida]) }
+}
+
+/**
+ * Reabrir a demanda Encerrada para um status aberto, com justificativa: só o Administrador (RN-12, RN-17, RN-22). O
+ * status de volta precisa cumprir as exigências dele; a data de encerramento seria apagada.
+ */
+export async function reabrirDemanda(numero: string, status: string, justificativa: string): Promise<ResultadoAcao> {
+  const usuario = await obterUsuarioAtual()
+  const demanda = ehAdmin(usuario) && typeof numero === 'string' ? await obterDemanda(numero) : null
+  if (!demanda) return recusa(SEM_PERMISSAO)
+  if (!demandaFechada(demanda.status)) return recusa('Só uma demanda Encerrada pode ser reaberta.')
+  if (!(STATUS_DEMANDA_ABERTOS as string[]).includes(status)) return recusa('Escolha o status de volta.')
+  if (!temTexto(justificativa)) return recusa('Escreva a justificativa da reabertura.')
+  if (status === 'Em atendimento' || status === 'Aguardando retorno') {
+    const falta = faltaParaAtendimento(demanda)
+    if (falta.length > 0) return recusa(faltaParaAtender(falta))
+  }
+  if (status === 'Resolvida' && !demanda.solucao.trim()) return recusa('Escreva a solução.')
+  return { ok: true, mensagem: mensagemDeSucesso('Demanda reaberta.') }
 }

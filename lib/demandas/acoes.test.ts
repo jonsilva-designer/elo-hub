@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { registrarDemanda } from './acoes'
+import { mudarStatusDemanda, reabrirDemanda, registrarDemanda } from './acoes'
 import { ESTADO_INICIAL_REGISTRAR_DEMANDA } from './estados'
 import { MENSAGENS_DEMANDA } from './validacao'
 
@@ -8,6 +8,8 @@ vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).mo
 vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
 
 beforeEach(() => limparCookies())
+
+const SEM_PERMISSAO = 'Você não tem permissão para esta ação.'
 
 const NOVA: Record<string, string> = {
   clienteId: 'cli-vertice',
@@ -95,5 +97,96 @@ describe('registrarDemanda (parte 5, 5.9; F09, F10)', () => {
       descricao: MENSAGENS_DEMANDA.descricao,
       responsavelTriagemId: MENSAGENS_DEMANDA.responsavelTriagem,
     })
+  })
+})
+
+describe('mudarStatusDemanda (PRD 6.1; critérios 7 a 10)', () => {
+  it('iniciar o atendimento exige categoria, criticidade e atendente (CA-09.2)', async () => {
+    entrarComo('usr-rafael')
+    expect(await mudarStatusDemanda('ELO-2026-0010', 'iniciar-atendimento', '')).toEqual({
+      ok: false,
+      mensagem: 'Falta para iniciar o atendimento: Categoria, Criticidade, Responsável pelo atendimento.',
+    })
+    expect(await mudarStatusDemanda('ELO-2026-0010', 'iniciar-triagem', '')).toEqual({
+      ok: true,
+      mensagem: 'Demanda em triagem. No protótipo, os dados não são gravados.',
+    })
+  })
+
+  it('resolver exige a solução; voltar da Resolvida exige o motivo (CA-09.3, CA-09.11)', async () => {
+    entrarComo('usr-rafael')
+    expect(await mudarStatusDemanda('ELO-2026-0003', 'resolver', ' ')).toEqual({ ok: false, mensagem: 'Escreva a solução.' })
+    expect((await mudarStatusDemanda('ELO-2026-0003', 'resolver', 'Certidões renovadas.')).ok).toBe(true)
+    expect(await mudarStatusDemanda('ELO-2026-0005', 'voltar-ao-atendimento', '')).toEqual({
+      ok: false,
+      mensagem: 'Escreva o motivo da volta ao atendimento.',
+    })
+    expect((await mudarStatusDemanda('ELO-2026-0005', 'voltar-ao-atendimento', 'O cliente discordou.')).ok).toBe(true)
+  })
+
+  it('encerrar a Resolvida exige o retorno; encerrar sem resolver exige a justificativa (CA-09.4, CA-09.8)', async () => {
+    entrarComo('usr-rafael')
+    expect(await mudarStatusDemanda('ELO-2026-0005', 'encerrar', '')).toEqual({
+      ok: false,
+      mensagem: 'Escreva o retorno dado ao cliente.',
+    })
+    expect(await mudarStatusDemanda('ELO-2026-0005', 'encerrar', 'Informado por telefone.')).toEqual({
+      ok: true,
+      mensagem: 'Demanda encerrada. No protótipo, os dados não são gravados.',
+    })
+    expect(await mudarStatusDemanda('ELO-2026-0010', 'encerrar-sem-resolver', '')).toEqual({
+      ok: false,
+      mensagem: 'Escreva a justificativa do encerramento.',
+    })
+  })
+
+  it('só o atendente ou o Administrador encerram; sem atendente, a triagem (DF-61)', async () => {
+    entrarComo('usr-rafael')
+    // A ELO-2026-0004 tem a triagem da Helena e o atendimento do Rafael; a 0008, triagem do Rafael e atendimento da Helena.
+    expect((await mudarStatusDemanda('ELO-2026-0004', 'encerrar-sem-resolver', 'Desistência.')).ok).toBe(true)
+    expect(await mudarStatusDemanda('ELO-2026-0008', 'encerrar-sem-resolver', 'Duplicada.')).toEqual({
+      ok: false,
+      mensagem: SEM_PERMISSAO,
+    })
+  })
+
+  it('ação que não vale para o status é recusada; fora do vínculo, sem dizer que a demanda existe (CA-09.9)', async () => {
+    entrarComo('usr-rafael')
+    expect(await mudarStatusDemanda('ELO-2026-0010', 'resolver', 'x')).toEqual({
+      ok: false,
+      mensagem: 'Esta mudança não vale para a demanda neste status.',
+    })
+    expect(await mudarStatusDemanda('ELO-2026-0011', 'iniciar-triagem', '')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+    expect(await mudarStatusDemanda('ELO-2026-0001', 'reabrir', 'x')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+  })
+})
+
+describe('reabrirDemanda (RN-12, RN-17, RN-22; critério 11)', () => {
+  it('só o Administrador reabre a Encerrada, com status de volta e justificativa', async () => {
+    entrarComo('usr-rafael')
+    expect(await reabrirDemanda('ELO-2026-0001', 'Em atendimento', 'Motivo')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+    entrarComo('usr-helena')
+    expect(await reabrirDemanda('ELO-2026-0001', 'Em atendimento', '')).toEqual({
+      ok: false,
+      mensagem: 'Escreva a justificativa da reabertura.',
+    })
+    expect(await reabrirDemanda('ELO-2026-0001', 'Encerrada', 'Motivo')).toEqual({ ok: false, mensagem: 'Escolha o status de volta.' })
+    expect(await reabrirDemanda('ELO-2026-0001', 'Em atendimento', 'O cliente voltou a perguntar.')).toEqual({
+      ok: true,
+      mensagem: 'Demanda reaberta. No protótipo, os dados não são gravados.',
+    })
+    expect(await reabrirDemanda('ELO-2026-0003', 'Nova', 'Motivo')).toEqual({
+      ok: false,
+      mensagem: 'Só uma demanda Encerrada pode ser reaberta.',
+    })
+  })
+
+  it('o status de volta precisa cumprir as exigências dele (RN-22)', async () => {
+    entrarComo('usr-helena')
+    expect(await reabrirDemanda('ELO-2026-0002', 'Em atendimento', 'Não era duplicada.')).toEqual({
+      ok: false,
+      mensagem: 'Falta para iniciar o atendimento: Categoria, Criticidade, Responsável pelo atendimento.',
+    })
+    expect((await reabrirDemanda('ELO-2026-0002', 'Nova', 'Não era duplicada.')).ok).toBe(true)
   })
 })

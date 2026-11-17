@@ -11,9 +11,12 @@ import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { listarComentarios, obterDemanda } from '@/lib/dados/demandas'
 import { listarHistorico } from '@/lib/dados/historico'
+import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { DemandaDetalhada } from '@/lib/dados/tipos'
+import { acoesDaDemanda, faltaParaAtendimento } from '@/lib/demandas/regras'
 import { formatarData } from '@/lib/formato'
 import { VoltarParaCentral } from '../../_componentes/voltar-para-central'
+import { AcoesDemanda } from './acoes-demanda'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -107,7 +110,7 @@ function camposDoAtendimento(d: DemandaDetalhada): { rotulo: string; valor: Reac
  */
 export async function ConteudoDemanda({ params }: { params: Promise<{ numero: string }> }) {
   const { numero } = await params
-  const demanda = await obterDemanda(numero)
+  const [usuario, demanda] = await Promise.all([obterUsuarioAtual(), obterDemanda(numero)])
   if (!demanda) notFound()
   const [comentarios, historico] = await Promise.all([listarComentarios(demanda.numero), listarHistorico('demanda', demanda.numero)])
 
@@ -129,6 +132,13 @@ export async function ConteudoDemanda({ params }: { params: Promise<{ numero: st
             <EtiquetaStatus status={demanda.status} />
             {demanda.criticidade ? <EtiquetaCriticidade criticidade={demanda.criticidade} /> : null}
           </span>
+        }
+        acoes={
+          <AcoesDemanda
+            numero={demanda.numero}
+            acoes={acoesDaDemanda(demanda, usuario)}
+            falta={faltaParaAtendimento(demanda)}
+          />
         }
       />
       <div className="space-y-5">
