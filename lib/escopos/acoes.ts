@@ -3,6 +3,7 @@
 import { contratoFechado } from '@/lib/contratos/regras'
 import { obterContrato } from '@/lib/dados/contratos'
 import { escopoTemItensLigados, etapasQueImpedemFechar, listarEscoposDoCliente, obterEscopo } from '@/lib/dados/escopos'
+import { listarEspecialistasAtivos } from '@/lib/dados/especialistas'
 import { planosQueImpedemFechar } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -48,10 +49,15 @@ export async function salvarEscopo(_estado: EstadoSalvarEscopo, formData: FormDa
   if (!(CRITICIDADES as string[]).includes(dados.criticidade)) dados.criticidade = ''
   if (!(PRIORIDADES as string[]).includes(dados.prioridade)) dados.prioridade = ''
 
-  const [responsaveis, escoposDoCliente] = await Promise.all([
+  const [responsaveis, escoposDoCliente, ativos] = await Promise.all([
     listarResponsaveis(contrato.clienteId),
     listarEscoposDoCliente(contrato.clienteId),
+    listarEspecialistasAtivos(),
   ])
+  // Vínculo novo só com especialista Ativo (RN-14, CA-11.2); o já ligado continua, mesmo Inativo (DF-51).
+  dados.especialistaIds = [...new Set(dados.especialistaIds)].filter(
+    (id) => ativos.some((e) => e.id === id) || (atual?.especialistaIds.includes(id) ?? false),
+  )
   // O ciclo anterior é outro escopo do mesmo cliente (DF-57, RN-02), que não venha depois deste na cadeia (CA-05.10).
   if (!ciclosAnterioresPossiveis(escoposDoCliente, atual?.id ?? null).includes(dados.cicloAnteriorId)) {
     dados.cicloAnteriorId = ''

@@ -135,10 +135,27 @@ describe('página do escopo (parte 3, 5.9)', () => {
     expect(within(linha).getByText('Planejamento')).toBeInTheDocument()
   })
 
+  it('os especialistas ligados, com a especialidade e o link; o Inativo pede troca (UC-14, DF-51)', async () => {
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('esc-vertice-documental')
+    expect(painel('Especialistas').getByRole('link', { name: 'Beatriz Fontes' })).toHaveAttribute('href', '/especialistas/esp-juridico')
+    expect(painel('Especialistas').queryByText('Trocar especialista')).not.toBeInTheDocument()
+    unmount()
+    await abrir('esc-vertice-mobilizacao')
+    expect(painel('Especialistas').getByText('Eduardo Salles')).toBeInTheDocument()
+    expect(painel('Especialistas').getByText('Trocar especialista')).toBeInTheDocument()
+
+  })
+
+  it('escopo sem especialista mostra o vazio', async () => {
+    entrarComo('usr-helena')
+    await abrir('esc-vertice-qualidade')
+    expect(painel('Especialistas').getByText('Nenhum especialista vinculado.')).toBeInTheDocument()
+  })
+
   it('os painéis das próximas partes ficam vazios', async () => {
     entrarComo('usr-helena')
     await abrir('esc-vertice-documental')
-    expect(painel('Especialistas').getByText('Nenhum especialista vinculado.')).toBeInTheDocument()
     expect(painel('Documentos').getByText('Nenhum documento ligado a este escopo.')).toBeInTheDocument()
     expect(painel('Demandas').getByText('Nenhuma demanda ligada a este escopo.')).toBeInTheDocument()
   })

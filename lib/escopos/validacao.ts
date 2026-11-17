@@ -39,6 +39,8 @@ export type DadosEscopo = {
   conclusaoPrevista: string
   cicloAnteriorId: string
   observacoes: string
+  /** Os especialistas ligados (UC-14): vínculo novo só com Ativo (CA-11.2). */
+  especialistaIds: string[]
   /** "Salvar mesmo assim" no aviso da RN-21: o campo `confirmarAviso` igual a "sim". */
   confirmarAviso: boolean
 }
@@ -81,6 +83,7 @@ export function lerDadosEscopo(formData: FormData): DadosEscopo {
     const valor = formData.get(campo)
     dados[campo] = typeof valor === 'string' ? valor.trim() : ''
   }
+  dados.especialistaIds = formData.getAll('especialistaIds').filter((v): v is string => typeof v === 'string')
   dados.confirmarAviso = formData.get('confirmarAviso') === 'sim'
   return dados
 }

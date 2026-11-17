@@ -5,7 +5,9 @@ import { LinkVoltar } from '@/components/elo/link-voltar'
 import { listarEscoposDoCliente, obterEscopo } from '@/lib/dados/escopos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
+import { listarEspecialistasAtivos } from '@/lib/dados/especialistas'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
+import { opcoesDeVinculo } from '@/lib/especialistas/regras'
 import { ciclosAnterioresPossiveis } from '@/lib/escopos/regras'
 import { FormularioEscopo } from '../../../_componentes/formulario-escopo'
 
@@ -45,6 +47,7 @@ export async function ConteudoEditarEscopo({ params }: { params: Promise<{ id: s
     <>
       {cabecalho}
       <FormularioEscopo
+        especialistas={opcoesDeVinculo(await listarEspecialistasAtivos(), escopo.especialistas)}
         escopo={escopo}
         contrato={{ id: escopo.contratoId, codigo: escopo.codigoContrato, nomeCliente: escopo.nomeCliente }}
         responsaveis={responsaveis.map((u) => ({ valor: u.id, rotulo: u.nome }))}

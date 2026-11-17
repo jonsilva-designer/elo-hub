@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { BotaoBloqueado } from '@/components/elo/botao-bloqueado'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
-import { EtiquetaCriticidade, EtiquetaPlanejamento, EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
+import { EtiquetaCriticidade, EtiquetaPlanejamento, EtiquetaSinal, EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
 import { Jornada } from '@/components/elo/jornada'
 import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
@@ -226,7 +226,27 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
           <TabelaPlanos planos={planos} onde="escopo" vazio={<EstadoVazio titulo="Nenhum plano neste escopo." />} />
         </Painel>
         <Painel titulo="Especialistas">
-          <EstadoVazio titulo="Nenhum especialista vinculado." />
+          {escopo.especialistas.length === 0 ? (
+            <EstadoVazio titulo="Nenhum especialista vinculado." />
+          ) : (
+            // O Inativo continua ligado até a troca, sinalizado (DF-51).
+            <ul className="divide-y divide-divisoria">
+              {escopo.especialistas.map((e) => (
+                <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 first:pt-0 last:pb-0">
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <Link href={`/especialistas/${e.id}`} className={CLASSE_LINK}>
+                      {e.nome}
+                    </Link>
+                    <span className="text-xs text-muted-foreground">{e.especialidade}</span>
+                  </span>
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <EtiquetaStatus status={e.status} />
+                    {e.status === 'Ativo' ? null : <EtiquetaSinal texto="Trocar especialista" tom="problema" />}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Painel>
         <Painel titulo="Documentos">
           <EstadoVazio titulo="Nenhum documento ligado a este escopo." />

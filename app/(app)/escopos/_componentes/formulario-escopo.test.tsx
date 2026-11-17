@@ -55,8 +55,21 @@ beforeEach(() => {
   vi.mocked(avisarSalvo).mockReset()
 })
 
+const ESPECIALISTAS = [
+  { valor: 'esp-juridico', rotulo: 'Beatriz Fontes · Jurídico' },
+  { valor: 'esp-contratos', rotulo: 'Gustavo Teixeira · Contratos' },
+]
+
 function montar(escopo: EscopoDetalhado | null = null) {
-  return render(<FormularioEscopo escopo={escopo} contrato={CONTRATO} responsaveis={RESPONSAVEIS} ciclos={CICLOS} />)
+  return render(
+    <FormularioEscopo
+      escopo={escopo}
+      contrato={CONTRATO}
+      responsaveis={RESPONSAVEIS}
+      ciclos={CICLOS}
+      especialistas={ESPECIALISTAS}
+    />,
+  )
 }
 
 async function escopoDaHelena(id: string) {
@@ -98,15 +111,24 @@ describe('FormularioEscopo (parte 3, 5.8)', () => {
     expect(screen.getByRole('textbox', { name: /Justificativa da criticidade/ })).toBeInTheDocument()
   })
 
-  it('o ciclo anterior oferece os outros escopos do cliente, e Especialistas fica para a parte 5', async () => {
+  it('o ciclo anterior oferece os outros escopos do cliente', async () => {
     montar()
     expect(await opcoesDe(/Ciclo anterior/)).toEqual([
       'Sem ciclo anterior',
       'Regularização documental',
       'Programa de qualidade',
     ])
-    expect(screen.getByRole('combobox', { name: /Especialistas/ })).toBeDisabled()
-    expect(screen.getByRole('combobox', { name: /Especialistas/ })).toHaveTextContent('Nenhum especialista cadastrado')
+  })
+
+  it('Especialistas oferece os da lista e manda os escolhidos (UC-14)', async () => {
+    vi.mocked(salvarEscopo).mockResolvedValue({ erros: {}, valores: DIGITADO })
+    montar()
+    expect(await opcoesDe(/Especialistas/)).toEqual(['Beatriz Fontes · Jurídico', 'Gustavo Teixeira · Contratos'])
+    await escolher(/Especialistas/, 'Beatriz Fontes · Jurídico')
+    await userEvent.keyboard('{Escape}')
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await waitFor(() => expect(salvarEscopo).toHaveBeenCalled())
+    expect(enviado().getAll('especialistaIds')).toEqual(['esp-juridico'])
   })
 
   it('na edição, os campos vêm preenchidos e a criticidade é só leitura, com a dica de reclassificar', async () => {

@@ -10,6 +10,7 @@ import { EtiquetaCriticidade, EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,6 +34,7 @@ export function FormularioEscopo({
   contrato,
   responsaveis,
   ciclos,
+  especialistas,
 }: {
   escopo: EscopoDetalhado | null
   contrato: { id: string; codigo: string; nomeCliente: string }
@@ -40,6 +42,8 @@ export function FormularioEscopo({
   responsaveis: Opcao[]
   /** Os outros escopos do mesmo cliente, para o ciclo anterior (DF-57). */
   ciclos: Opcao[]
+  /** Os especialistas Ativos e, na edição, os já ligados, mesmo Inativos (CA-11.2, DF-51). */
+  especialistas: Opcao[]
 }) {
   const router = useRouter()
   const [estado, enviar, enviando] = useActionState(salvarEscopo, ESTADO_INICIAL_SALVAR_ESCOPO)
@@ -53,6 +57,7 @@ export function FormularioEscopo({
   const [inicio, setInicio] = useState<string | null>(escopo?.inicio ?? null)
   const [conclusaoPrevista, setConclusaoPrevista] = useState<string | null>(escopo?.conclusaoPrevista ?? null)
   const [cicloAnterior, setCicloAnterior] = useState(escopo?.cicloAnteriorId ?? '')
+  const [especialistasEscolhidos, setEspecialistasEscolhidos] = useState<string[]>(escopo?.especialistaIds ?? [])
 
   useEffect(() => {
     if (!estado.sucesso) return
@@ -222,17 +227,20 @@ export function FormularioEscopo({
 
       <Painel titulo="Outros">
         <div className="space-y-4">
-          <Campo rotulo="Especialistas" ajuda="Os especialistas entram numa próxima parte do protótipo">
+          <Campo rotulo="Especialistas" ajuda="Só especialistas Ativos recebem vínculo novo">
             {(p) => (
-              <SelecaoDoFormulario
-                nome="especialistas"
-                valor=""
-                aoMudar={() => {}}
-                opcoes={[]}
-                atributos={p}
-                disabled
-                placeholder="Nenhum especialista cadastrado"
-              />
+              <>
+                <SelecaoMultipla
+                  {...p}
+                  opcoes={especialistas}
+                  valores={especialistasEscolhidos}
+                  onChange={setEspecialistasEscolhidos}
+                  placeholder="Nenhum especialista"
+                />
+                {especialistasEscolhidos.map((id) => (
+                  <input key={id} type="hidden" name="especialistaIds" value={id} />
+                ))}
+              </>
             )}
           </Campo>
           <Campo rotulo="Ciclo anterior" ajuda="Outro escopo do mesmo cliente, no contrato recorrente">

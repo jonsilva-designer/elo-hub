@@ -1,4 +1,4 @@
-import type { OrigemEspecialista, StatusEspecialista } from '@/lib/dados/tipos'
+import type { EspecialistaLigado, OrigemEspecialista, StatusEspecialista } from '@/lib/dados/tipos'
 
 // Regras do especialista (F11; PRD 6.1). Nenhum status é final, e só o Administrador muda.
 
@@ -10,4 +10,21 @@ export const ORIGENS_ESPECIALISTA: OrigemEspecialista[] = ['Site', 'Cadastro int
 export function mesmoEmail(a: string, b: string): boolean {
   const x = a.trim().toLocaleLowerCase('pt-BR')
   return x !== '' && x === b.trim().toLocaleLowerCase('pt-BR')
+}
+
+/**
+ * As opções da seleção de especialistas de um escopo ou demanda: os Ativos e os já ligados, mesmo que não estejam
+ * mais Ativos, que continuam até a troca (CA-11.2, DF-51). O rótulo traz a especialidade e, fora dos Ativos, o status.
+ */
+export function opcoesDeVinculo(
+  ativos: readonly EspecialistaLigado[],
+  ligados: readonly EspecialistaLigado[],
+): { valor: string; rotulo: string }[] {
+  const todos = [...ativos, ...ligados.filter((l) => !ativos.some((a) => a.id === l.id))]
+  return todos
+    .map((e) => ({
+      valor: e.id,
+      rotulo: `${e.nome} · ${e.especialidade}${e.status === 'Ativo' ? '' : ` (${e.status})`}`,
+    }))
+    .sort((a, b) => a.rotulo.localeCompare(b.rotulo, 'pt-BR'))
 }

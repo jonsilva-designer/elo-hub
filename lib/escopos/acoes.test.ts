@@ -197,6 +197,26 @@ describe('edição do escopo', () => {
     expect(estado.valores?.cicloAnteriorId).toBe('')
   })
 
+  it('vínculo novo só com especialista Ativo; o Inativo já ligado continua (CA-11.2, DF-51)', async () => {
+    entrarComo('usr-helena')
+    const fd = formulario({ ...NOVO })
+    for (const id of ['esp-juridico', 'esp-riscos', 'esp-financeiro', 'esp-nao-existe']) fd.append('especialistaIds', id)
+    expect((await salvarEscopo(ESTADO_INICIAL_SALVAR_ESCOPO, fd)).valores?.especialistaIds).toEqual(['esp-juridico'])
+    const edicao = formulario({
+      ...NOVO,
+      id: 'esc-vertice-mobilizacao',
+      nome: 'Mobilização de equipe',
+      status: 'Em andamento',
+      prioridade: 'Alta',
+      confirmarAviso: 'sim',
+    })
+    for (const id of ['esp-financeiro', 'esp-esg']) edicao.append('especialistaIds', id)
+    expect((await salvarEscopo(ESTADO_INICIAL_SALVAR_ESCOPO, edicao)).valores?.especialistaIds).toEqual([
+      'esp-financeiro',
+      'esp-esg',
+    ])
+  })
+
   it('o escopo Concluído não muda de status pela edição (RN-17)', async () => {
     entrarComo('usr-helena')
     const estado = await salvar({

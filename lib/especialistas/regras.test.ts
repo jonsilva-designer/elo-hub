@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mesmoEmail, ORIGENS_ESPECIALISTA, STATUS_ESPECIALISTA } from './regras'
+import { mesmoEmail, opcoesDeVinculo, ORIGENS_ESPECIALISTA, STATUS_ESPECIALISTA } from './regras'
 
 describe('regras do especialista (F11, PRD 6.1)', () => {
   it('as listas na ordem do PRD', () => {
@@ -11,5 +11,16 @@ describe('regras do especialista (F11, PRD 6.1)', () => {
     expect(mesmoEmail('Bruna.Lima@Exemplo.com.br', ' bruna.lima@exemplo.com.br ')).toBe(true)
     expect(mesmoEmail('bruna.lima@exemplo.com.br', 'bruna.lima2@exemplo.com.br')).toBe(false)
     expect(mesmoEmail('', '')).toBe(false)
+  })
+})
+
+describe('opcoesDeVinculo (CA-11.2, DF-51)', () => {
+  it('os Ativos e o já ligado Inativo, marcado, pelo nome', () => {
+    const ativo = { id: 'a', nome: 'Zélia', especialidade: 'Financeiro', status: 'Ativo' as const }
+    const inativo = { id: 'b', nome: 'Ana', especialidade: 'Jurídico', status: 'Inativo' as const }
+    expect(opcoesDeVinculo([ativo], [inativo, ativo])).toEqual([
+      { valor: 'b', rotulo: 'Ana · Jurídico (Inativo)' },
+      { valor: 'a', rotulo: 'Zélia · Financeiro' },
+    ])
   })
 })

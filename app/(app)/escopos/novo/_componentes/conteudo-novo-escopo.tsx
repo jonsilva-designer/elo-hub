@@ -10,7 +10,9 @@ import { obterContrato } from '@/lib/dados/contratos'
 import { listarEscoposDoCliente } from '@/lib/dados/escopos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
+import { listarEspecialistasAtivos } from '@/lib/dados/especialistas'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
+import { opcoesDeVinculo } from '@/lib/especialistas/regras'
 import { MENSAGENS_ESCOPO } from '@/lib/escopos/validacao'
 import { FormularioEscopo } from '../../_componentes/formulario-escopo'
 
@@ -68,6 +70,7 @@ export async function ConteudoNovoEscopo({ searchParams }: { searchParams: Promi
     <>
       {cabecalho}
       <FormularioEscopo
+        especialistas={opcoesDeVinculo(await listarEspecialistasAtivos(), [])}
         escopo={null}
         contrato={{ id: contrato.id, codigo: contrato.codigo, nomeCliente: contrato.nomeCliente }}
         responsaveis={responsaveis.map((u) => ({ valor: u.id, rotulo: u.nome }))}
