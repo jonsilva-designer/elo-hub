@@ -77,7 +77,7 @@ export type AvaliacaoDetalhada = AvaliacaoMaturidade & { nomeAvaliador: string }
 
 // Histórico de alterações (F17, DF-16): só leitura. Na Etapa 3, o banco grava sozinho (arquitetura 4.4).
 
-export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo' | 'plano' | 'atividade' | 'especialista'
+export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo' | 'plano' | 'atividade' | 'especialista' | 'demanda'
 
 export type RegistroAlteracao = {
   id: string
@@ -310,3 +310,72 @@ export type EspecialistaDetalhado = Especialista & { emailRepetido: boolean }
 
 /** O especialista como aparece ligado a um escopo ou a uma demanda. */
 export type EspecialistaLigado = { id: string; nome: string; especialidade: string; status: StatusEspecialista }
+
+// Demandas da Central ELO (F09). Registradas pela equipe da ELO, por qualquer canal; o cliente não acessa.
+
+export type StatusDemanda = 'Nova' | 'Em triagem' | 'Em atendimento' | 'Aguardando retorno' | 'Resolvida' | 'Encerrada'
+
+export type OrigemDemanda =
+  | 'Cliente'
+  | 'Interna'
+  | 'Institucional'
+  | 'Especialista'
+  | 'Reunião'
+  | 'E-mail'
+  | 'Telefone/WhatsApp'
+  | 'Outro'
+
+export type Demanda = {
+  /** ELO-AAAA-NNNN, sequencial por ano (DF-11). */
+  numero: string
+  /** AAAA-MM-DD */
+  abertaEm: string
+  clienteId: string
+  /** Opcionais, do cliente (DF-12). */
+  contratoId: string | null
+  escopoId: string | null
+  origem: OrigemDemanda
+  assunto: string
+  descricao: string
+  /** Definidos na triagem. */
+  categoria: string | null
+  criticidade: Criticidade | null
+  responsavelTriagemId: string
+  responsavelAtendimentoId: string | null
+  /** Com mais de um, um é o principal (DF-32). */
+  especialistas: { id: string; principal: boolean }[]
+  prazo: string | null
+  status: StatusDemanda
+  solucao: string
+  /** O retorno dado ao cliente, para encerrar a Resolvida (RN-12, DF-29). */
+  retornoCliente: string
+  encerradaEm: string | null
+  registradaPorId: string
+}
+
+export type DemandaDetalhada = Demanda & {
+  nomeCliente: string
+  codigoContrato: string | null
+  nomeEscopo: string | null
+  nomeTriagem: string
+  nomeAtendimento: string
+  nomeRegistradaPor: string
+  especialistasLigados: (EspecialistaLigado & { principal: boolean })[]
+  /** Prazo antes de hoje, sem estar Resolvida nem Encerrada (CA-09.5). */
+  vencida: boolean
+}
+
+export type ComentarioDemanda = {
+  id: string
+  numero: string
+  autorId: string
+  /** ISO com fuso. */
+  dataHora: string
+  tipo: 'Comentário' | 'Contato com especialista'
+  texto: string
+  /** No contato com especialista: quem e quando (DF-30). */
+  especialistaId: string | null
+  dataContato: string | null
+}
+
+export type ComentarioDetalhado = ComentarioDemanda & { autor: string; nomeEspecialista: string }

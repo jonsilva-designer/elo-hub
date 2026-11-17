@@ -2,6 +2,7 @@ import { ATIVIDADES } from './mock/atividades'
 import { AVALIACOES } from './mock/avaliacoes'
 import { CONTRATOS } from './mock/contratos'
 import { ESCOPOS } from './mock/escopos'
+import { DEMANDAS } from './mock/demandas'
 import { ESPECIALISTAS } from './mock/especialistas'
 import { HISTORICO } from './mock/historico'
 import { PLANOS } from './mock/planos'
@@ -17,6 +18,7 @@ function clienteDoRegistro(tipo: TipoRegistro, id: string): string | undefined {
   if (tipo === 'escopo') return ESCOPOS.find((e) => e.id === id)?.clienteId
   if (tipo === 'plano') return PLANOS.find((p) => p.id === id)?.clienteId
   if (tipo === 'atividade') return ATIVIDADES.find((a) => a.id === id)?.clienteId
+  if (tipo === 'demanda') return DEMANDAS.find((d) => d.numero === id)?.clienteId
   return AVALIACOES.find((a) => a.id === id)?.clienteId
 }
 

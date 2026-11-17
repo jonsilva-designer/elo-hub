@@ -62,3 +62,20 @@ export const ESPECIALIDADES: string[] = [
   'ESG e sustentabilidade',
   'Gestão e desenvolvimento de fornecedores',
 ]
+
+// As categorias da Central ELO (Apêndice C, DF-70), na ordem do PRD.
+export const CATEGORIAS: string[] = [
+  'Dúvida contratual',
+  'Revisão de cláusula',
+  'Pedido de documento',
+  'Prazos e obrigações do contrato',
+  'Financeiro (medição, faturamento, reajuste)',
+  'Suprimentos e compras',
+  'Riscos e conformidade',
+  'ESG e sustentabilidade',
+  'Gestão e desenvolvimento de fornecedores',
+  'Indicadores de desempenho (KPIs e SLAs)',
+  'Documentação e mobilização de fornecedores',
+  'Auditoria e avaliação de fornecedores',
+  'Outros assuntos',
+]

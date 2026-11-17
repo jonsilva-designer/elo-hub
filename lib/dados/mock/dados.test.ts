@@ -5,10 +5,11 @@ import { ATIVIDADES } from './atividades'
 import { AVALIACOES } from './avaliacoes'
 import { CLIENTES } from './clientes'
 import { CONTRATOS } from './contratos'
+import { COMENTARIOS, DEMANDAS } from './demandas'
 import { ESCOPOS } from './escopos'
 import { ESPECIALISTAS } from './especialistas'
 import { HISTORICO } from './historico'
-import { CONTRATANTES, DIMENSOES, ESPECIALIDADES, SEGMENTOS, SERVICOS } from './listas'
+import { CATEGORIAS, CONTRATANTES, DIMENSOES, ESPECIALIDADES, SEGMENTOS, SERVICOS } from './listas'
 import { PLANOS } from './planos'
 import { USUARIOS, VINCULOS } from './usuarios'
 
@@ -392,6 +393,53 @@ describe('especialistas de exemplo (F11)', () => {
   it('os escopos só ligam especialistas que existem', () => {
     for (const e of ESCOPOS) {
       for (const id of e.especialistaIds) expect(ESPECIALISTAS.some((x) => x.id === id), `${e.id} ${id}`).toBe(true)
+    }
+  })
+})
+
+describe('demandas de exemplo (F09)', () => {
+  it('contrato e escopo do cliente, escopo do contrato, e os responsáveis permitidos (DF-12, RN-19)', () => {
+    for (const d of DEMANDAS) {
+      if (d.contratoId) expect(CONTRATOS.find((c) => c.id === d.contratoId)?.clienteId, d.numero).toBe(d.clienteId)
+      if (d.escopoId) {
+        const escopo = ESCOPOS.find((e) => e.id === d.escopoId)
+        expect(escopo?.clienteId, d.numero).toBe(d.clienteId)
+        if (d.contratoId) expect(escopo?.contratoId, d.numero).toBe(d.contratoId)
+      }
+      expect(responsavelPermitido(d.responsavelTriagemId, d.clienteId), d.numero).toBe(true)
+      if (d.responsavelAtendimentoId) expect(responsavelPermitido(d.responsavelAtendimentoId, d.clienteId), d.numero).toBe(true)
+    }
+    expect(new Set(DEMANDAS.map((d) => d.numero)).size).toBe(DEMANDAS.length)
+  })
+
+  it('a Institucional só no cadastro da ELO, que só tem Institucional (CA-09.15)', () => {
+    for (const d of DEMANDAS) {
+      const elo = CLIENTES.find((c) => c.id === d.clienteId)?.ehCadastroElo === true
+      expect(d.origem === 'Institucional', d.numero).toBe(elo)
+    }
+  })
+
+  it('categoria da lista; com mais de um especialista, um principal; só a Encerrada tem data de encerramento', () => {
+    for (const d of DEMANDAS) {
+      if (d.categoria) expect(CATEGORIAS, d.numero).toContain(d.categoria)
+      if (d.especialistas.length > 1) expect(d.especialistas.filter((e) => e.principal), d.numero).toHaveLength(1)
+      expect(d.encerradaEm !== null, d.numero).toBe(d.status === 'Encerrada')
+      if (['Resolvida', 'Encerrada'].includes(d.status)) expect(d.solucao, d.numero).not.toBe('')
+    }
+  })
+
+  it('os comentários são de demandas que existem; o contato tem especialista e data (DF-30)', () => {
+    for (const c of COMENTARIOS) {
+      expect(DEMANDAS.some((d) => d.numero === c.numero), c.id).toBe(true)
+      if (c.tipo === 'Contato com especialista') expect(c.especialistaId && c.dataContato, c.id).toBeTruthy()
+    }
+  })
+
+  it('sem demanda nos exemplos que precisam continuar sem nada ligado (partes 2 e 3)', () => {
+    for (const d of DEMANDAS) {
+      expect(['cli-ondamar', 'cli-limpar'], d.numero).not.toContain(d.clienteId)
+      expect(['esc-vertice-qualidade', 'esc-rede-norte-rmm'], d.numero).not.toContain(d.escopoId)
+      expect(d.contratoId, d.numero).not.toBe('ctr-atlantica-ssma')
     }
   })
 })

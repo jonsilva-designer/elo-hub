@@ -1,0 +1,270 @@
+import type { ComentarioDemanda, Demanda } from '../tipos'
+
+// Demandas fictícias da Central ELO (F09). Cada uma mostra um caso da seção 5.2 da parte 5. Os prazos que mostram
+// atraso são calculados a partir de hoje (`prazoEmDias`), para continuarem vencidos em qualquer dia; os outros são
+// fixos.
+
+export type DemandaFicticia = Demanda & { prazoEmDias?: number }
+
+type Base = Pick<DemandaFicticia, 'numero' | 'abertaEm' | 'clienteId' | 'origem' | 'assunto' | 'descricao' | 'responsavelTriagemId' | 'registradaPorId'>
+
+const demanda = (base: Base, resto: Partial<DemandaFicticia>): DemandaFicticia => ({
+  contratoId: null,
+  escopoId: null,
+  categoria: null,
+  criticidade: null,
+  responsavelAtendimentoId: null,
+  especialistas: [],
+  prazo: null,
+  status: 'Nova',
+  solucao: '',
+  retornoCliente: '',
+  encerradaEm: null,
+  ...base,
+  ...resto,
+})
+
+export const DEMANDAS: DemandaFicticia[] = [
+  demanda(
+    {
+      numero: 'ELO-2026-0001',
+      abertaEm: '2026-03-10',
+      clienteId: 'cli-atlantica',
+      origem: 'E-mail',
+      assunto: 'Dúvida sobre a multa por atraso na medição',
+      descricao: 'O cliente quer saber se a multa da cláusula 12 vale para a medição entregue com dois dias de atraso.',
+      responsavelTriagemId: 'usr-rafael',
+      registradaPorId: 'usr-rafael',
+    },
+    {
+      contratoId: 'ctr-atlantica-porto',
+      escopoId: 'esc-atlantica-2026',
+      categoria: 'Dúvida contratual',
+      criticidade: 'Moderada',
+      responsavelAtendimentoId: 'usr-rafael',
+      prazo: '2026-03-20',
+      status: 'Encerrada',
+      solucao: 'A multa só vale depois do terceiro dia útil de atraso, pela cláusula 12.3.',
+      retornoCliente: 'Explicado ao gerente do contrato por telefone em 18/03, com o trecho da cláusula por e-mail.',
+      encerradaEm: '2026-03-18',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0002',
+      abertaEm: '2026-04-02',
+      clienteId: 'cli-vertice',
+      origem: 'Telefone/WhatsApp',
+      assunto: 'Certidões para a medição de abril',
+      descricao: 'Pedido das certidões que faltam para a medição de abril.',
+      responsavelTriagemId: 'usr-rafael',
+      registradaPorId: 'usr-rafael',
+    },
+    {
+      status: 'Encerrada',
+      solucao: 'Duplicada da ELO-2026-0003, registrada pelo e-mail do mesmo pedido.',
+      encerradaEm: '2026-04-03',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0003',
+      abertaEm: '2026-04-02',
+      clienteId: 'cli-vertice',
+      origem: 'Cliente',
+      assunto: 'Certidões vencidas antes da medição',
+      descricao: 'Três certidões vencem antes da próxima medição, e o contratante pode reter o pagamento sem elas.',
+      responsavelTriagemId: 'usr-rafael',
+      registradaPorId: 'usr-rafael',
+    },
+    {
+      contratoId: 'ctr-vertice-manutencao',
+      escopoId: 'esc-vertice-documental',
+      categoria: 'Pedido de documento',
+      criticidade: 'Alta',
+      responsavelAtendimentoId: 'usr-rafael',
+      especialistas: [
+        { id: 'esp-juridico', principal: true },
+        { id: 'esp-esg', principal: false },
+      ],
+      prazoEmDias: -3,
+      status: 'Em atendimento',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0004',
+      abertaEm: '2026-09-08',
+      clienteId: 'cli-atlantica',
+      origem: 'Reunião',
+      assunto: 'Indicadores de produtividade do terminal 2',
+      descricao: 'O contratante pediu o detalhamento dos indicadores do trimestre na reunião de performance.',
+      responsavelTriagemId: 'usr-helena',
+      registradaPorId: 'usr-helena',
+    },
+    {
+      contratoId: 'ctr-atlantica-porto',
+      categoria: 'Indicadores de desempenho (KPIs e SLAs)',
+      criticidade: 'Moderada',
+      responsavelAtendimentoId: 'usr-rafael',
+      prazoEmDias: -5,
+      status: 'Aguardando retorno',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0005',
+      abertaEm: '2026-10-14',
+      clienteId: 'cli-rede-norte',
+      origem: 'E-mail',
+      assunto: 'Prazo do aditivo de prorrogação',
+      descricao: 'O cliente quer saber até quando pode assinar o aditivo sem parar o monitoramento.',
+      responsavelTriagemId: 'usr-rafael',
+      registradaPorId: 'usr-rafael',
+    },
+    {
+      contratoId: 'ctr-rede-norte-rmm',
+      categoria: 'Prazos e obrigações do contrato',
+      criticidade: 'Alta',
+      responsavelAtendimentoId: 'usr-rafael',
+      prazoEmDias: 10,
+      status: 'Resolvida',
+      solucao: 'O aditivo pode ser assinado até o fim do mês seguinte ao vencimento, pela cláusula de prorrogação.',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0006',
+      abertaEm: '2026-10-01',
+      clienteId: 'cli-vertice',
+      origem: 'Cliente',
+      assunto: 'Reajuste da mobilização',
+      descricao: 'O cliente quer revisar o índice de reajuste aplicado na mobilização da equipe offshore.',
+      responsavelTriagemId: 'usr-helena',
+      registradaPorId: 'usr-helena',
+    },
+    {
+      contratoId: 'ctr-vertice-mobilizacao',
+      escopoId: 'esc-vertice-mobilizacao',
+      categoria: 'Financeiro (medição, faturamento, reajuste)',
+      criticidade: 'Alta',
+      responsavelAtendimentoId: 'usr-helena',
+      especialistas: [{ id: 'esp-financeiro', principal: true }],
+      prazoEmDias: 12,
+      status: 'Em atendimento',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0007',
+      abertaEm: '2026-10-20',
+      clienteId: 'cli-elo',
+      origem: 'Institucional',
+      assunto: 'Renovação do certificado digital da ELO',
+      descricao: 'Renovar o certificado digital usado na emissão das notas da ELO.',
+      responsavelTriagemId: 'usr-helena',
+      registradaPorId: 'usr-helena',
+    },
+    {
+      categoria: 'Outros assuntos',
+      criticidade: 'Baixa',
+      responsavelAtendimentoId: 'usr-helena',
+      prazoEmDias: 20,
+      status: 'Em atendimento',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0008',
+      abertaEm: '2026-11-03',
+      clienteId: 'cli-atlantica',
+      origem: 'Cliente',
+      assunto: 'Notificação de não conformidade do contratante',
+      descricao: 'O contratante notificou uma não conformidade de segurança no terminal e pediu plano de ação em cinco dias.',
+      responsavelTriagemId: 'usr-rafael',
+      registradaPorId: 'usr-rafael',
+    },
+    {
+      categoria: 'Riscos e conformidade',
+      criticidade: 'Crítica',
+      responsavelAtendimentoId: 'usr-helena',
+      status: 'Em atendimento',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0009',
+      abertaEm: '2026-11-10',
+      clienteId: 'cli-vertice',
+      origem: 'Cliente',
+      assunto: 'Modelo de relatório para o contratante',
+      descricao: 'O cliente pediu um modelo de relatório mensal das licenças para enviar ao contratante.',
+      responsavelTriagemId: 'usr-rafael',
+      registradaPorId: 'usr-rafael',
+    },
+    {
+      contratoId: 'ctr-vertice-manutencao',
+      escopoId: 'esc-vertice-documental',
+      status: 'Em triagem',
+    },
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0010',
+      abertaEm: '2026-11-14',
+      clienteId: 'cli-vertice',
+      origem: 'Telefone/WhatsApp',
+      assunto: 'Treinamento de NR-10 para a equipe nova',
+      descricao: 'O cliente perguntou se o treinamento de NR-10 entra no escopo atual.',
+      responsavelTriagemId: 'usr-rafael',
+      registradaPorId: 'usr-rafael',
+    },
+    {},
+  ),
+  demanda(
+    {
+      numero: 'ELO-2026-0011',
+      abertaEm: '2026-11-15',
+      clienteId: 'cli-montareal',
+      origem: 'Cliente',
+      assunto: 'Documentação de solda do módulo 3',
+      descricao: 'O cliente ligou para o Rafael pedindo ajuda com a documentação de solda do módulo 3.',
+      responsavelTriagemId: 'usr-helena',
+      registradaPorId: 'usr-rafael',
+    },
+    {},
+  ),
+]
+
+export const COMENTARIOS: ComentarioDemanda[] = [
+  {
+    id: 'com-01',
+    numero: 'ELO-2026-0003',
+    autorId: 'usr-rafael',
+    dataHora: '2026-04-03T10:20:00-03:00',
+    tipo: 'Comentário',
+    texto: 'Pedi ao cliente a lista das certidões vencidas e as datas de cada uma.',
+    especialistaId: null,
+    dataContato: null,
+  },
+  {
+    id: 'com-02',
+    numero: 'ELO-2026-0003',
+    autorId: 'usr-rafael',
+    dataHora: '2026-04-06T15:45:00-03:00',
+    tipo: 'Contato com especialista',
+    texto: 'Enviado o recorte das cláusulas de retenção de pagamento para análise.',
+    especialistaId: 'esp-juridico',
+    dataContato: '2026-04-06',
+  },
+  {
+    id: 'com-03',
+    numero: 'ELO-2026-0005',
+    autorId: 'usr-rafael',
+    dataHora: '2026-10-16T09:10:00-03:00',
+    tipo: 'Comentário',
+    texto: 'Solução enviada ao cliente por e-mail; falta registrar o retorno dele.',
+    especialistaId: null,
+    dataContato: null,
+  },
+]

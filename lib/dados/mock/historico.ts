@@ -20,6 +20,7 @@ const escopo = (...e: Entrada) => ({ tipo: 'escopo' as const, e })
 const plano = (...e: Entrada) => ({ tipo: 'plano' as const, e })
 const atividade = (...e: Entrada) => ({ tipo: 'atividade' as const, e })
 const especialista = (...e: Entrada) => ({ tipo: 'especialista' as const, e })
+const demanda = (...e: Entrada) => ({ tipo: 'demanda' as const, e })
 
 const ENTRADAS = [
   cliente('cli-elo', '2026-01-05T09:00:00-03:00', 'usr-helena', 'Cadastro criado'),
@@ -129,6 +130,28 @@ const ENTRADAS = [
   especialista('esp-financeiro', '2026-10-20T16:10:00-03:00', 'usr-helena', 'Status do especialista', 'Ativo', 'Inativo'),
   especialista('esp-riscos', '2026-11-09T21:05:00-03:00', 'site', 'Candidatura recebida pelo site'),
   especialista('esp-suprimentos-2', '2026-11-12T07:50:00-03:00', 'site', 'Candidatura recebida pelo site'),
+  // Demandas (parte 5, 5.2). O registro de cada uma e algumas mudanças de status e de prazo (DF-16, DF-41).
+  demanda('ELO-2026-0001', '2026-03-10T09:00:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  demanda('ELO-2026-0001', '2026-03-11T10:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Nova', 'Em atendimento'),
+  demanda('ELO-2026-0001', '2026-03-17T16:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Em atendimento', 'Resolvida'),
+  demanda('ELO-2026-0001', '2026-03-18T11:30:00-03:00', 'usr-rafael', 'Status da demanda', 'Resolvida', 'Encerrada'),
+  demanda('ELO-2026-0002', '2026-04-02T08:30:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  demanda('ELO-2026-0002', '2026-04-03T09:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Nova', 'Encerrada'),
+  demanda('ELO-2026-0003', '2026-04-02T08:45:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  demanda('ELO-2026-0003', '2026-04-02T14:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Nova', 'Em atendimento'),
+  demanda('ELO-2026-0004', '2026-09-08T17:00:00-03:00', 'usr-helena', 'Demanda registrada'),
+  demanda('ELO-2026-0004', '2026-09-20T10:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Em atendimento', 'Aguardando retorno'),
+  demanda('ELO-2026-0004', '2026-10-02T09:15:00-03:00', 'usr-rafael', 'Prazo', 'Prazo anterior', 'Prazo combinado de novo com o contratante'),
+  demanda('ELO-2026-0005', '2026-10-14T11:00:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  demanda('ELO-2026-0005', '2026-10-16T09:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Em atendimento', 'Resolvida'),
+  demanda('ELO-2026-0006', '2026-10-01T15:00:00-03:00', 'usr-helena', 'Demanda registrada'),
+  demanda('ELO-2026-0007', '2026-10-20T09:30:00-03:00', 'usr-helena', 'Demanda registrada'),
+  demanda('ELO-2026-0008', '2026-11-03T08:10:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  demanda('ELO-2026-0008', '2026-11-03T09:00:00-03:00', 'usr-helena', 'Criticidade', undefined, 'Crítica'),
+  demanda('ELO-2026-0009', '2026-11-10T10:40:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  demanda('ELO-2026-0009', '2026-11-11T08:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Nova', 'Em triagem'),
+  demanda('ELO-2026-0010', '2026-11-14T16:20:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  demanda('ELO-2026-0011', '2026-11-15T11:05:00-03:00', 'usr-rafael', 'Demanda registrada'),
 ]
 
 export const HISTORICO: RegistroAlteracao[] = ENTRADAS.map(({ tipo, e }, i) => {
