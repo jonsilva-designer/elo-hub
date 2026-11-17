@@ -166,7 +166,9 @@ describe('histórico de exemplo (F17, DF-16)', () => {
 
   it('aponta para usuários que existem, com data e hora no fuso de Brasília', () => {
     for (const h of HISTORICO) {
-      expect(USUARIOS.some((u) => u.id === h.usuarioId), h.id).toBe(true)
+      // A candidatura do site chega sem usuário (parte 5, 5.2).
+      const doSite = h.usuarioId === 'site' && h.descricao === 'Candidatura recebida pelo site'
+      expect(doSite || USUARIOS.some((u) => u.id === h.usuarioId), h.id).toBe(true)
       expect(h.dataHora, h.id).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}-03:00$/)
     }
     expect(new Set(HISTORICO.map((h) => h.id)).size).toBe(HISTORICO.length)

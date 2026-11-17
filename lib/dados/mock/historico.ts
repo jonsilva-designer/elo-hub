@@ -122,13 +122,13 @@ const ENTRADAS = [
   // Especialistas (parte 5, 5.2). A candidatura do site entra pelo sistema; o Administrador avalia.
   especialista('esp-juridico', '2026-02-20T10:00:00-03:00', 'usr-helena', 'Cadastro criado'),
   especialista('esp-financeiro', '2026-02-27T11:00:00-03:00', 'usr-helena', 'Cadastro criado'),
-  especialista('esp-suprimentos', '2026-03-04T08:40:00-03:00', 'usr-helena', 'Candidatura recebida pelo site'),
+  especialista('esp-suprimentos', '2026-03-04T08:40:00-03:00', 'site', 'Candidatura recebida pelo site'),
   especialista('esp-suprimentos', '2026-03-12T15:20:00-03:00', 'usr-helena', 'Status do especialista', 'Em análise', 'Ativo'),
   especialista('esp-esg', '2026-03-18T09:30:00-03:00', 'usr-helena', 'Cadastro criado'),
   especialista('esp-contratos', '2026-10-05T14:00:00-03:00', 'usr-helena', 'Cadastro criado'),
   especialista('esp-financeiro', '2026-10-20T16:10:00-03:00', 'usr-helena', 'Status do especialista', 'Ativo', 'Inativo'),
-  especialista('esp-riscos', '2026-11-09T21:05:00-03:00', 'usr-helena', 'Candidatura recebida pelo site'),
-  especialista('esp-suprimentos-2', '2026-11-12T07:50:00-03:00', 'usr-helena', 'Candidatura recebida pelo site'),
+  especialista('esp-riscos', '2026-11-09T21:05:00-03:00', 'site', 'Candidatura recebida pelo site'),
+  especialista('esp-suprimentos-2', '2026-11-12T07:50:00-03:00', 'site', 'Candidatura recebida pelo site'),
 ]
 
 export const HISTORICO: RegistroAlteracao[] = ENTRADAS.map(({ tipo, e }, i) => {

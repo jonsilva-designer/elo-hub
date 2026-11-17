@@ -20,6 +20,10 @@ function clienteDoRegistro(tipo: TipoRegistro, id: string): string | undefined {
   return AVALIACOES.find((a) => a.id === id)?.clienteId
 }
 
+/** Quem fez a alteração. O que chega pelo formulário do site não tem usuário (parte 5, 5.2). */
+const autor = (usuarioId: string) =>
+  usuarioId === 'site' ? 'Formulário do site' : (USUARIOS.find((u) => u.id === usuarioId)?.nome ?? '')
+
 /**
  * As entradas do registro. O plano junta as das atividades dele, com o nome da atividade na frente da descrição, como
  * as etapas aparecem no histórico do escopo (parte 4, 5.2): a atividade não tem página própria.
@@ -53,7 +57,7 @@ export async function listarHistorico(tipo: TipoRegistro, id: string): Promise<E
     .map(({ h, prefixo }) => ({
       id: h.id,
       dataHora: h.dataHora,
-      usuario: USUARIOS.find((u) => u.id === h.usuarioId)?.nome ?? '',
+      usuario: autor(h.usuarioId),
       descricao: `${prefixo}${h.descricao}`,
       ...(h.valorAnterior === undefined ? {} : { valorAnterior: h.valorAnterior }),
       ...(h.valorNovo === undefined ? {} : { valorNovo: h.valorNovo }),

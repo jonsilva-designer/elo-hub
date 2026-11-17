@@ -117,3 +117,14 @@ describe('listarHistorico de plano (parte 4, 5.2)', () => {
     expect(await listarHistorico('plano', 'pla-montareal-estruturas')).toEqual([])
   })
 })
+
+describe('listarHistorico de especialista (parte 5, 5.2)', () => {
+  it('todos os usuários leem; a candidatura do site tem o formulário do site como autor', async () => {
+    entrarComo('usr-rafael')
+    const entradas = await listarHistorico('especialista', 'esp-riscos')
+    expect(entradas).toEqual([
+      expect.objectContaining({ descricao: 'Candidatura recebida pelo site', usuario: 'Formulário do site' }),
+    ])
+    expect(await listarHistorico('especialista', 'esp-nao-existe')).toEqual([])
+  })
+})
