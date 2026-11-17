@@ -1,4 +1,4 @@
-import type { DadosNovaDemanda, ErrosDemanda } from './validacao'
+import type { DadosDemanda, DadosNovaDemanda, ErrosDemanda } from './validacao'
 
 // Tipos e estados iniciais das ações da demanda. Ficam fora de acoes.ts porque um arquivo 'use server' só pode
 // exportar funções assíncronas.
@@ -12,3 +12,13 @@ export type EstadoRegistrarDemanda = {
 }
 
 export const ESTADO_INICIAL_REGISTRAR_DEMANDA: EstadoRegistrarDemanda = { erros: {}, valores: null }
+
+/** O que a ação de salvar a edição devolve ao formulário (useActionState). */
+export type EstadoSalvarDemanda = {
+  erros: ErrosDemanda
+  valores: DadosDemanda | null
+  erroGeral?: string
+  sucesso?: { mensagem: string; destino: string }
+}
+
+export const ESTADO_INICIAL_SALVAR_DEMANDA: EstadoSalvarDemanda = { erros: {}, valores: null }

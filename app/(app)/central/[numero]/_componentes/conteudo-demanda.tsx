@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -8,12 +9,14 @@ import { ListaCampos } from '@/components/elo/lista-campos'
 import { ListaComentarios } from '@/components/elo/lista-comentarios'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
+import { Button } from '@/components/ui/button'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { listarComentarios, obterDemanda } from '@/lib/dados/demandas'
 import { listarHistorico } from '@/lib/dados/historico'
+import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { DemandaDetalhada } from '@/lib/dados/tipos'
-import { acoesDaDemanda, faltaParaAtendimento } from '@/lib/demandas/regras'
+import { acoesDaDemanda, demandaFechada, faltaParaAtendimento } from '@/lib/demandas/regras'
 import { formatarData } from '@/lib/formato'
 import { VoltarParaCentral } from '../../_componentes/voltar-para-central'
 import { AcoesDemanda } from './acoes-demanda'
@@ -134,11 +137,22 @@ export async function ConteudoDemanda({ params }: { params: Promise<{ numero: st
           </span>
         }
         acoes={
-          <AcoesDemanda
-            numero={demanda.numero}
-            acoes={acoesDaDemanda(demanda, usuario)}
-            falta={faltaParaAtendimento(demanda)}
-          />
+          <>
+            {/* A Equipe edita a demanda aberta; a Encerrada, só o Administrador (RN-17). */}
+            {ehAdmin(usuario) || !demandaFechada(demanda.status) ? (
+              <Button asChild variant="outline">
+                <Link href={`/central/${demanda.numero}/editar`}>
+                  <Pencil aria-hidden="true" />
+                  Editar
+                </Link>
+              </Button>
+            ) : null}
+            <AcoesDemanda
+              numero={demanda.numero}
+              acoes={acoesDaDemanda(demanda, usuario)}
+              falta={faltaParaAtendimento(demanda)}
+            />
+          </>
         }
       />
       <div className="space-y-5">

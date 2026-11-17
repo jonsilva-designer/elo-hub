@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { mudarStatusDemanda, reabrirDemanda, registrarDemanda } from './acoes'
-import { ESTADO_INICIAL_REGISTRAR_DEMANDA } from './estados'
+import { obterDemanda } from '@/lib/dados/demandas'
+import { mudarStatusDemanda, reabrirDemanda, registrarDemanda, salvarDemanda } from './acoes'
+import { ESTADO_INICIAL_REGISTRAR_DEMANDA, ESTADO_INICIAL_SALVAR_DEMANDA } from './estados'
 import { MENSAGENS_DEMANDA } from './validacao'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -188,5 +189,92 @@ describe('reabrirDemanda (RN-12, RN-17, RN-22; critério 11)', () => {
       mensagem: 'Falta para iniciar o atendimento: Categoria, Criticidade, Responsável pelo atendimento.',
     })
     expect((await reabrirDemanda('ELO-2026-0002', 'Nova', 'Não era duplicada.')).ok).toBe(true)
+  })
+})
+
+/** Os campos de uma demanda que existe, como o formulário de edição manda. */
+async function edicao(numero: string, campos: Record<string, string> = {}, especialistas?: string[]) {
+  const d = (await obterDemanda(numero))!
+  const fd = formulario({
+    numero: d.numero,
+    contratoId: d.contratoId ?? '',
+    escopoId: d.escopoId ?? '',
+    origem: d.origem,
+    assunto: d.assunto,
+    descricao: d.descricao,
+    categoria: d.categoria ?? '',
+    criticidade: d.criticidade ?? '',
+    prazo: d.prazo ?? '',
+    responsavelTriagemId: d.responsavelTriagemId,
+    responsavelAtendimentoId: d.responsavelAtendimentoId ?? '',
+    principalId: d.especialistas.find((e) => e.principal)?.id ?? '',
+    ...campos,
+  })
+  for (const id of especialistas ?? d.especialistas.map((e) => e.id)) fd.append('especialistaIds', id)
+  return salvarDemanda(ESTADO_INICIAL_SALVAR_DEMANDA, fd)
+}
+
+describe('salvarDemanda (parte 5, 5.11; critérios 12 e 14)', () => {
+  it('a triagem completa salva e volta para a demanda', async () => {
+    entrarComo('usr-rafael')
+    const estado = await edicao('ELO-2026-0010', {
+      categoria: 'Dúvida contratual',
+      criticidade: 'Moderada',
+      responsavelAtendimentoId: 'usr-rafael',
+      prazo: '2026-12-01',
+    })
+    expect(estado.erros).toEqual({})
+    expect(estado.sucesso).toEqual({
+      mensagem: 'Demanda salva. No protótipo, os dados não são gravados.',
+      destino: '/central/ELO-2026-0010',
+    })
+  })
+
+  it('com mais de um especialista, o principal é obrigatório e é um deles (CA-09.12)', async () => {
+    entrarComo('usr-rafael')
+    expect((await edicao('ELO-2026-0003', { principalId: '' })).erros).toEqual({ especialistas: MENSAGENS_DEMANDA.principal })
+    expect((await edicao('ELO-2026-0003', { principalId: 'esp-contratos' })).erros).toEqual({
+      especialistas: MENSAGENS_DEMANDA.principal,
+    })
+    expect((await edicao('ELO-2026-0003', { principalId: 'esp-esg' })).sucesso).toBeDefined()
+  })
+
+  it('vínculo novo só com especialista Ativo; o Inativo já ligado continua (CA-11.2, DF-51)', async () => {
+    entrarComo('usr-helena')
+    const estado = await edicao('ELO-2026-0006', { principalId: 'esp-financeiro' }, ['esp-financeiro', 'esp-riscos'])
+    expect(estado.valores?.especialistaIds).toEqual(['esp-financeiro'])
+  })
+
+  it('depois da triagem, categoria, criticidade e atendente não podem sair (CA-09.2)', async () => {
+    entrarComo('usr-rafael')
+    expect((await edicao('ELO-2026-0003', { categoria: '', criticidade: '', responsavelAtendimentoId: '' })).erros).toEqual({
+      categoria: MENSAGENS_DEMANDA.categoria,
+      criticidade: MENSAGENS_DEMANDA.criticidade,
+      responsavelAtendimentoId: MENSAGENS_DEMANDA.atendimento,
+    })
+  })
+
+  it('contrato, escopo e origem seguem as regras do registro; prazo inválido é recusado (DF-12, CA-09.15)', async () => {
+    entrarComo('usr-helena')
+    expect((await edicao('ELO-2026-0010', { contratoId: 'ctr-atlantica-porto' })).erros).toEqual({
+      contratoId: MENSAGENS_DEMANDA.contrato,
+    })
+    expect((await edicao('ELO-2026-0010', { origem: 'Institucional' })).erros).toEqual({
+      origem: MENSAGENS_DEMANDA.institucionalForaDaElo,
+    })
+    expect((await edicao('ELO-2026-0010', { prazo: '2026-02-30' })).erros).toEqual({ prazo: MENSAGENS_DEMANDA.data })
+    expect((await edicao('ELO-2026-0010', { responsavelAtendimentoId: 'usr-marcos' })).erros).toEqual({
+      responsavelAtendimentoId: MENSAGENS_DEMANDA.responsavelSemVinculo,
+    })
+  })
+
+  it('a Equipe não edita a Encerrada (RN-17); fora do vínculo, recusa', async () => {
+    entrarComo('usr-rafael')
+    expect(await edicao('ELO-2026-0001')).toMatchObject({ erroGeral: SEM_PERMISSAO })
+    entrarComo('usr-helena')
+    expect((await edicao('ELO-2026-0001')).sucesso).toBeDefined()
+    entrarComo('usr-rafael')
+    const fd = formulario({ numero: 'ELO-2026-0011', origem: 'Cliente', assunto: 'x', descricao: 'x', responsavelTriagemId: 'usr-helena' })
+    expect(await salvarDemanda(ESTADO_INICIAL_SALVAR_DEMANDA, fd)).toMatchObject({ erroGeral: SEM_PERMISSAO })
   })
 })

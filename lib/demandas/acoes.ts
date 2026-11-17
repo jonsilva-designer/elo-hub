@@ -7,12 +7,16 @@ import {
   obterDemanda,
   responsaveisParaTriagem,
 } from '@/lib/dados/demandas'
+import { obterCliente } from '@/lib/dados/clientes'
 import { listarEscoposDoCliente } from '@/lib/dados/escopos'
+import { listarEspecialistasAtivos } from '@/lib/dados/especialistas'
+import { listarCategorias } from '@/lib/dados/listas'
 import { obterInicioDaOperacao } from '@/lib/dados/parametros'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
+import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
-import type { EstadoRegistrarDemanda } from './estados'
+import type { EstadoRegistrarDemanda, EstadoSalvarDemanda } from './estados'
 import {
   acoesDaDemanda,
   demandaFechada,
@@ -20,7 +24,7 @@ import {
   STATUS_DEMANDA_ABERTOS,
   type AcaoDemanda,
 } from './regras'
-import { lerDadosNovaDemanda, validarNovaDemanda } from './validacao'
+import { lerDadosDemanda, lerDadosNovaDemanda, validarDemanda, validarNovaDemanda } from './validacao'
 
 // Ações da demanda da Central ELO (parte 5, 5.9 a 5.11). O Administrador e a Equipe registram, triam e atendem
 // (matriz 4.3); a regra de vínculo vem das leituras. Conferem tudo no servidor. No protótipo, nada é gravado e
@@ -139,4 +143,48 @@ export async function reabrirDemanda(numero: string, status: string, justificati
   }
   if (status === 'Resolvida' && !demanda.solucao.trim()) return recusa('Escreva a solução.')
   return { ok: true, mensagem: mensagemDeSucesso('Demanda reaberta.') }
+}
+
+/**
+ * Salva os dados e a triagem da demanda (parte 5, 5.11). O cliente não muda. A Equipe vinculada edita a demanda
+ * aberta; a Encerrada, só o Administrador (RN-17). Especialista novo só Ativo; o já ligado continua (CA-11.2, DF-51).
+ * A mudança de prazo ficaria no histórico, com o anterior e o novo (DF-41).
+ */
+export async function salvarDemanda(_estado: EstadoSalvarDemanda, formData: FormData): Promise<EstadoSalvarDemanda> {
+  const usuario = await obterUsuarioAtual()
+  const dados = lerDadosDemanda(formData)
+  const recusa = (erroGeral: string): EstadoSalvarDemanda => ({ erros: {}, valores: dados, erroGeral })
+  const demanda = dados.numero ? await obterDemanda(dados.numero) : null
+  if (!demanda) return recusa(SEM_PERMISSAO)
+  if (!ehAdmin(usuario) && demandaFechada(demanda.status)) return recusa(SEM_PERMISSAO)
+
+  const [cliente, contratos, escopos, responsaveis, categorias, ativos] = await Promise.all([
+    obterCliente(demanda.clienteId),
+    listarContratosDoCliente(demanda.clienteId),
+    listarEscoposDoCliente(demanda.clienteId),
+    listarResponsaveis(demanda.clienteId),
+    listarCategorias(),
+    listarEspecialistasAtivos(),
+  ])
+  const escopoEscolhido = escopos.find((e) => e.id === dados.escopoId)
+  if (escopoEscolhido && !dados.contratoId) dados.contratoId = escopoEscolhido.contratoId
+  dados.especialistaIds = dados.especialistaIds.filter(
+    (id) => ativos.some((e) => e.id === id) || demanda.especialistas.some((e) => e.id === id),
+  )
+  if (dados.especialistaIds.length === 1) dados.principalId = dados.especialistaIds[0]
+
+  const erros = validarDemanda(dados, {
+    status: demanda.status,
+    ehCadastroElo: cliente?.ehCadastroElo === true,
+    contratos,
+    escopos,
+    responsaveis: responsaveis.map((u) => u.id),
+    categorias,
+  })
+  if (Object.keys(erros).length > 0) return { erros, valores: dados }
+  return {
+    erros: {},
+    valores: dados,
+    sucesso: { mensagem: mensagemDeSucesso('Demanda salva.'), destino: `/central/${demanda.numero}` },
+  }
 }
