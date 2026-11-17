@@ -6,6 +6,7 @@ import {
   PRIORIDADES,
   STATUS_ESCOPO,
   STATUS_ESCOPO_ABERTOS,
+  ciclosAnterioresPossiveis,
   escopoFechado,
   jornadaMexida,
   transicaoListadaEscopo,
@@ -57,5 +58,25 @@ describe('regras do escopo (PRD 6.1, RN-17)', () => {
     const naoAplicavel = etapasNovas()
     naoAplicavel[4] = { ...naoAplicavel[4], status: 'Não aplicável' }
     expect(jornadaMexida(naoAplicavel)).toBe(true)
+  })
+})
+
+describe('ciclosAnterioresPossiveis (DF-57, CA-05.10)', () => {
+  // 2024 ← 2025 ← 2026: cada um aponta para o do ano anterior. O avulso não tem ciclo.
+  const ESCOPOS = [
+    { id: 'e-2024', cicloAnteriorId: null },
+    { id: 'e-2025', cicloAnteriorId: 'e-2024' },
+    { id: 'e-2026', cicloAnteriorId: 'e-2025' },
+    { id: 'e-avulso', cicloAnteriorId: null },
+  ]
+
+  it('no cadastro, qualquer escopo do cliente', () => {
+    expect(ciclosAnterioresPossiveis(ESCOPOS, null)).toEqual(['e-2024', 'e-2025', 'e-2026', 'e-avulso'])
+  })
+
+  it('na edição, nem o próprio escopo nem os ciclos que vêm depois dele', () => {
+    expect(ciclosAnterioresPossiveis(ESCOPOS, 'e-2024')).toEqual(['e-avulso'])
+    expect(ciclosAnterioresPossiveis(ESCOPOS, 'e-2025')).toEqual(['e-2024', 'e-avulso'])
+    expect(ciclosAnterioresPossiveis(ESCOPOS, 'e-2026')).toEqual(['e-2024', 'e-2025', 'e-avulso'])
   })
 })

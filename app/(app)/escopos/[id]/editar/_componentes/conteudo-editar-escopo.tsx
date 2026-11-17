@@ -6,6 +6,7 @@ import { listarEscoposDoCliente, obterEscopo } from '@/lib/dados/escopos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
+import { ciclosAnterioresPossiveis } from '@/lib/escopos/regras'
 import { FormularioEscopo } from '../../../_componentes/formulario-escopo'
 
 /**
@@ -38,6 +39,8 @@ export async function ConteudoEditarEscopo({ params }: { params: Promise<{ id: s
     listarResponsaveis(escopo.clienteId),
     listarEscoposDoCliente(escopo.clienteId),
   ])
+  // Nem o próprio escopo nem os ciclos que vêm depois dele (CA-05.10).
+  const possiveis = ciclosAnterioresPossiveis(escopos, escopo.id)
   return (
     <>
       {cabecalho}
@@ -45,7 +48,7 @@ export async function ConteudoEditarEscopo({ params }: { params: Promise<{ id: s
         escopo={escopo}
         contrato={{ id: escopo.contratoId, codigo: escopo.codigoContrato, nomeCliente: escopo.nomeCliente }}
         responsaveis={responsaveis.map((u) => ({ valor: u.id, rotulo: u.nome }))}
-        ciclos={escopos.filter((e) => e.id !== escopo.id).map((e) => ({ valor: e.id, rotulo: e.nome }))}
+        ciclos={escopos.filter((e) => possiveis.includes(e.id)).map((e) => ({ valor: e.id, rotulo: e.nome }))}
       />
     </>
   )

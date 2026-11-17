@@ -153,8 +153,11 @@ export function ListaContratos({
   }
 
   const semVinculo = clientes.length === 0 && !ehAdmin
+  // Sem nenhum contrato para ver, limpar os filtros não traz nada: o aviso diz que não há contrato.
   const vazio = semVinculo ? (
     <EstadoVazio titulo="Você ainda não tem clientes vinculados." descricao="Fale com o Administrador da ELO." />
+  ) : contratos.length === 0 ? (
+    <EstadoVazio titulo="Nenhum contrato cadastrado." />
   ) : (
     <EstadoVazio
       titulo="Nenhum contrato com esses filtros."

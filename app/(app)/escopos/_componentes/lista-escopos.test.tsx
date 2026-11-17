@@ -69,7 +69,14 @@ describe('ListaEscopos', () => {
     await userEvent.type(screen.getByRole('textbox', { name: 'Buscar' }), 'zzz')
     expect(screen.getByText('Nenhum escopo com esses filtros.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }))
-    expect(linhas()).toHaveLength(9)
+    expect(linhas()).toHaveLength(10)
+  })
+
+  it('sem nenhum escopo, diz que não há escopo cadastrado, sem limpar filtros', () => {
+    montar({ escopos: [] })
+    expect(screen.getByText('Nenhum escopo cadastrado.')).toBeInTheDocument()
+    expect(screen.queryByText('Nenhum escopo com esses filtros.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Limpar filtros' })).not.toBeInTheDocument()
   })
 
   it('a Equipe sem vínculo vê o aviso de falar com o Administrador', () => {

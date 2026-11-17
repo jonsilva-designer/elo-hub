@@ -35,3 +35,19 @@ export function jornadaMexida(etapas: LinhaEtapa[]): boolean {
     (l) => l.status !== 'Não iniciada' || l.responsavelId !== null || l.inicio !== null || l.conclusao !== null || l.observacoes !== '',
   )
 }
+
+/**
+ * Os escopos que podem ser o ciclo anterior (DF-57, CA-05.10): no cadastro, qualquer um do cliente; na edição, nem o
+ * próprio escopo nem os ciclos que vêm depois dele, que fechariam a cadeia num círculo. A ordem é a recebida.
+ */
+export function ciclosAnterioresPossiveis(
+  escopos: readonly { id: string; cicloAnteriorId: string | null }[],
+  atualId: string | null,
+): string[] {
+  const fora = new Set<string>()
+  // Anda para a frente na cadeia: o seguinte é o que aponta para o último que saiu.
+  for (let id = atualId; id && !fora.has(id); id = escopos.find((e) => e.cicloAnteriorId === id)?.id ?? null) {
+    fora.add(id)
+  }
+  return escopos.filter((e) => !fora.has(e.id)).map((e) => e.id)
+}

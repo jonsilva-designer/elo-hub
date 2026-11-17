@@ -15,6 +15,7 @@ export const MENSAGENS_ESCOPO = {
   criticidade: 'Escolha a criticidade.',
   justificativaCriticidade: 'Escreva a justificativa da criticidade.',
   data: 'Informe uma data válida.',
+  conclusaoAntes: 'A conclusão prevista não pode ser antes do início.',
   contratoFechado: 'Este contrato está fechado e não recebe escopos novos.',
 }
 
@@ -126,6 +127,11 @@ export function validarEscopo(
 
   for (const campo of ['inicio', 'conclusaoPrevista'] as const) {
     if (dados[campo] && !dataValida(dados[campo])) erros[campo] = MENSAGENS_ESCOPO.data
+  }
+  // Como o término do contrato (CA-03.3): a conclusão prevista não vem antes do início. No mesmo dia, pode.
+  const { inicio, conclusaoPrevista } = dados
+  if (!erros.inicio && !erros.conclusaoPrevista && inicio && conclusaoPrevista && conclusaoPrevista < inicio) {
+    erros.conclusaoPrevista = MENSAGENS_ESCOPO.conclusaoAntes
   }
   return erros
 }

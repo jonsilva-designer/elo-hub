@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { metadata } from '../page'
@@ -35,6 +36,15 @@ describe('editar escopo (parte 3, 5.8)', () => {
     entrarComo('usr-helena')
     render(await editar('esc-atlantica-2026'))
     expect(screen.getByRole('combobox', { name: /Ciclo anterior/ })).toHaveTextContent('Gestão do contrato portuário, ciclo 2025')
+  })
+
+  it('o ciclo seguinte não aparece entre os ciclos anteriores (CA-05.10)', async () => {
+    entrarComo('usr-helena')
+    render(await editar('esc-atlantica-2025'))
+    await userEvent.click(screen.getByRole('combobox', { name: /Ciclo anterior/ }))
+    const opcoes = (await screen.findAllByRole('option')).map((o) => o.textContent)
+    expect(opcoes).toContain('Sem ciclo anterior')
+    expect(opcoes).not.toContain('Gestão do contrato portuário, ciclo 2026')
   })
 
   it('o Rafael, vinculado, vê acesso negado; fora do vínculo ou com id que não existe, não encontrado (critério 10)', async () => {

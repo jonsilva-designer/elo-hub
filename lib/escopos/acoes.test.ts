@@ -186,6 +186,17 @@ describe('edição do escopo', () => {
     expect((await salvar({ ...EDICAO_DOCUMENTAL, cicloAnteriorId: 'esc-vertice-documental' })).valores?.cicloAnteriorId).toBe('')
   })
 
+  it('o ciclo anterior não pode ser o ciclo seguinte, que já aponta para este escopo (CA-05.10)', async () => {
+    entrarComo('usr-helena')
+    const estado = await salvar({
+      id: 'esc-atlantica-2025',
+      nome: 'Gestão do contrato portuário, ciclo 2025',
+      status: 'Concluído',
+      cicloAnteriorId: 'esc-atlantica-2026',
+    })
+    expect(estado.valores?.cicloAnteriorId).toBe('')
+  })
+
   it('o escopo Concluído não muda de status pela edição (RN-17)', async () => {
     entrarComo('usr-helena')
     const estado = await salvar({
@@ -270,6 +281,15 @@ describe('concluirEscopo e cancelarEscopo (DF-59, critério 18)', () => {
     })
   })
 
+  it('a data efetiva não pode ser antes do início do escopo', async () => {
+    entrarComo('usr-helena')
+    expect(await concluirEscopo('esc-rede-norte-rmm', '2026-04-10')).toEqual({
+      ok: false,
+      mensagem: 'A data efetiva não pode ser antes do início do escopo.',
+    })
+    expect((await concluirEscopo('esc-rede-norte-rmm', '2026-04-13')).ok).toBe(true)
+  })
+
   it('as etapas Não iniciadas não impedem concluir', async () => {
     entrarComo('usr-helena')
     expect((await concluirEscopo('esc-rede-norte-rmm', '2026-11-15')).ok).toBe(true)
@@ -319,6 +339,14 @@ describe('reabrirEscopo (RN-17, RN-22, RN-23)', () => {
     expect(await reabrirEscopo('esc-vertice-qualidade', 'Planejado', 'x')).toEqual({
       ok: false,
       mensagem: 'Só um escopo Concluído ou Cancelado pode ser reaberto.',
+    })
+  })
+
+  it('com o contrato Encerrado, recusa: o contrato é reaberto antes (RN-23)', async () => {
+    entrarComo('usr-helena')
+    expect(await reabrirEscopo('esc-ondamar-apoio', 'Em andamento', 'Novo pedido')).toEqual({
+      ok: false,
+      mensagem: 'O contrato está fechado. Reabra o contrato antes.',
     })
   })
 })

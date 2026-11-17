@@ -184,8 +184,11 @@ export function ListaEscopos({
     mudar({ ...filtros, cliente, contrato: doCliente ? filtros.contrato : null })
   }
 
+  // Sem nenhum escopo para ver, limpar os filtros não traz nada: o aviso diz que não há escopo.
   const vazio = semVinculo ? (
     <EstadoVazio titulo="Você ainda não tem clientes vinculados." descricao="Fale com o Administrador da ELO." />
+  ) : escopos.length === 0 ? (
+    <EstadoVazio titulo="Nenhum escopo cadastrado." />
   ) : (
     <EstadoVazio
       titulo="Nenhum escopo com esses filtros."

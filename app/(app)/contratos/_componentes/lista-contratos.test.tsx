@@ -79,6 +79,13 @@ describe('ListaContratos', () => {
     expect(linhas()).toHaveLength(2)
   })
 
+  it('sem nenhum contrato, diz que não há contrato cadastrado, sem limpar filtros', () => {
+    montar({ contratos: [] })
+    expect(screen.getByText('Nenhum contrato cadastrado.')).toBeInTheDocument()
+    expect(screen.queryByText('Nenhum contrato com esses filtros.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Limpar filtros' })).not.toBeInTheDocument()
+  })
+
   it('a Equipe sem vínculo vê o aviso de falar com o Administrador', () => {
     montar({ contratos: [], clientes: [], ehAdmin: false })
     expect(screen.getByText('Você ainda não tem clientes vinculados.')).toBeInTheDocument()

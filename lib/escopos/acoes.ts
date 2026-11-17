@@ -9,7 +9,7 @@ import type { EscopoDetalhado } from '@/lib/dados/tipos'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoSalvarEscopo } from './estados'
-import { CRITICIDADES, escopoFechado, PRIORIDADES, STATUS_ESCOPO_ABERTOS } from './regras'
+import { ciclosAnterioresPossiveis, CRITICIDADES, escopoFechado, PRIORIDADES, STATUS_ESCOPO_ABERTOS } from './regras'
 import { avisoDaVigencia, dataValida, lerDadosEscopo, MENSAGENS_ESCOPO, validarEscopo } from './validacao'
 
 // Ações do escopo (parte 3, 5.8 e 5.9). Só o Administrador cadastra, edita, reclassifica, conclui, cancela, reabre,
@@ -51,8 +51,10 @@ export async function salvarEscopo(_estado: EstadoSalvarEscopo, formData: FormDa
     listarResponsaveis(contrato.clienteId),
     listarEscoposDoCliente(contrato.clienteId),
   ])
-  // O ciclo anterior é outro escopo do mesmo cliente (DF-57, RN-02).
-  if (!escoposDoCliente.some((e) => e.id === dados.cicloAnteriorId && e.id !== atual?.id)) dados.cicloAnteriorId = ''
+  // O ciclo anterior é outro escopo do mesmo cliente (DF-57, RN-02), que não venha depois deste na cadeia (CA-05.10).
+  if (!ciclosAnterioresPossiveis(escoposDoCliente, atual?.id ?? null).includes(dados.cicloAnteriorId)) {
+    dados.cicloAnteriorId = ''
+  }
 
   const erros = validarEscopo(dados, { atual, responsaveisPermitidos: responsaveis.map((u) => u.id) })
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
@@ -117,6 +119,7 @@ export async function concluirEscopo(id: string, dataEfetiva: string): Promise<R
   const impedido = await fechar(escopo, 'concluir')
   if (impedido) return impedido
   if (typeof dataEfetiva !== 'string' || !dataValida(dataEfetiva)) return recusa('Informe a data efetiva de conclusão.')
+  if (escopo.inicio && dataEfetiva < escopo.inicio) return recusa('A data efetiva não pode ser antes do início do escopo.')
   return { ok: true, mensagem: mensagemDeSucesso('Escopo concluído.') }
 }
 

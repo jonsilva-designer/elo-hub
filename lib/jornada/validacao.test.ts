@@ -68,6 +68,13 @@ describe('validarEtapa (parte 3, 5.10)', () => {
       conclusao: MENSAGENS_ETAPA.data,
     })
   })
+
+  it('a conclusão da etapa não pode ser antes do início; no mesmo dia, pode', () => {
+    const concluir = (inicio: string, conclusao: string) =>
+      validar({ status: 'Concluída', inicio, conclusao }, 'Em andamento', ['Concluída'])
+    expect(concluir('2026-05-04', '2026-05-01')).toEqual({ conclusao: MENSAGENS_ETAPA.conclusaoAntes })
+    expect(concluir('2026-05-04', '2026-05-04')).toEqual({})
+  })
 })
 
 describe('lerDadosEtapa', () => {

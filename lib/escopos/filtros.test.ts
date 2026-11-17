@@ -27,7 +27,11 @@ const SEM_FILTRO: FiltrosEscopos = {
   prioridade: [],
 }
 
-const OPCOES = { clientes: ['cli-vertice', 'cli-atlantica'], contratos: ['ctr-vertice-mobilizacao'], responsaveis: ['usr-rafael'] }
+const OPCOES = {
+  clientes: ['cli-vertice', 'cli-atlantica'],
+  contratos: [{ valor: 'ctr-vertice-mobilizacao', clienteId: 'cli-vertice' }],
+  responsaveis: ['usr-rafael'],
+}
 
 async function escoposDaHelena() {
   entrarComo('usr-helena')
@@ -65,6 +69,11 @@ describe('filtros da lista de escopos (parte 3, 5.7; critério 11)', () => {
     expect(lerFiltrosEscopos(params, OPCOES)).toEqual({ ...SEM_FILTRO, criticidade: ['Alta'] })
   })
 
+  it('ignora o contrato de outro cliente, como a troca de cliente na tela', () => {
+    const params = new URLSearchParams('cliente=cli-atlantica&contrato=ctr-vertice-mobilizacao')
+    expect(lerFiltrosEscopos(params, OPCOES)).toEqual({ ...SEM_FILTRO, cliente: 'cli-atlantica' })
+  })
+
   it('busca pelo código do contrato e pelo nome, sem acento nem maiúsculas', async () => {
     const escopos = await escoposDaHelena()
     expect(filtrarEscopos(escopos, { ...SEM_FILTRO, busca: 'ct-2026-044' }).map((e) => e.nome)).toEqual([
@@ -77,7 +86,7 @@ describe('filtros da lista de escopos (parte 3, 5.7; critério 11)', () => {
 
   it('busca sem letra nem dígito conta como vazia', async () => {
     const escopos = await escoposDaHelena()
-    expect(filtrarEscopos(escopos, { ...SEM_FILTRO, busca: ' . ' })).toHaveLength(9)
+    expect(filtrarEscopos(escopos, { ...SEM_FILTRO, busca: ' . ' })).toHaveLength(10)
   })
 
   it('combina os filtros', async () => {
@@ -105,6 +114,7 @@ describe('filtros da lista de escopos (parte 3, 5.7; critério 11)', () => {
       'Gestão do contrato portuário, ciclo 2026',
       'Adequação de SSMA',
       'Gestão do contrato portuário, ciclo 2025',
+      'Apoio marítimo à Bacia de Campos',
     ])
   })
 })
@@ -113,6 +123,7 @@ describe('opções dos filtros Contrato e Responsável', () => {
   it('os contratos dos escopos, sem repetir, pelo código e depois pelo cliente', async () => {
     const contratos = contratosDosEscopos(await escoposDaHelena())
     expect(contratos.map((c) => `${c.codigo} ${c.nomeCliente}`)).toEqual([
+      'CT-2023-021 Ondamar',
       'CT-2024-008 Atlântica Portos',
       'CT-2025-031 Montareal',
       'CT-2025-031 Vértice Manutenção',
@@ -121,7 +132,7 @@ describe('opções dos filtros Contrato e Responsável', () => {
       'CT-2026-044 Vértice Manutenção',
       'PR-2026-052 Vértice Manutenção',
     ])
-    expect(contratos[0]).toEqual({
+    expect(contratos[1]).toEqual({
       valor: 'ctr-atlantica-porto',
       codigo: 'CT-2024-008',
       clienteId: 'cli-atlantica',

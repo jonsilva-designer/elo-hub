@@ -35,10 +35,10 @@ describe('lista de escopos (parte 3, 5.7)', () => {
     expect(metadata.title).toBe('Escopos | Plataforma ELO')
   })
 
-  it('a Helena vê os 9 escopos, da Crítica para a Baixa, com os fechados no fim (critérios 1 e 11)', async () => {
+  it('a Helena vê os 10 escopos, da Crítica para a Baixa, com os fechados no fim (critérios 1 e 11)', async () => {
     entrarComo('usr-helena')
     const { container } = await renderizar()
-    expect(container.querySelector('header')).toHaveTextContent('9 escopos')
+    expect(container.querySelector('header')).toHaveTextContent('10 escopos')
     expect(nomes()).toEqual([
       'Mobilização de equipe',
       'Implantação do monitoramento remoto',
@@ -49,6 +49,7 @@ describe('lista de escopos (parte 3, 5.7)', () => {
       'Gestão do contrato portuário, ciclo 2026',
       'Adequação de SSMA',
       'Gestão do contrato portuário, ciclo 2025',
+      'Apoio marítimo à Bacia de Campos',
     ])
   })
 

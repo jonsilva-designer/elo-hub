@@ -53,6 +53,14 @@ describe('validarEscopo (parte 3, 5.8; critério 13)', () => {
     })
   })
 
+  it('a conclusão prevista não pode ser antes do início; no mesmo dia, pode', () => {
+    expect(validar({ inicio: '2026-03-10', conclusaoPrevista: '2026-03-09' })).toEqual({
+      conclusaoPrevista: MENSAGENS_ESCOPO.conclusaoAntes,
+    })
+    expect(validar({ inicio: '2026-03-10', conclusaoPrevista: '2026-03-10' })).toEqual({})
+    expect(validar({ inicio: '', conclusaoPrevista: '2026-03-09' })).toEqual({})
+  })
+
   it('na edição, a criticidade não é conferida: muda só por Reclassificar', () => {
     expect(validar({ criticidade: '', justificativaCriticidade: '' }, atual('Planejado'))).toEqual({})
   })

@@ -11,6 +11,7 @@ export const MENSAGENS_ETAPA = {
   responsavelSemVinculo: 'O responsável precisa ter vínculo com o cliente.',
   data: 'Informe uma data válida.',
   conclusao: 'Informe a data de conclusão.',
+  conclusaoAntes: 'A conclusão não pode ser antes do início.',
   justificativa: 'Escreva a justificativa da mudança.',
   justificativaReabertura: 'Escreva a justificativa da reabertura.',
   fechado: 'As etapas não mudam com o escopo fechado.',
@@ -80,6 +81,10 @@ export function validarEtapa(
   }
   // Concluir pede a data de conclusão (CA-06.3).
   if (novo === 'Concluída' && !dados.conclusao) erros.conclusao = MENSAGENS_ETAPA.conclusao
+  // Como o término do contrato (CA-03.3): a conclusão não vem antes do início. No mesmo dia, pode.
+  if (!erros.inicio && !erros.conclusao && dados.inicio && dados.conclusao && dados.conclusao < dados.inicio) {
+    erros.conclusao = MENSAGENS_ETAPA.conclusaoAntes
+  }
 
   // A reabertura de uma Concluída e as correções pedem justificativa (RN-22).
   if (!erros.status && etapaPedeJustificativa(atual.status, novo) && !dados.justificativa) {

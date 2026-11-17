@@ -26,7 +26,7 @@ export async function ConteudoEscopos({ searchParams }: { searchParams: Promise<
       clientes={opcoesDeCliente}
       filtrosIniciais={lerFiltrosEscopos(paramsDaBusca(busca), {
         clientes: opcoesDeCliente.map((c) => c.valor),
-        contratos: contratosDosEscopos(escopos).map((c) => c.valor),
+        contratos: contratosDosEscopos(escopos),
         responsaveis: responsaveisDosEscopos(escopos).map((r) => r.valor),
       })}
       semVinculo={!ehAdmin(usuario) && opcoesDeCliente.length === 0}

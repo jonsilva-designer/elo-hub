@@ -75,6 +75,7 @@ const ENTRADAS = [
   escopo('esc-vertice-mobilizacao', '2026-03-02T09:00:00-03:00', 'usr-helena', 'Contrato', 'CT-2025-031', 'CT-2026-044'),
   escopo('esc-atlantica-ssma', '2026-03-26T10:00:00-03:00', 'usr-helena', 'Escopo criado'),
   escopo('esc-rede-norte-rmm', '2026-04-09T10:30:00-03:00', 'usr-helena', 'Escopo criado'),
+  escopo('esc-ondamar-apoio', '2026-06-02T09:30:00-03:00', 'usr-helena', 'Escopo criado'),
   escopo('esc-vertice-documental', '2026-04-30T16:00:00-03:00', 'usr-rafael', 'Etapa Diagnosticar', 'Em andamento', 'Concluída'),
   escopo('esc-atlantica-ssma', '2026-09-15T11:30:00-03:00', 'usr-helena', 'Status do escopo', 'Em andamento', 'Cancelado'),
   escopo(

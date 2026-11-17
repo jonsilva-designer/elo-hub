@@ -27,15 +27,20 @@ function lista<T extends string>(texto: string | null, permitidos: readonly T[])
 
 const umDe = (texto: string | null, permitidos: readonly string[]) => (texto && permitidos.includes(texto) ? texto : null)
 
-/** Os filtros do endereço. O que não está nas opções é ignorado. */
+/**
+ * Os filtros do endereço. O que não está nas opções é ignorado, e o contrato de outro cliente também, como na troca
+ * de cliente na tela: o filtro Contrato só oferece os contratos do cliente escolhido.
+ */
 export function lerFiltrosEscopos(
   params: URLSearchParams,
-  opcoes: { clientes: string[]; contratos: string[]; responsaveis: string[] },
+  opcoes: { clientes: string[]; contratos: { valor: string; clienteId: string }[]; responsaveis: string[] },
 ): FiltrosEscopos {
+  const cliente = umDe(params.get('cliente'), opcoes.clientes)
+  const doCliente = opcoes.contratos.filter((c) => !cliente || c.clienteId === cliente).map((c) => c.valor)
   return {
     busca: params.get('busca') ?? '',
-    cliente: umDe(params.get('cliente'), opcoes.clientes),
-    contrato: umDe(params.get('contrato'), opcoes.contratos),
+    cliente,
+    contrato: umDe(params.get('contrato'), doCliente),
     responsavel: umDe(params.get('responsavel'), opcoes.responsaveis),
     status: lista(params.get('status'), STATUS_ESCOPO),
     criticidade: lista(params.get('criticidade'), CRITICIDADES),

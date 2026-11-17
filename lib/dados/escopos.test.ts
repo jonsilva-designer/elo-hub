@@ -88,9 +88,9 @@ describe('data de hoje na requisição (cacheComponents)', () => {
 })
 
 describe('listarEscopos e listarEscoposDoCliente (RN-01, critério 1)', () => {
-  it('o Administrador vê os 9 escopos; a Equipe, só os dos clientes vinculados', async () => {
+  it('o Administrador vê os 10 escopos; a Equipe, só os dos clientes vinculados', async () => {
     entrarComo('usr-helena')
-    expect(await listarEscopos()).toHaveLength(9)
+    expect(await listarEscopos()).toHaveLength(10)
     entrarComo('usr-rafael')
     const doRafael = await listarEscopos()
     expect(doRafael).toHaveLength(8)
