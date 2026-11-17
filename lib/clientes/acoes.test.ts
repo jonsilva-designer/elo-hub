@@ -84,6 +84,10 @@ describe('inativar, reativar e excluir (RN-18, DF-33, matriz 4.3)', () => {
       '/contratos/ctr-vertice-manutencao',
       '/contratos/ctr-vertice-mobilizacao',
       '/contratos/ctr-vertice-proposta',
+      '/central/ELO-2026-0003',
+      '/central/ELO-2026-0006',
+      '/central/ELO-2026-0009',
+      '/central/ELO-2026-0010',
     ])
   })
 

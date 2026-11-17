@@ -1,3 +1,4 @@
+import { demandasQueImpedem, temDemandaLigada } from './demandas'
 import { contratoFechado } from '@/lib/contratos/regras'
 import { formatarData } from '@/lib/formato'
 import { AVALIACOES } from './mock/avaliacoes'
@@ -44,7 +45,7 @@ const nomeDoUsuario = (id: string) => USUARIOS.find((u) => u.id === id)?.nome ??
 
 /**
  * Os itens abertos ligados ao cliente, que impedem inativá-lo (RN-18, CA-18.3): as avaliações Em elaboração e
- * os contratos que não estão Encerrados nem Cancelados. A parte 5 acrescenta as demandas.
+ * os contratos que não estão Encerrados nem Cancelados e as demandas abertas (parte 5).
  */
 export async function itensQueImpedemInativar(clienteId: string): Promise<ItemQueImpede[]> {
   const usuario = await obterUsuarioAtual()
@@ -63,12 +64,16 @@ export async function itensQueImpedemInativar(clienteId: string): Promise<ItemQu
     responsavel: nomeDoUsuario(c.responsavelId),
     href: `/contratos/${c.id}`,
   }))
-  return [...avaliacoes, ...contratos]
+  return [...avaliacoes, ...contratos, ...(await demandasQueImpedem({ clienteId }))]
 }
 
-/** Se o cliente tem algum registro ligado, o que impede excluí-lo (DF-33): avaliações e contratos. */
+/** Se o cliente tem algum registro ligado, o que impede excluí-lo (DF-33): avaliações, contratos e demandas. */
 export async function temItensLigados(clienteId: string): Promise<boolean> {
   const usuario = await obterUsuarioAtual()
   if (!podeVerCliente(usuario, clienteId, VINCULOS)) return false
-  return AVALIACOES.some((a) => a.clienteId === clienteId) || CONTRATOS.some((c) => c.clienteId === clienteId)
+  return (
+    AVALIACOES.some((a) => a.clienteId === clienteId) ||
+    CONTRATOS.some((c) => c.clienteId === clienteId) ||
+    (await temDemandaLigada({ clienteId }))
+  )
 }

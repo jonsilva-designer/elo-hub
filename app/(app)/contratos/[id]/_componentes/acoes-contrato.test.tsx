@@ -99,7 +99,7 @@ describe('AcoesContrato (parte 3, 5.6)', () => {
     await escolher('Encerrar')
     const janela = within(await screen.findByRole('alertdialog'))
     expect(janela.getByRole('heading', { name: 'Não é possível encerrar' })).toBeInTheDocument()
-    expect(janela.getByText('Não é possível encerrar este contrato enquanto houver escopos abertos.')).toBeInTheDocument()
+    expect(janela.getByText('Não é possível encerrar este contrato enquanto houver escopos ou demandas abertos.')).toBeInTheDocument()
     expect(janela.getByRole('link', { name: /Regularização documental/ })).toHaveAttribute('href', '/escopos/esc-vertice-documental')
     expect(janela.getAllByRole('button').map((b) => b.textContent)).toEqual(['Fechar'])
   })

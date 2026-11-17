@@ -86,7 +86,7 @@ describe('AcoesEscopo (parte 3, 5.9)', () => {
     const janela = await escolher('Concluir')
     expect(janela.getByRole('heading', { name: 'Não é possível concluir' })).toBeInTheDocument()
     expect(
-      janela.getByText('Não é possível concluir este escopo enquanto houver etapas Em andamento ou planos abertos.'),
+      janela.getByText('Não é possível concluir este escopo enquanto houver etapas Em andamento, planos ou demandas abertos.'),
     ).toBeInTheDocument()
     expect(janela.getByRole('link', { name: /Estruturar/ })).toHaveAttribute('href', '/escopos/esc-vertice-documental')
     expect(janela.getAllByRole('button').map((b) => b.textContent)).toEqual(['Fechar'])

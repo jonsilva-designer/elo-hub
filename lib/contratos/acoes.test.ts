@@ -165,8 +165,13 @@ describe('encerrar, cancelar, reabrir e excluir (critérios 7, 8 e 9, RN-17, RN-
     entrarComo('usr-helena')
     const r = await encerrarContrato('ctr-vertice-manutencao')
     expect(r.ok).toBe(false)
-    expect(r.mensagem).toBe('Não é possível encerrar este contrato enquanto houver escopos abertos.')
-    expect(r.ok === false && r.impedimentos?.map((i) => i.descricao)).toEqual(['Regularização documental', 'Programa de qualidade'])
+    expect(r.mensagem).toBe('Não é possível encerrar este contrato enquanto houver escopos ou demandas abertos.')
+    expect(r.ok === false && r.impedimentos?.map((i) => i.descricao)).toEqual([
+      'Regularização documental',
+      'Programa de qualidade',
+      'ELO-2026-0003 · Certidões vencidas antes da medição',
+      'ELO-2026-0009 · Modelo de relatório para o contratante',
+    ])
   })
 
   it('encerrar sem escopos abertos passa; fora de Ativo e Suspenso, não', async () => {
@@ -180,7 +185,7 @@ describe('encerrar, cancelar, reabrir e excluir (critérios 7, 8 e 9, RN-17, RN-
     entrarComo('usr-helena')
     expect(await cancelarContrato('ctr-rede-norte-glpi')).toEqual({ ok: true, mensagem: `Contrato cancelado. ${NAO_GRAVA}` })
     const r = await cancelarContrato('ctr-vertice-proposta')
-    expect(r.mensagem).toBe('Não é possível cancelar este contrato enquanto houver escopos abertos.')
+    expect(r.mensagem).toBe('Não é possível cancelar este contrato enquanto houver escopos ou demandas abertos.')
     expect(r.ok === false && r.impedimentos?.map((i) => i.descricao)).toEqual(['Diagnóstico para nova proposta'])
     expect((await cancelarContrato('ctr-vertice-manutencao')).mensagem).toBe(
       'Só um contrato em Proposta ou Em contratação pode ser cancelado.',

@@ -1,6 +1,7 @@
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { escopoFechado } from '@/lib/escopos/regras'
 import { mesmoEmail } from '@/lib/especialistas/regras'
+import { demandasDoEspecialista, temDemandaLigada } from './demandas'
 import { CLIENTES } from './mock/clientes'
 import { ESCOPOS } from './mock/escopos'
 import { ESPECIALISTAS } from './mock/especialistas'
@@ -44,24 +45,35 @@ export async function listarEspecialistasAtivos(): Promise<EspecialistaDetalhado
 }
 
 /**
- * Os escopos ligados ao especialista, só dos clientes que o usuário vê (CA-11.4). As demandas entram no plano 5B.
- * O vínculo antigo com o especialista inativado continua aparecendo (DF-51).
+ * Os escopos e as demandas ligados ao especialista, só dos clientes que o usuário vê (CA-11.4). O vínculo antigo com
+ * o especialista inativado continua aparecendo (DF-51).
  */
 export async function ligacoesDoEspecialista(
   id: string,
-): Promise<{ tipo: 'Escopo'; id: string; nome: string; cliente: string; status: string; href: string }[]> {
+): Promise<{ tipo: 'Escopo' | 'Demanda'; id: string; nome: string; cliente: string; status: string; href: string }[]> {
   const usuario = await obterUsuarioAtual()
-  return ESCOPOS.filter((e) => e.especialistaIds.includes(id) && podeVerCliente(usuario, e.clienteId, VINCULOS)).map((e) => {
-    const cliente = CLIENTES.find((c) => c.id === e.clienteId)
-    return {
-      tipo: 'Escopo' as const,
-      id: e.id,
-      nome: e.nome,
-      cliente: cliente ? nomeDoCliente(cliente) : '',
-      status: e.status,
-      href: `/escopos/${e.id}`,
-    }
-  })
+  const escopos = ESCOPOS.filter((e) => e.especialistaIds.includes(id) && podeVerCliente(usuario, e.clienteId, VINCULOS)).map(
+    (e) => {
+      const cliente = CLIENTES.find((c) => c.id === e.clienteId)
+      return {
+        tipo: 'Escopo' as const,
+        id: e.id,
+        nome: e.nome,
+        cliente: cliente ? nomeDoCliente(cliente) : '',
+        status: e.status,
+        href: `/escopos/${e.id}`,
+      }
+    },
+  )
+  const demandas = (await demandasDoEspecialista(id)).map((d) => ({
+    tipo: 'Demanda' as const,
+    id: d.numero,
+    nome: `${d.numero} · ${d.assunto}`,
+    cliente: d.nomeCliente,
+    status: d.status,
+    href: `/central/${d.numero}`,
+  }))
+  return [...escopos, ...demandas]
 }
 
 /** As outras candidaturas e cadastros com o mesmo e-mail, pela data (DF-50, CA-11.6). */
@@ -76,12 +88,12 @@ export async function candidaturasComOMesmoEmail(
 }
 
 /**
- * O especialista tem vínculos e não pode ser excluído (RN-13, DF-33): algum escopo, de qualquer cliente. Conta
+ * O especialista tem vínculos e não pode ser excluído (RN-13, DF-33): algum escopo ou demanda, de qualquer cliente. Conta
  * também o que o usuário não vê, porque a exclusão apagaria o vínculo de outros clientes; não revela quais são.
  */
 export async function especialistaTemItensLigados(id: string): Promise<boolean> {
   await obterUsuarioAtual()
-  return ESCOPOS.some((e) => e.especialistaIds.includes(id))
+  return ESCOPOS.some((e) => e.especialistaIds.includes(id)) || (await temDemandaLigada({ especialistaId: id }))
 }
 
 /** O especialista está ligado a algum escopo aberto, de qualquer cliente: ao inativá-lo, o vínculo fica para troca (DF-51). */

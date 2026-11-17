@@ -13,7 +13,8 @@ import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico
 import { Button } from '@/components/ui/button'
 import { contratoFechado, ehPlanejamento } from '@/lib/contratos/regras'
 import { contratoTemItensLigados, obterContrato } from '@/lib/dados/contratos'
-import { escoposQueImpedemFechar, listarEscoposDoContrato } from '@/lib/dados/escopos'
+import { listarEscoposDoContrato } from '@/lib/dados/escopos'
+import { impedimentosDoContrato } from '@/lib/dados/impedimentos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -66,7 +67,7 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
   const admin = ehAdmin(usuario)
   // Encerrar, cancelar, reabrir e excluir: só o Administrador. Os escopos abertos impedem fechar (RN-18).
   const [impedimentos, ligados] = admin
-    ? await Promise.all([escoposQueImpedemFechar(contrato.id), contratoTemItensLigados(contrato.id)])
+    ? await Promise.all([impedimentosDoContrato(contrato.id), contratoTemItensLigados(contrato.id)])
     : [[], true]
 
   return (

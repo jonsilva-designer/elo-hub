@@ -285,11 +285,13 @@ describe('concluirEscopo e cancelarEscopo (DF-59, critério 18)', () => {
     const resultado = await concluirEscopo('esc-vertice-documental', '2026-11-15')
     expect(resultado).toMatchObject({
       ok: false,
-      mensagem: 'Não é possível concluir este escopo enquanto houver etapas Em andamento ou planos abertos.',
+      mensagem: 'Não é possível concluir este escopo enquanto houver etapas Em andamento, planos ou demandas abertos.',
     })
     expect(resultado.ok ? [] : resultado.impedimentos?.map((i) => i.descricao)).toEqual([
       'Estruturar',
       'Regularização das licenças',
+      'ELO-2026-0003 · Certidões vencidas antes da medição',
+      'ELO-2026-0009 · Modelo de relatório para o contratante',
     ])
   })
 
@@ -323,9 +325,13 @@ describe('concluirEscopo e cancelarEscopo (DF-59, critério 18)', () => {
     const cancelar = await cancelarEscopo('esc-vertice-mobilizacao')
     expect(cancelar).toMatchObject({
       ok: false,
-      mensagem: 'Não é possível cancelar este escopo enquanto houver etapas Em andamento ou planos abertos.',
+      mensagem: 'Não é possível cancelar este escopo enquanto houver etapas Em andamento, planos ou demandas abertos.',
     })
-    expect(cancelar.ok ? [] : cancelar.impedimentos?.map((i) => i.tipo)).toEqual(['Etapa da Jornada', 'Plano de ação'])
+    expect(cancelar.ok ? [] : cancelar.impedimentos?.map((i) => i.tipo)).toEqual([
+      'Etapa da Jornada',
+      'Plano de ação',
+      'Demanda',
+    ])
     expect(await cancelarEscopo('esc-vertice-qualidade')).toEqual({
       ok: true,
       mensagem: 'Escopo cancelado. No protótipo, os dados não são gravados.',

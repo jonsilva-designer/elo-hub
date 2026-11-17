@@ -81,6 +81,10 @@ describe('itensQueImpedemInativar (RN-18, CA-18.3)', () => {
       '/contratos/ctr-vertice-manutencao',
       '/contratos/ctr-vertice-mobilizacao',
       '/contratos/ctr-vertice-proposta',
+      '/central/ELO-2026-0003',
+      '/central/ELO-2026-0006',
+      '/central/ELO-2026-0009',
+      '/central/ELO-2026-0010',
     ])
     expect(itens[1]).toEqual({
       tipo: 'Contrato',
@@ -98,9 +102,10 @@ describe('itensQueImpedemInativar (RN-18, CA-18.3)', () => {
 })
 
 describe('temItensLigados (DF-33)', () => {
-  it('verdadeiro para quem tem avaliação ou contrato, falso para os outros', async () => {
+  it('verdadeiro para quem tem avaliação, contrato ou demanda, falso para os outros', async () => {
     entrarComo('usr-helena')
-    for (const id of ['cli-vertice', 'cli-atlantica', 'cli-fortec']) expect(await temItensLigados(id), id).toBe(true)
-    for (const id of ['cli-limpar', 'cli-elo']) expect(await temItensLigados(id), id).toBe(false)
+    // O cadastro da ELO tem a demanda institucional desde a parte 5 (DF-40).
+    for (const id of ['cli-vertice', 'cli-atlantica', 'cli-fortec', 'cli-elo']) expect(await temItensLigados(id), id).toBe(true)
+    expect(await temItensLigados('cli-limpar')).toBe(false)
   })
 })

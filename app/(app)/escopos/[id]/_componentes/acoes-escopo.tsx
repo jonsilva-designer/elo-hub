@@ -53,7 +53,7 @@ export function AcoesEscopo({
   podeExcluir,
 }: {
   escopo: EscopoDetalhado
-  /** As etapas Em andamento e os planos abertos, que impedem concluir e cancelar (RN-18, DF-59). */
+  /** As etapas Em andamento, os planos e as demandas abertos, que impedem concluir e cancelar (RN-18, DF-59). */
   impedimentos: ItemQueImpede[]
   /** Os outros contratos abertos do cliente, na ordem da lista (DF-45). */
   contratosDestino: { valor: string; codigo: string; contratante: string }[]
@@ -142,7 +142,7 @@ export function AcoesEscopo({
           <ConfirmarAcao
             key={qual}
             titulo={`Não é possível ${qual}`}
-            descricao={`Não é possível ${qual} este escopo enquanto houver etapas Em andamento ou planos abertos.`}
+            descricao={`Não é possível ${qual} este escopo enquanto houver etapas Em andamento, planos ou demandas abertos.`}
             rotuloConfirmar={qual === 'concluir' ? 'Concluir' : 'Cancelar escopo'}
             bloqueado
             onConfirmar={() => {}}

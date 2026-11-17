@@ -129,7 +129,7 @@ export function AcoesContrato({
           <ConfirmarAcao
             key={qual}
             titulo={`Não é possível ${verbo}`}
-            descricao={`Não é possível ${verbo} este contrato enquanto houver escopos abertos.`}
+            descricao={`Não é possível ${verbo} este contrato enquanto houver escopos ou demandas abertos.`}
             rotuloConfirmar={encerrar ? 'Encerrar' : 'Cancelar contrato'}
             bloqueado
             onConfirmar={() => {}}

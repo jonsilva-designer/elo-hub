@@ -123,16 +123,28 @@ describe('página do cliente (parte 2, 5.6)', () => {
     expect(screen.queryByRole('link', { name: 'Nova avaliação' })).not.toBeInTheDocument()
   })
 
-  it('as abas de demandas e documentos mostram o vazio da tela', async () => {
+  it('a aba Demandas lista as demandas do cliente, com a vencida marcada (parte 5, 5.12)', async () => {
+    entrarComo('usr-rafael')
+    await abrir('cli-vertice', { aba: 'demandas' })
+    const linha = screen.getByText('ELO-2026-0003').closest('tr')!
+    expect(linha).toHaveTextContent('Certidões vencidas antes da medição')
+    expect(within(linha).getByText('Vencida')).toBeInTheDocument()
+    expect(screen.getByText('ELO-2026-0010')).toBeInTheDocument()
+  })
+
+  it('o cadastro da ELO mostra a demanda institucional; sem demanda, o vazio (DF-40)', async () => {
     entrarComo('usr-helena')
-    for (const [aba, texto] of [
-      ['demandas', 'Nenhuma demanda deste cliente.'],
-      ['documentos', 'Nenhum documento deste cliente.'],
-    ]) {
-      const { unmount } = await abrir('cli-vertice', { aba })
-      expect(screen.getByText(texto)).toBeInTheDocument()
-      unmount()
-    }
+    const { unmount } = await abrir('cli-elo', { aba: 'demandas' })
+    expect(screen.getByText('ELO-2026-0007')).toBeInTheDocument()
+    unmount()
+    await abrir('cli-limpar', { aba: 'demandas' })
+    expect(screen.getByText('Nenhuma demanda deste cliente.')).toBeInTheDocument()
+  })
+
+  it('a aba de documentos mostra o vazio da tela', async () => {
+    entrarComo('usr-helena')
+    await abrir('cli-vertice', { aba: 'documentos' })
+    expect(screen.getByText('Nenhum documento deste cliente.')).toBeInTheDocument()
   })
 
   it('a aba Contratos lista os contratos do cliente, com Novo contrato (parte 3, 5.11)', async () => {

@@ -1,6 +1,7 @@
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { vigenciaDoContrato } from '@/lib/contratos/vigencia'
 import { somarDias } from '@/lib/formato'
+import { temDemandaLigada } from './demandas'
 import { hojeDaRequisicao } from './hoje'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS, type ContratoFicticio } from './mock/contratos'
@@ -68,5 +69,5 @@ export async function contratoTemItensLigados(id: string): Promise<boolean> {
   const usuario = await obterUsuarioAtual()
   const contrato = CONTRATOS.find((c) => c.id === id)
   if (!contrato || !podeVerCliente(usuario, contrato.clienteId, VINCULOS)) return false
-  return ESCOPOS.some((e) => e.contratoId === id)
+  return ESCOPOS.some((e) => e.contratoId === id) || (await temDemandaLigada({ contratoId: id }))
 }

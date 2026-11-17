@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { abasDoCliente, abaValida, ROTULOS_DAS_ABAS, type AbaCliente } from '@/lib/clientes/abas'
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { formatarCnpj } from '@/lib/cnpj'
+import { listarDemandasDoCliente } from '@/lib/dados/demandas'
 import { itensQueImpedemInativar, obterCliente, temItensLigados } from '@/lib/dados/clientes'
 import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { listarEscoposDoCliente } from '@/lib/dados/escopos'
@@ -19,6 +20,7 @@ import { listarAvaliacoesDoCliente } from '@/lib/dados/maturidade'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { maturidadeDoCliente } from '@/lib/maturidade/regras'
+import { TabelaDemandas } from '../../../central/_componentes/tabela-demandas'
 import { VoltarParaClientes } from '../../_componentes/voltar-para-clientes'
 import { AbaContratos } from './aba-contratos'
 import { AbaEscopos } from './aba-escopos'
@@ -48,11 +50,12 @@ export async function ConteudoCliente({
   if (!cliente) notFound()
 
   // O cadastro da ELO não tem maturidade, contratos nem escopos (DF-40).
-  const [avaliacoes, contratos, escopos, historico] = await Promise.all([
+  const [avaliacoes, contratos, escopos, historico, demandas] = await Promise.all([
     cliente.ehCadastroElo ? Promise.resolve([]) : listarAvaliacoesDoCliente(cliente.id),
     cliente.ehCadastroElo ? Promise.resolve([]) : listarContratosDoCliente(cliente.id),
     cliente.ehCadastroElo ? Promise.resolve([]) : listarEscoposDoCliente(cliente.id),
     listarHistorico('cliente', cliente.id),
+    listarDemandasDoCliente(cliente.id),
   ])
   const comparacao = maturidadeDoCliente(avaliacoes)
   const admin = ehAdmin(usuario)
@@ -67,7 +70,7 @@ export async function ConteudoCliente({
     maturidade: <AbaMaturidade cliente={cliente} avaliacoes={avaliacoes} comparacao={comparacao} />,
     contratos: <AbaContratos cliente={cliente} contratos={contratos} ehAdmin={admin} />,
     escopos: <AbaEscopos escopos={escopos} />,
-    demandas: <EstadoVazio titulo="Nenhuma demanda deste cliente." />,
+    demandas: <TabelaDemandas demandas={demandas} vazio={<EstadoVazio titulo="Nenhuma demanda deste cliente." />} />,
     documentos: <EstadoVazio titulo="Nenhum documento deste cliente." />,
     historico: <PainelHistorico entradas={historico} />,
   }

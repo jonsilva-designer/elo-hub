@@ -2,7 +2,7 @@
 
 import { listarClientes, obterCliente } from '@/lib/dados/clientes'
 import { contratoTemItensLigados, listarContratosDoCliente, obterContrato } from '@/lib/dados/contratos'
-import { escoposQueImpedemFechar } from '@/lib/dados/escopos'
+import { impedimentosDoContrato } from '@/lib/dados/impedimentos'
 import { listarContratantes, listarServicos } from '@/lib/dados/listas'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -81,11 +81,11 @@ const ehRecusa = (x: ContratoDetalhado | ResultadoAcao): x is ResultadoAcao => '
 
 /** Encerrar ou cancelar: recusado enquanto houver escopos abertos, com a lista deles (RN-18, CA-18.3). */
 async function fechar(contrato: ContratoDetalhado, verbo: 'encerrar' | 'cancelar', sucesso: string): Promise<ResultadoAcao> {
-  const impedimentos = await escoposQueImpedemFechar(contrato.id)
+  const impedimentos = await impedimentosDoContrato(contrato.id)
   if (impedimentos.length > 0) {
     return {
       ok: false,
-      mensagem: `Não é possível ${verbo} este contrato enquanto houver escopos abertos.`,
+      mensagem: `Não é possível ${verbo} este contrato enquanto houver escopos ou demandas abertos.`,
       impedimentos,
     }
   }

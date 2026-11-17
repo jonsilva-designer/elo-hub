@@ -10,6 +10,7 @@ import { ESPECIALISTAS } from './mock/especialistas'
 import { PLANOS } from './mock/planos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
 import { podeVerCliente } from './regras'
+import { temDemandaLigada } from './demandas'
 import { hojeDaRequisicao } from './hoje'
 import { obterUsuarioAtual } from './sessao'
 import type { EscopoDetalhado, ItemQueImpede } from './tipos'
@@ -103,5 +104,6 @@ export async function etapasQueImpedemFechar(escopoId: string): Promise<ItemQueI
  */
 export async function escopoTemItensLigados(id: string): Promise<boolean> {
   const escopo = await obterEscopo(id)
-  return escopo ? jornadaMexida(escopo.etapas) || PLANOS.some((p) => p.escopoId === id) : false
+  if (!escopo) return false
+  return jornadaMexida(escopo.etapas) || PLANOS.some((p) => p.escopoId === id) || (await temDemandaLigada({ escopoId: id }))
 }

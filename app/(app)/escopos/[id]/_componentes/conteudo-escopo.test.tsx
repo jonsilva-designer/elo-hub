@@ -153,11 +153,20 @@ describe('página do escopo (parte 3, 5.9)', () => {
     expect(painel('Especialistas').getByText('Nenhum especialista vinculado.')).toBeInTheDocument()
   })
 
-  it('os painéis das próximas partes ficam vazios', async () => {
+  it('as demandas do escopo, e o vazio no escopo sem demanda (parte 5, 5.12)', async () => {
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('esc-vertice-documental')
+    expect(painel('Demandas').getByText('ELO-2026-0003')).toBeInTheDocument()
+    expect(painel('Demandas').getByText('ELO-2026-0009')).toBeInTheDocument()
+    unmount()
+    await abrir('esc-vertice-qualidade')
+    expect(painel('Demandas').getByText('Nenhuma demanda ligada a este escopo.')).toBeInTheDocument()
+  })
+
+  it('o painel de documentos fica vazio', async () => {
     entrarComo('usr-helena')
     await abrir('esc-vertice-documental')
     expect(painel('Documentos').getByText('Nenhum documento ligado a este escopo.')).toBeInTheDocument()
-    expect(painel('Demandas').getByText('Nenhuma demanda ligada a este escopo.')).toBeInTheDocument()
   })
 
   it('o Histórico traz a justificativa da criticidade e a linha de autoria', async () => {

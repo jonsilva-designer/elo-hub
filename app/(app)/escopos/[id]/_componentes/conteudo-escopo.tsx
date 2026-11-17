@@ -15,9 +15,11 @@ import { Button } from '@/components/ui/button'
 import { opcoesDeContrato } from '@/lib/contratos/filtros'
 import { contratoFechado } from '@/lib/contratos/regras'
 import { listarContratosDoCliente } from '@/lib/dados/contratos'
-import { escopoTemItensLigados, etapasQueImpedemFechar, obterEscopo } from '@/lib/dados/escopos'
+import { escopoTemItensLigados, obterEscopo } from '@/lib/dados/escopos'
+import { impedimentosDoEscopo } from '@/lib/dados/impedimentos'
+import { listarDemandasDoEscopo } from '@/lib/dados/demandas'
 import { listarHistorico } from '@/lib/dados/historico'
-import { listarPlanosDoEscopo, planosQueImpedemFechar } from '@/lib/dados/planos'
+import { listarPlanosDoEscopo } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { EscopoDetalhado, EtapaJornada, Usuario } from '@/lib/dados/tipos'
@@ -25,6 +27,7 @@ import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { escopoFechado } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
 import { mudancasDaEtapa, podeAtualizarEtapa } from '@/lib/jornada/regras'
+import { TabelaDemandas } from '../../../central/_componentes/tabela-demandas'
 import { TabelaPlanos } from '../../../planos/_componentes/tabela-planos'
 import { VoltarParaEscopos } from '../../_componentes/voltar-para-escopos'
 import { AcoesEscopo } from './acoes-escopo'
@@ -119,14 +122,13 @@ async function acoesDaJornada(escopo: EscopoDetalhado, usuario: Usuario): Promis
  * ele pode ser movido (DF-45).
  */
 async function dadosDoMenu(escopo: EscopoDetalhado) {
-  const [etapas, planos, ligados, contratos] = await Promise.all([
-    etapasQueImpedemFechar(escopo.id),
-    planosQueImpedemFechar(escopo.id),
+  const [impedimentos, ligados, contratos] = await Promise.all([
+    impedimentosDoEscopo(escopo.id),
     escopoTemItensLigados(escopo.id),
     listarContratosDoCliente(escopo.clienteId),
   ])
   const destinos = contratos.filter((c) => c.id !== escopo.contratoId && !contratoFechado(c.status))
-  return { impedimentos: [...etapas, ...planos], contratosDestino: opcoesDeContrato(destinos), podeExcluir: !ligados }
+  return { impedimentos, contratosDestino: opcoesDeContrato(destinos), podeExcluir: !ligados }
 }
 
 /** "Novo plano", para o Administrador e a Equipe vinculada; bloqueado no escopo fechado (RN-23). */
@@ -159,11 +161,12 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
   const [usuario, escopo] = await Promise.all([obterUsuarioAtual(), obterEscopo(id)])
   if (!escopo) notFound()
   const admin = ehAdmin(usuario)
-  const [historico, acoes, menu, planos] = await Promise.all([
+  const [historico, acoes, menu, planos, demandas] = await Promise.all([
     listarHistorico('escopo', escopo.id),
     acoesDaJornada(escopo, usuario),
     admin ? dadosDoMenu(escopo) : null,
     listarPlanosDoEscopo(escopo.id),
+    listarDemandasDoEscopo(escopo.id),
   ])
 
   return (
@@ -251,8 +254,8 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
         <Painel titulo="Documentos">
           <EstadoVazio titulo="Nenhum documento ligado a este escopo." />
         </Painel>
-        <Painel titulo="Demandas">
-          <EstadoVazio titulo="Nenhuma demanda ligada a este escopo." />
+        <Painel titulo="Demandas" semRespiro>
+          <TabelaDemandas demandas={demandas} vazio={<EstadoVazio titulo="Nenhuma demanda ligada a este escopo." />} />
         </Painel>
         <PainelHistorico entradas={historico} />
         <LinhaAutoria entradas={historico} />

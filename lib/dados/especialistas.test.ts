@@ -57,9 +57,10 @@ describe('leitura dos especialistas (F11, DF-02)', () => {
     expect((await ligacoesDoEspecialista('esp-juridico')).map((l) => l.id)).toEqual([
       'esc-vertice-documental',
       'esc-montareal-montagem',
+      'ELO-2026-0003',
     ])
     entrarComo('usr-rafael')
-    const doRafael = await ligacoesDoEspecialista('esp-juridico')
+    const doRafael = (await ligacoesDoEspecialista('esp-juridico')).filter((l) => l.tipo === 'Escopo')
     expect(doRafael).toEqual([
       {
         tipo: 'Escopo',
@@ -96,5 +97,22 @@ describe('leitura dos especialistas (F11, DF-02)', () => {
       'ESG e sustentabilidade',
       'Gestão e desenvolvimento de fornecedores',
     ])
+  })
+})
+
+describe('as demandas nas ligações do especialista (parte 5B, CA-11.4)', () => {
+  it('o jurídico tem a demanda ELO-2026-0003; o ESG também, e passa a ter vínculo', async () => {
+    entrarComo('usr-rafael')
+    expect(await ligacoesDoEspecialista('esp-esg')).toEqual([
+      {
+        tipo: 'Demanda',
+        id: 'ELO-2026-0003',
+        nome: 'ELO-2026-0003 · Certidões vencidas antes da medição',
+        cliente: 'Vértice Manutenção',
+        status: 'Em atendimento',
+        href: '/central/ELO-2026-0003',
+      },
+    ])
+    expect(await especialistaTemItensLigados('esp-esg')).toBe(true)
   })
 })
