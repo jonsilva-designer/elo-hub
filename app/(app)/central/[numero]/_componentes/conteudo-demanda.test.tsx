@@ -88,6 +88,15 @@ describe('página da demanda (parte 5, 5.10)', () => {
     expect(screen.queryByRole('button', { name: /Mudar status/ })).not.toBeInTheDocument()
   })
 
+  it('a demanda aberta tem o formulário de comentário; a Encerrada, não', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = await abrir('ELO-2026-0003')
+    expect(painel('Comentários').getByRole('button', { name: 'Registrar comentário' })).toBeInTheDocument()
+    unmount()
+    await abrir('ELO-2026-0001')
+    expect(screen.queryByRole('button', { name: 'Registrar comentário' })).not.toBeInTheDocument()
+  })
+
   it('o Rafael não abre a demanda da Montareal que ele mesmo registrou (CA-09.9)', async () => {
     entrarComo('usr-rafael')
     await expect(conteudo('ELO-2026-0011')).rejects.toThrow('NEXT_NOT_FOUND')

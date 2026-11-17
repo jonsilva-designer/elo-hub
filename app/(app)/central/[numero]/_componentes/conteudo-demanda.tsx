@@ -20,6 +20,7 @@ import { acoesDaDemanda, demandaFechada, faltaParaAtendimento } from '@/lib/dema
 import { formatarData } from '@/lib/formato'
 import { VoltarParaCentral } from '../../_componentes/voltar-para-central'
 import { AcoesDemanda } from './acoes-demanda'
+import { FormularioComentario } from './formulario-comentario'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -166,7 +167,16 @@ export async function ConteudoDemanda({ params }: { params: Promise<{ numero: st
           <ListaCampos itens={camposDoAtendimento(demanda)} />
         </Painel>
         <Painel titulo="Comentários">
-          <ListaComentarios comentarios={comentarios} />
+          <div className="space-y-4">
+            <ListaComentarios comentarios={comentarios} />
+            {/* Comentário só na demanda aberta (escolha da Result, parte 5, seção 10). */}
+            {demandaFechada(demanda.status) ? null : (
+              <FormularioComentario
+                numero={demanda.numero}
+                especialistas={demanda.especialistasLigados.map((e) => ({ valor: e.id, rotulo: e.nome }))}
+              />
+            )}
+          </div>
         </Painel>
         <Painel titulo="Anexos">
           <EstadoVazio titulo="Nenhum anexo nesta demanda." />

@@ -22,3 +22,13 @@ export type EstadoSalvarDemanda = {
 }
 
 export const ESTADO_INICIAL_SALVAR_DEMANDA: EstadoSalvarDemanda = { erros: {}, valores: null }
+
+/** O que a ação de comentar devolve ao formulário de comentário (useActionState). */
+export type EstadoComentario = {
+  erros: Partial<Record<'texto' | 'especialistaId' | 'dataContato', string>>
+  erroGeral?: string
+  /** A mensagem de registrado; a cada sucesso, o formulário volta vazio. */
+  sucesso?: string
+}
+
+export const ESTADO_INICIAL_COMENTARIO: EstadoComentario = { erros: {} }

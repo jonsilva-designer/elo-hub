@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { obterDemanda } from '@/lib/dados/demandas'
-import { mudarStatusDemanda, reabrirDemanda, registrarDemanda, salvarDemanda } from './acoes'
-import { ESTADO_INICIAL_REGISTRAR_DEMANDA, ESTADO_INICIAL_SALVAR_DEMANDA } from './estados'
+import { comentarDemanda, mudarStatusDemanda, reabrirDemanda, registrarDemanda, salvarDemanda } from './acoes'
+import { ESTADO_INICIAL_COMENTARIO, ESTADO_INICIAL_REGISTRAR_DEMANDA, ESTADO_INICIAL_SALVAR_DEMANDA } from './estados'
 import { MENSAGENS_DEMANDA } from './validacao'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -276,5 +276,36 @@ describe('salvarDemanda (parte 5, 5.11; critérios 12 e 14)', () => {
     entrarComo('usr-rafael')
     const fd = formulario({ numero: 'ELO-2026-0011', origem: 'Cliente', assunto: 'x', descricao: 'x', responsavelTriagemId: 'usr-helena' })
     expect(await salvarDemanda(ESTADO_INICIAL_SALVAR_DEMANDA, fd)).toMatchObject({ erroGeral: SEM_PERMISSAO })
+  })
+})
+
+const comentar = (campos: Record<string, string>) =>
+  comentarDemanda(ESTADO_INICIAL_COMENTARIO, formulario({ numero: 'ELO-2026-0003', tipo: 'Comentário', texto: 'Ok.', ...campos }))
+
+describe('comentarDemanda (CA-09.6, CA-09.13; DF-30)', () => {
+  it('a Equipe vinculada comenta a demanda aberta', async () => {
+    entrarComo('usr-rafael')
+    expect((await comentar({})).sucesso).toBe('Comentário registrado. No protótipo, os dados não são gravados.')
+    expect((await comentar({ texto: ' ' })).erros).toEqual({ texto: 'Escreva o comentário.' })
+  })
+
+  it('o contato com especialista exige um especialista da demanda e a data do contato', async () => {
+    entrarComo('usr-rafael')
+    const contato = { tipo: 'Contato com especialista', texto: 'Liguei para a especialista.' }
+    expect((await comentar(contato)).erros).toEqual({
+      especialistaId: 'Escolha o especialista do contato.',
+      dataContato: 'Informe a data do contato.',
+    })
+    expect((await comentar({ ...contato, especialistaId: 'esp-contratos', dataContato: '2026-11-16' })).erros).toEqual({
+      especialistaId: 'Escolha o especialista do contato.',
+    })
+    expect((await comentar({ ...contato, especialistaId: 'esp-juridico', dataContato: '2026-11-16' })).sucesso).toBeDefined()
+  })
+
+  it('a demanda encerrada não recebe comentário; fora do vínculo, recusa sem dizer que existe', async () => {
+    entrarComo('usr-helena')
+    expect(await comentar({ numero: 'ELO-2026-0001' })).toMatchObject({ erroGeral: 'A demanda encerrada não recebe comentários.' })
+    entrarComo('usr-rafael')
+    expect(await comentar({ numero: 'ELO-2026-0011' })).toMatchObject({ erroGeral: SEM_PERMISSAO })
   })
 })

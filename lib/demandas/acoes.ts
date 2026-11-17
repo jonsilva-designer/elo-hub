@@ -16,7 +16,8 @@ import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
-import type { EstadoRegistrarDemanda, EstadoSalvarDemanda } from './estados'
+import { dataValida } from '@/lib/escopos/validacao'
+import type { EstadoComentario, EstadoRegistrarDemanda, EstadoSalvarDemanda } from './estados'
 import {
   acoesDaDemanda,
   demandaFechada,
@@ -187,4 +188,31 @@ export async function salvarDemanda(_estado: EstadoSalvarDemanda, formData: Form
     valores: dados,
     sucesso: { mensagem: mensagemDeSucesso('Demanda salva.'), destino: `/central/${demanda.numero}` },
   }
+}
+
+/**
+ * Registra um comentário na demanda aberta (F09, CA-09.6), pelo Administrador ou pela Equipe vinculada. O contato com
+ * especialista guarda um dos especialistas da demanda e a data do contato (DF-30, CA-09.13). Ninguém apaga
+ * comentário pela plataforma.
+ */
+export async function comentarDemanda(_estado: EstadoComentario, formData: FormData): Promise<EstadoComentario> {
+  await obterUsuarioAtual()
+  const campo = (nome: string) => {
+    const valor = formData.get(nome)
+    return typeof valor === 'string' ? valor.trim() : ''
+  }
+  const demanda = campo('numero') ? await obterDemanda(campo('numero')) : null
+  if (!demanda) return { erros: {}, erroGeral: SEM_PERMISSAO }
+  if (demandaFechada(demanda.status)) return { erros: {}, erroGeral: 'A demanda encerrada não recebe comentários.' }
+
+  const erros: EstadoComentario['erros'] = {}
+  if (!campo('texto')) erros.texto = 'Escreva o comentário.'
+  if (campo('tipo') === 'Contato com especialista') {
+    if (!demanda.especialistas.some((e) => e.id === campo('especialistaId'))) {
+      erros.especialistaId = 'Escolha o especialista do contato.'
+    }
+    if (!dataValida(campo('dataContato'))) erros.dataContato = 'Informe a data do contato.'
+  }
+  if (Object.keys(erros).length > 0) return { erros }
+  return { erros: {}, sucesso: mensagemDeSucesso('Comentário registrado.') }
 }
