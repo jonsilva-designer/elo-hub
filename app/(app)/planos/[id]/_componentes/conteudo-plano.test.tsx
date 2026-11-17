@@ -118,6 +118,15 @@ describe('página do plano (parte 4, 5.5)', () => {
     expect(within(helena.container.querySelector('header')!).getByRole('link', { name: /Editar/ })).toBeInTheDocument()
   })
 
+  it('o menu de ações aparece para a Equipe no plano aberto e some no fechado', async () => {
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('pla-vertice-licencas')
+    expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument()
+    unmount()
+    await abrir('pla-atlantica-fechamento')
+    expect(screen.queryByRole('button', { name: 'Mais ações' })).not.toBeInTheDocument()
+  })
+
   it('o plano de desenvolvimento é planejamento e liga a avaliação de origem (CA-05.9, DF-80)', async () => {
     entrarComo('usr-helena')
     const { container } = await abrir('pla-vertice-desenvolvimento')

@@ -15,13 +15,14 @@ import { ResumoAtividades } from '@/components/elo/resumo-atividades'
 import { Button } from '@/components/ui/button'
 import { listarAtividadesDoPlano } from '@/lib/dados/atividades'
 import { listarHistorico } from '@/lib/dados/historico'
-import { obterPlano } from '@/lib/dados/planos'
+import { atividadesQueImpedemFechar, obterPlano } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { PlanoDetalhado } from '@/lib/dados/tipos'
 import { formatarData } from '@/lib/formato'
 import { planoFechado } from '@/lib/planos/regras'
 import { TabelaAtividades } from '../../../atividades/_componentes/tabela-atividades'
+import { AcoesPlano } from './acoes-plano'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -80,8 +81,13 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
   const { id } = await params
   const [usuario, plano] = await Promise.all([obterUsuarioAtual(), obterPlano(id)])
   if (!plano) notFound()
-  const [atividades, historico] = await Promise.all([listarAtividadesDoPlano(plano.id), listarHistorico('plano', plano.id)])
-  const podeEditar = ehAdmin(usuario) || !planoFechado(plano.status)
+  const [atividades, historico, impedimentos] = await Promise.all([
+    listarAtividadesDoPlano(plano.id),
+    listarHistorico('plano', plano.id),
+    atividadesQueImpedemFechar(plano.id),
+  ])
+  const admin = ehAdmin(usuario)
+  const podeEditar = admin || !planoFechado(plano.status)
 
   return (
     <>
@@ -105,14 +111,23 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
           </span>
         }
         acoes={
-          podeEditar ? (
-            <Button asChild variant="outline">
-              <Link href={`/planos/${plano.id}/editar`}>
-                <Pencil aria-hidden="true" />
-                Editar
-              </Link>
-            </Button>
-          ) : null
+          <>
+            {podeEditar ? (
+              <Button asChild variant="outline">
+                <Link href={`/planos/${plano.id}/editar`}>
+                  <Pencil aria-hidden="true" />
+                  Editar
+                </Link>
+              </Button>
+            ) : null}
+            {/* Excluir só no plano sem atividades (RN-13, DF-33); o menu some quando o perfil não tem item. */}
+            <AcoesPlano
+              plano={plano}
+              perfil={usuario.perfil}
+              impedimentos={impedimentos}
+              podeExcluir={admin && plano.resumo.total === 0}
+            />
+          </>
         }
       />
       <div className="space-y-5">
