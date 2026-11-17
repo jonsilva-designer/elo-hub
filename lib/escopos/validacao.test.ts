@@ -17,6 +17,7 @@ const NOVO: DadosEscopo = {
   conclusaoPrevista: '',
   cicloAnteriorId: '',
   observacoes: '',
+  especialistaIds: [],
   confirmarAviso: false,
 }
 

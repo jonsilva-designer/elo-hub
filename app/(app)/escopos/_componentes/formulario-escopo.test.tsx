@@ -45,6 +45,7 @@ const DIGITADO: DadosEscopo = {
   conclusaoPrevista: '2027-01-29',
   cicloAnteriorId: '',
   observacoes: '',
+  especialistaIds: [],
   confirmarAviso: false,
 }
 
