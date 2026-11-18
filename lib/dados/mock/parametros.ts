@@ -11,3 +11,9 @@ export const REFERENCIAS_DE_PRAZO: Partial<Record<'Baixa' | 'Moderada' | 'Alta' 
 
 /** Início oficial da operação: não registrado (DF-46, Apêndice C). Até ele, o e-mail da nova demanda não sai. */
 export const INICIO_DA_OPERACAO: string | null = null
+
+/** O remetente de cada finalidade, do domínio da ELO (DF-21). Os e-mails de acesso usam o padrão e não entram aqui. */
+export const REMETENTES = {
+  notificacaoDemanda: 'atendimento@elogovernance.com.br',
+  avisosDoSite: 'atendimento@elogovernance.com.br',
+}
