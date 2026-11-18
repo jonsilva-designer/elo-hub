@@ -10,11 +10,14 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { Button } from '@/components/ui/button'
-import { obterDocumento, usuarioAlteraDocumento } from '@/lib/dados/documentos'
+import { documentoTemLigacao, obterDocumento, substitutosPossiveis, usuarioAlteraDocumento } from '@/lib/dados/documentos'
+import { ehAdmin } from '@/lib/dados/regras'
+import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { listarHistorico } from '@/lib/dados/historico'
 import type { DocumentoDetalhado } from '@/lib/dados/tipos'
 import { formatarData, formatarTamanho } from '@/lib/formato'
 import { VoltarParaDocumentos } from '../../_componentes/voltar-para-documentos'
+import { AcoesDocumento } from './acoes-documento'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -110,10 +113,15 @@ function Versoes({ documento }: { documento: DocumentoDetalhado }) {
  */
 export async function ConteudoDocumento({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const documento = await obterDocumento(id)
+  const [usuario, documento] = await Promise.all([obterUsuarioAtual(), obterDocumento(id)])
   if (!documento) notFound()
   const [historico, podeAlterar] = await Promise.all([listarHistorico('documento', documento.id), usuarioAlteraDocumento(documento)])
   const recebeNovaVersao = podeAlterar && documento.status === 'Vigente' && !documento.inativo
+  // O menu do Administrador: os substitutos possíveis e se a exclusão vale (CA-12.6, DF-33).
+  const admin = ehAdmin(usuario)
+  const [substitutos, ligado] = admin
+    ? await Promise.all([substitutosPossiveis(documento.id), documentoTemLigacao(documento.id)])
+    : [[], true]
 
   return (
     <>
@@ -153,6 +161,15 @@ export async function ConteudoDocumento({ params }: { params: Promise<{ id: stri
                   Enviar nova versão
                 </Link>
               </Button>
+            ) : null}
+            {admin ? (
+              <AcoesDocumento
+                documentoId={documento.id}
+                status={documento.status}
+                inativo={documento.inativo}
+                substitutos={substitutos}
+                podeExcluir={!ligado}
+              />
             ) : null}
           </>
         }

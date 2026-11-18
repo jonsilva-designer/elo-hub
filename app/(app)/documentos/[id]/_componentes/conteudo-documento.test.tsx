@@ -125,6 +125,16 @@ describe('página do documento (parte 6, 4.4)', () => {
     expect(cabecalho(container).getByText('Inativo')).toBeInTheDocument()
   })
 
+  it('o menu de status, inativação e exclusão é só do Administrador (CA-12.6)', async () => {
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('doc-vertice-levantamento')
+    expect(screen.queryByRole('button', { name: 'Mais ações' })).not.toBeInTheDocument()
+    unmount()
+    entrarComo('usr-helena')
+    await abrir('doc-vertice-levantamento')
+    expect(screen.getByRole('button', { name: 'Mais ações' })).toBeInTheDocument()
+  })
+
   it('fora do acesso ou com id que não existe, "não encontrado" (CA-12.5)', async () => {
     entrarComo('usr-rafael')
     await expect(conteudo('doc-montareal-cronograma')).rejects.toThrow('NEXT_NOT_FOUND')

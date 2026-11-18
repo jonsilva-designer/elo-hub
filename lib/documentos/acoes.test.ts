@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { incluirDocumento, salvarDocumento } from './acoes'
+import {
+  excluirDocumento,
+  inativarDocumento,
+  incluirDocumento,
+  mudarStatusDocumento,
+  reativarDocumento,
+  salvarDocumento,
+} from './acoes'
 import { ESTADO_INICIAL_DOCUMENTO } from './estados'
 import { MENSAGENS_ARQUIVO, TAMANHO_MAXIMO } from './regras'
 import { MENSAGENS_DOCUMENTO } from './validacao'
@@ -219,5 +226,61 @@ describe('salvarDocumento (parte 6, 4.2; matriz 4.3)', () => {
     expect((await editar('doc-vertice-contrato', { ...principal, categoria: 'Contrato', contratoId: 'ctr-vertice-mobilizacao' })).erros).toEqual({
       contratoId: MENSAGENS_DOCUMENTO.principal,
     })
+  })
+})
+
+describe('status, inativação e exclusão (CA-12.6, PRD 6.1, RN-24, DF-33)', () => {
+  const ok = (frase: string) => ({ ok: true, mensagem: `${frase} ${NAO_GRAVA}` })
+  const nao = (mensagem: string) => ({ ok: false, mensagem })
+
+  it('só o Administrador muda status, inativa e exclui; a Equipe e o id inexistente recebem a mesma recusa', async () => {
+    entrarComo('usr-rafael')
+    expect(await mudarStatusDocumento('doc-vertice-levantamento', 'encerrar', '')).toEqual(nao(SEM_PERMISSAO))
+    expect(await inativarDocumento('doc-vertice-levantamento')).toEqual(nao(SEM_PERMISSAO))
+    expect(await reativarDocumento('doc-atlantica-ata-duplicada')).toEqual(nao(SEM_PERMISSAO))
+    expect(await excluirDocumento('doc-vertice-levantamento', 'Arquivo errado.')).toEqual(nao(SEM_PERMISSAO))
+    entrarComo('usr-helena')
+    expect(await mudarStatusDocumento('doc-nao-existe', 'encerrar', '')).toEqual(nao(SEM_PERMISSAO))
+  })
+
+  it('encerra o Vigente e volta o Encerrado ou o Superado a Vigente', async () => {
+    entrarComo('usr-helena')
+    expect(await mudarStatusDocumento('doc-vertice-levantamento', 'encerrar', '')).toEqual(ok('Documento encerrado.'))
+    expect(await mudarStatusDocumento('doc-atlantica-termo-2025', 'voltar-a-vigente', '')).toEqual(ok('Documento de volta a Vigente.'))
+    expect(await mudarStatusDocumento('doc-vertice-aditivo-minuta', 'voltar-a-vigente', '')).toEqual(ok('Documento de volta a Vigente.'))
+    expect(await mudarStatusDocumento('doc-atlantica-termo-2025', 'encerrar', '')).toEqual(
+      nao('Esta mudança não vale para o documento neste status.'),
+    )
+    expect(await mudarStatusDocumento('doc-vertice-levantamento', 'inventada', '')).toEqual(
+      nao('Esta mudança não vale para o documento neste status.'),
+    )
+  })
+
+  it('Superado só com o substituto: Vigente, do mesmo cliente, e não ele mesmo (CA-12.4, DF-63)', async () => {
+    entrarComo('usr-helena')
+    const superar = (substituto: string) => mudarStatusDocumento('doc-vertice-levantamento', 'marcar-superado', substituto)
+    expect(await superar('')).toEqual(nao('Escolha o documento que substitui este.'))
+    expect(await superar('doc-vertice-levantamento')).toEqual(nao('Escolha o documento que substitui este.'))
+    expect(await superar('doc-vertice-aditivo-minuta')).toEqual(nao('Escolha o documento que substitui este.'))
+    expect(await superar('doc-montareal-cronograma')).toEqual(nao('Escolha o documento que substitui este.'))
+    expect(await superar('doc-vertice-controle-validade')).toEqual(ok('Documento marcado como Superado.'))
+  })
+
+  it('inativa e reativa, sem mudar o status (RN-24)', async () => {
+    entrarComo('usr-helena')
+    expect(await inativarDocumento('doc-vertice-levantamento')).toEqual(ok('Documento inativado.'))
+    expect(await inativarDocumento('doc-atlantica-ata-duplicada')).toEqual(nao('O documento já está inativo.'))
+    expect(await reativarDocumento('doc-atlantica-ata-duplicada')).toEqual(ok('Documento reativado.'))
+    expect(await reativarDocumento('doc-vertice-levantamento')).toEqual(nao('O documento não está inativo.'))
+  })
+
+  it('exclui só sem ligação, com justificativa (DF-33, CA-18.4, EC-80)', async () => {
+    entrarComo('usr-helena')
+    expect(await excluirDocumento('doc-vertice-levantamento', ' ')).toEqual(nao('Escreva a justificativa da exclusão.'))
+    expect(await excluirDocumento('doc-vertice-levantamento', 'Arquivo errado.')).toEqual(ok('Documento excluído.'))
+    const ligado = nao('Este documento tem registros ligados e não pode ser excluído.')
+    expect(await excluirDocumento('doc-vertice-aditivo-minuta', 'Motivo')).toEqual(ligado)
+    expect(await excluirDocumento('doc-vertice-aditivo-assinado', 'Motivo')).toEqual(ligado)
+    expect(await excluirDocumento('doc-vertice-contrato', 'Motivo')).toEqual(ligado)
   })
 })

@@ -1,14 +1,20 @@
 'use server'
 
-import { contratoDoPrincipal, obterDocumento, usuarioAlteraDocumento } from '@/lib/dados/documentos'
+import {
+  contratoDoPrincipal,
+  documentoTemLigacao,
+  obterDocumento,
+  substitutosPossiveis,
+  usuarioAlteraDocumento,
+} from '@/lib/dados/documentos'
 import { listarCategoriasDeDocumento } from '@/lib/dados/listas'
 import { opcoesDeVinculoDoDocumento } from '@/lib/dados/opcoes-documento'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { DocumentoDetalhado } from '@/lib/dados/tipos'
-import { mensagemDeSucesso, SEM_PERMISSAO } from '@/lib/resultado-acao'
+import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoDocumento } from './estados'
-import { CATEGORIAS_DO_PRINCIPAL, erroDoArquivo } from './regras'
+import { acoesDeStatus, CATEGORIAS_DO_PRINCIPAL, erroDoArquivo, type AcaoStatusDocumento } from './regras'
 import {
   completarVinculos,
   destinoDaInclusao,
@@ -94,4 +100,67 @@ export async function salvarDocumento(_estado: EstadoDocumento, formData: FormDa
     valores: dados,
     sucesso: { mensagem: mensagemDeSucesso('Documento salvo.'), destino: `/documentos/${documento.id}` },
   }
+}
+
+const recusa = (mensagem: string): ResultadoAcao => ({ ok: false, mensagem })
+
+const sucesso = (frase: string): ResultadoAcao => ({ ok: true, mensagem: mensagemDeSucesso(frase) })
+
+/** O documento ao alcance do Administrador, ou null: a Equipe e o id que não existe recebem a mesma recusa (CA-12.6). */
+async function documentoDoAdministrador(id: unknown): Promise<DocumentoDetalhado | null> {
+  const usuario = await obterUsuarioAtual()
+  return ehAdmin(usuario) && typeof id === 'string' ? await obterDocumento(id) : null
+}
+
+const SUCESSO_DO_STATUS: Record<AcaoStatusDocumento, string> = {
+  encerrar: 'Documento encerrado.',
+  'marcar-superado': 'Documento marcado como Superado.',
+  'voltar-a-vigente': 'Documento de volta a Vigente.',
+}
+
+/**
+ * Muda o status do documento (PRD 6.1), só o Administrador (CA-12.6): encerrar o Vigente, marcá-lo como Superado com o
+ * substituto, e voltar o Superado ou o Encerrado a Vigente (correção). O Superado exige o substituto: outro documento
+ * Vigente do mesmo cliente, ou do mesmo especialista sem cliente, e os dois ficariam ligados (RN-15, DF-63). Voltar a
+ * Vigente desfaria a ligação.
+ */
+export async function mudarStatusDocumento(id: string, acao: string, substitutoId: string): Promise<ResultadoAcao> {
+  const documento = await documentoDoAdministrador(id)
+  if (!documento) return recusa(SEM_PERMISSAO)
+  if (!(acoesDeStatus(documento.status) as string[]).includes(acao)) {
+    return recusa('Esta mudança não vale para o documento neste status.')
+  }
+  if (acao === 'marcar-superado' && !(await substitutosPossiveis(documento.id)).some((d) => d.id === substitutoId)) {
+    return recusa('Escolha o documento que substitui este.')
+  }
+  return sucesso(SUCESSO_DO_STATUS[acao as AcaoStatusDocumento])
+}
+
+/** Inativa o documento, só o Administrador (RN-24): sai das listas e dos painéis padrão e continua na página. */
+export async function inativarDocumento(id: string): Promise<ResultadoAcao> {
+  const documento = await documentoDoAdministrador(id)
+  if (!documento) return recusa(SEM_PERMISSAO)
+  if (documento.inativo) return recusa('O documento já está inativo.')
+  return sucesso('Documento inativado.')
+}
+
+/** Reativa o documento inativo, com o status que tinha (6.1). */
+export async function reativarDocumento(id: string): Promise<ResultadoAcao> {
+  const documento = await documentoDoAdministrador(id)
+  if (!documento) return recusa(SEM_PERMISSAO)
+  if (!documento.inativo) return recusa('O documento não está inativo.')
+  return sucesso('Documento reativado.')
+}
+
+/**
+ * Exclui o documento de vez (DF-33, CA-18.4), só o Administrador, com justificativa, que iria para o log técnico. Não
+ * exclui o que tem ligação: a substituição, nos dois sentidos, ou o documento principal de um contrato (RN-13). O
+ * arquivo errado da Equipe passa por aqui, pedido ao Administrador (EC-80).
+ */
+export async function excluirDocumento(id: string, justificativa: string): Promise<ResultadoAcao> {
+  const documento = await documentoDoAdministrador(id)
+  if (!documento) return recusa(SEM_PERMISSAO)
+  if (await documentoTemLigacao(documento.id)) return recusa('Este documento tem registros ligados e não pode ser excluído.')
+  if (typeof justificativa !== 'string' || !justificativa.trim()) return recusa('Escreva a justificativa da exclusão.')
+  return sucesso('Documento excluído.')
 }
