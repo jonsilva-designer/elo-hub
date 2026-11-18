@@ -444,3 +444,85 @@ export type DocumentoDetalhado = Documento & {
   /** O registro mais específico: atividade, plano, etapa, escopo, demanda, avaliação, contrato ou especialista. */
   vinculo: VinculoDocumento | null
 }
+
+// Visão Executiva do cliente (F14; arquitetura 3.5). Os tipos só têm o que pode ir para o cliente: nunca o valor do
+// contrato, observações internas, comentários, justificativa da criticidade nem dados de especialistas (DF-52, CA-14.5).
+
+export type CampoTexto = 'principaisResultados' | 'observacoesExecutivas' | 'proximosPassos'
+
+/** Um dos três textos do cliente (DF-73, DF-82). Nunca escrito: texto vazio, sem data nem autor. */
+export type TextoExecutivo = { campo: CampoTexto; titulo: string; texto: string; atualizadoEm: string | null; atualizadoPor: string }
+
+export type EscopoDaVisao = {
+  id: string
+  nome: string
+  codigoContrato: string
+  contratante: string
+  status: StatusEscopo
+  prioridade: Prioridade
+  criticidade: Criticidade
+  /** Contrato em Proposta ou Em contratação (DF-48). */
+  planejamento: boolean
+  etapaAtual: EtapaJornada | 'Não iniciada'
+  etapas: { etapa: EtapaJornada; status: StatusEtapa }[]
+}
+
+export type AtividadePendente = {
+  id: string
+  nome: string
+  prazo: string
+  responsavel: string
+  /** Escrito para aparecer aqui (DF-71). */
+  executor: string
+  status: StatusAtividade
+  situacao: SituacaoPrazo | null
+}
+
+export type PlanoDaVisao = {
+  id: string
+  nome: string
+  escopo: string
+  status: StatusPlano
+  total: number
+  concluidas: number
+  atrasadas: number
+  pendentes: AtividadePendente[]
+}
+
+export type DemandaDaVisao = {
+  numero: string
+  assunto: string
+  criticidade: Criticidade | null
+  prazo: string | null
+  status: StatusDemanda
+  vencida: boolean
+}
+
+/** Uma linha das entregas, dos próximos prazos e das pendências. */
+export type ItemDaVisao = { tipo: 'Atividade' | 'Etapa' | 'Demanda' | 'Contrato'; descricao: string; data: string }
+
+export type AvaliacaoDaVisao = {
+  data: string
+  maturidadeGeral: MaturidadeGeral | null
+  prontidao: Prontidao | null
+  dimensoes: { dimensao: string; nivel: NivelDimensao }[]
+}
+
+export type VisaoExecutiva = {
+  cliente: { id: string; nome: string }
+  /** O contrato do filtro (CA-14.6), ou null sem filtro. */
+  contrato: { id: string; codigo: string } | null
+  /** Os contratos do cliente, para o filtro. */
+  contratos: { id: string; codigo: string; contratante: string }[]
+  hoje: string
+  /** A última atualização dos três textos (CA-14.3), ou null se nenhum foi escrito. */
+  textosAtualizadosEm: string | null
+  escopos: EscopoDaVisao[]
+  planos: PlanoDaVisao[]
+  demandas: { porStatus: { status: StatusDemanda; total: number }[]; abertas: DemandaDaVisao[] }
+  entregas: ItemDaVisao[]
+  proximosPrazos: ItemDaVisao[]
+  pendencias: ItemDaVisao[]
+  maturidade: { inicial: AvaliacaoDaVisao; atual: AvaliacaoDaVisao } | null
+  textos: TextoExecutivo[]
+}
