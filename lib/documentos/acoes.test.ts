@@ -1,0 +1,143 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
+import { incluirDocumento } from './acoes'
+import { ESTADO_INICIAL_DOCUMENTO } from './estados'
+import { MENSAGENS_ARQUIVO, TAMANHO_MAXIMO } from './regras'
+import { MENSAGENS_DOCUMENTO } from './validacao'
+
+vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
+vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
+
+beforeEach(() => limparCookies())
+
+const SEM_PERMISSAO = 'Você não tem permissão para esta ação.'
+const NAO_GRAVA = 'No protótipo, os dados não são gravados.'
+
+const pdf = (tamanho = 2048, nome = 'Relatório.pdf') => new File([new Uint8Array(tamanho)], nome, { type: 'application/pdf' })
+
+const NOVO: Record<string, string> = {
+  nome: 'Relatório de setembro',
+  categoria: 'Relatório',
+  clienteId: 'cli-vertice',
+  data: '2026-10-05',
+}
+
+function formulario(campos: Record<string, string>, arquivo: File | null = pdf()): FormData {
+  const fd = new FormData()
+  for (const [chave, valor] of Object.entries(campos)) fd.set(chave, valor)
+  if (arquivo) fd.set('arquivo', arquivo)
+  return fd
+}
+
+const incluir = (campos: Record<string, string>, arquivo?: File | null) =>
+  incluirDocumento(ESTADO_INICIAL_DOCUMENTO, formulario({ ...NOVO, ...campos }, arquivo === undefined ? pdf() : arquivo))
+
+describe('incluirDocumento (parte 6, 4.2; F12, UC-15)', () => {
+  it('inclui e volta para o registro de onde veio (CA-12.1)', async () => {
+    entrarComo('usr-rafael')
+    const estado = await incluir({ atividadeId: 'atv-licencas-protocolo', origem: 'atividade' })
+    expect(estado.erros).toEqual({})
+    expect(estado.sucesso).toEqual({
+      mensagem: `Documento incluído. ${NAO_GRAVA}`,
+      destino: '/atividades/atv-licencas-protocolo/editar',
+    })
+    expect(estado.valores).toMatchObject({ planoId: 'pla-vertice-licencas', escopoId: 'esc-vertice-documental', contratoId: 'ctr-vertice-manutencao' })
+  })
+
+  it('sem origem, volta para a lista', async () => {
+    entrarComo('usr-helena')
+    expect((await incluir({})).sucesso?.destino).toBe('/documentos')
+  })
+
+  it('recusa sem os obrigatórios e sem arquivo (CA-12.1)', async () => {
+    entrarComo('usr-helena')
+    const estado = await incluirDocumento(ESTADO_INICIAL_DOCUMENTO, formulario({}, null))
+    expect(estado.sucesso).toBeUndefined()
+    expect(estado.erros).toEqual({
+      nome: MENSAGENS_DOCUMENTO.nome,
+      categoria: MENSAGENS_DOCUMENTO.categoria,
+      clienteId: MENSAGENS_DOCUMENTO.cliente,
+      data: MENSAGENS_DOCUMENTO.data,
+      arquivo: MENSAGENS_ARQUIVO.falta,
+    })
+  })
+
+  it('o arquivo no limite: 10 MB passa; 1 byte a mais, o formato errado e o vazio não (CA-12.2, DF-72)', async () => {
+    entrarComo('usr-rafael')
+    expect((await incluir({}, pdf(TAMANHO_MAXIMO, 'GRANDE.PDF'))).erros).toEqual({})
+    expect((await incluir({}, pdf(TAMANHO_MAXIMO + 1))).erros).toEqual({ arquivo: MENSAGENS_ARQUIVO.tamanho })
+    expect((await incluir({}, pdf(10, 'relatorio.pdf.exe'))).erros).toEqual({ arquivo: MENSAGENS_ARQUIVO.formato })
+    expect((await incluir({}, pdf(0))).erros).toEqual({ arquivo: MENSAGENS_ARQUIVO.vazio })
+  })
+
+  it('a Equipe não inclui para cliente fora dos vínculos, nem por vínculo enviado à mão (CA-12.5, RN-02)', async () => {
+    entrarComo('usr-rafael')
+    expect((await incluir({ clienteId: 'cli-montareal' })).erros).toEqual({ clienteId: MENSAGENS_DOCUMENTO.cliente })
+    expect((await incluir({ contratoId: 'ctr-montareal-montagem' })).erros).toEqual({ contratoId: MENSAGENS_DOCUMENTO.contrato })
+    expect((await incluir({ escopoId: 'esc-atlantica-2026' })).erros).toEqual({ escopoId: MENSAGENS_DOCUMENTO.escopo })
+    expect((await incluir({ demandaNumero: 'ELO-2026-0001' })).erros).toEqual({ demandaNumero: MENSAGENS_DOCUMENTO.demanda })
+    expect((await incluir({ avaliacaoId: 'ava-atlantica-1' })).erros).toEqual({ avaliacaoId: MENSAGENS_DOCUMENTO.avaliacao })
+  })
+
+  it('Documento do Especialista: sem cliente só o Administrador; com cliente, a Equipe vinculada (DF-65)', async () => {
+    const curriculo = { categoria: 'Documento do Especialista', clienteId: '', especialistaId: 'esp-esg', origem: 'especialista' }
+    entrarComo('usr-rafael')
+    expect((await incluir(curriculo)).erros).toEqual({ clienteId: MENSAGENS_DOCUMENTO.semClienteSoAdmin })
+    expect((await incluir({ ...curriculo, clienteId: 'cli-vertice' })).sucesso?.destino).toBe('/especialistas/esp-esg')
+    entrarComo('usr-helena')
+    expect((await incluir(curriculo)).erros).toEqual({})
+    expect((await incluir({ ...curriculo, especialistaId: '' })).erros).toEqual({ especialistaId: MENSAGENS_DOCUMENTO.especialista })
+  })
+
+  it('a contrato ou escopo fechado aceita documento (RN-23)', async () => {
+    entrarComo('usr-rafael')
+    expect((await incluir({ clienteId: 'cli-atlantica', escopoId: 'esc-atlantica-2025' })).erros).toEqual({})
+  })
+})
+
+describe('incluirDocumento como nova versão (DF-44, CA-12.4)', () => {
+  const novaVersao = { nome: 'Relatório do levantamento, revisado', substitui: 'doc-vertice-levantamento', origem: 'substitui' }
+
+  it('a Equipe inclui o substituto, e o anterior passa a Superado', async () => {
+    entrarComo('usr-rafael')
+    const estado = await incluir(novaVersao)
+    expect(estado.erros).toEqual({})
+    expect(estado.sucesso).toEqual({
+      mensagem: `Documento incluído. O anterior passou a Superado. ${NAO_GRAVA}`,
+      destino: '/documentos/doc-vertice-levantamento',
+    })
+  })
+
+  it('o substituto precisa ser do mesmo cliente do anterior', async () => {
+    entrarComo('usr-helena')
+    expect((await incluir({ ...novaVersao, clienteId: 'cli-atlantica' })).erros).toEqual({ clienteId: MENSAGENS_DOCUMENTO.mesmoDono })
+  })
+
+  it('só o Vigente recebe nova versão', async () => {
+    entrarComo('usr-helena')
+    expect((await incluir({ ...novaVersao, substitui: 'doc-vertice-aditivo-minuta' })).erroGeral).toBe(MENSAGENS_DOCUMENTO.soVigente)
+    expect(
+      (await incluir({ ...novaVersao, clienteId: 'cli-atlantica', substitui: 'doc-atlantica-termo-2025' })).erroGeral,
+    ).toBe(MENSAGENS_DOCUMENTO.soVigente)
+  })
+
+  it('a Equipe não substitui o currículo sem cliente nem o documento fora dos vínculos (DF-65, CA-12.5)', async () => {
+    entrarComo('usr-rafael')
+    expect((await incluir({ ...novaVersao, substitui: 'doc-especialista-curriculo' })).erroGeral).toBe(SEM_PERMISSAO)
+    expect((await incluir({ ...novaVersao, substitui: 'doc-montareal-cronograma' })).erroGeral).toBe(SEM_PERMISSAO)
+    expect((await incluir({ ...novaVersao, substitui: 'doc-nao-existe' })).erroGeral).toBe(SEM_PERMISSAO)
+  })
+
+  it('o Administrador substitui o currículo sem cliente por outro do mesmo especialista', async () => {
+    entrarComo('usr-helena')
+    const curriculo = {
+      ...novaVersao,
+      categoria: 'Documento do Especialista',
+      clienteId: '',
+      especialistaId: 'esp-juridico',
+      substitui: 'doc-especialista-curriculo',
+    }
+    expect((await incluir(curriculo)).erros).toEqual({})
+    expect((await incluir({ ...curriculo, especialistaId: 'esp-esg' })).erros).toEqual({ clienteId: MENSAGENS_DOCUMENTO.mesmoDono })
+  })
+})
