@@ -1,5 +1,5 @@
 import { nomeDoCliente } from '@/lib/clientes/filtros'
-import { podeVerDocumento } from '@/lib/documentos/regras'
+import { podeAlterarDocumento, podeVerDocumento } from '@/lib/documentos/regras'
 import { formatarData } from '@/lib/formato'
 import { ATIVIDADES } from './mock/atividades'
 import { AVALIACOES } from './mock/avaliacoes'
@@ -158,4 +158,9 @@ export async function documentoTemLigacao(id: string): Promise<boolean> {
     DOCUMENTOS.some((d) => d.substituidoPorId === id) ||
     CONTRATOS.some((c) => c.documentoPrincipalId === id)
   )
+}
+
+/** Se o usuário pode incluir, alterar os dados e enviar nova versão do documento (matriz 4.3, DF-65). */
+export async function usuarioAlteraDocumento(d: Pick<Documento, 'clienteId'>): Promise<boolean> {
+  return podeAlterarDocumento(d, await obterUsuarioAtual(), VINCULOS)
 }
