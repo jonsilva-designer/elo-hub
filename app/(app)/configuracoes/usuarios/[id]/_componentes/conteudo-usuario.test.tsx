@@ -1,7 +1,8 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { avisarSalvo } from '@/lib/avisos'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { ConteudoNovoUsuario } from '../../novo/_componentes/conteudo-novo-usuario'
 import { metadata as metadataNovo } from '../../novo/page'
@@ -9,6 +10,7 @@ import { metadata } from '../page'
 import { ConteudoUsuario } from './conteudo-usuario'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
+vi.mock('@/lib/avisos', () => ({ avisarSalvo: vi.fn() }))
 vi.mock('next/navigation', async () => ({
   ...(await import('@/lib/testes/next-falso')).moduloNavigation,
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
@@ -57,6 +59,29 @@ describe('cadastro e página do usuário (parte 8, 4.1)', () => {
     expect(screen.getByRole('textbox', { name: /E-mail/ })).toHaveValue('rafael.souza@elogovernance.com.br')
     expect(screen.getByRole('combobox', { name: /Perfil/ })).toHaveTextContent('Equipe')
     expect(screen.getByText('Clientes vinculados')).toBeInTheDocument()
+  })
+
+  it('inativar com itens abertos é recusado e lista os itens (CA-01.7)', async () => {
+    entrarComo('usr-helena')
+    await abrir('usr-rafael')
+    await userEvent.click(screen.getByRole('button', { name: 'Mais ações' }))
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Inativar' }))
+    const janela = within(await screen.findByRole('alertdialog'))
+    await userEvent.click(janela.getByRole('button', { name: 'Inativar' }))
+    expect(await janela.findByText(/Há itens abertos sob a responsabilidade desta pessoa/)).toBeInTheDocument()
+    expect(janela.getAllByRole('link').length).toBeGreaterThan(5)
+  })
+
+  it('redistribui os itens escolhidos para quem tem vínculo (CA-01.9)', async () => {
+    entrarComo('usr-helena')
+    vi.mocked(avisarSalvo).mockReset()
+    await abrir('usr-rafael')
+    const painel = within(screen.getByRole('region', { name: /Itens abertos/ }))
+    await userEvent.click(painel.getByRole('checkbox', { name: /Protocolar a renovação da licença de operação/ }))
+    await userEvent.click(painel.getByRole('combobox', { name: /Novo responsável/ }))
+    await userEvent.click(await screen.findByRole('option', { name: 'Helena Prado' }))
+    await userEvent.click(painel.getByRole('button', { name: 'Redistribuir' }))
+    await vi.waitFor(() => expect(avisarSalvo).toHaveBeenCalledWith('Itens redistribuídos. No protótipo, os dados não são gravados.'))
   })
 
   it('id que não existe: não encontrado', async () => {

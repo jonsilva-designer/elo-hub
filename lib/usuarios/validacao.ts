@@ -10,6 +10,11 @@ export const MENSAGENS_USUARIO = {
   perfil: 'Escolha o perfil.',
   clientes: 'Escolha pelo menos um cliente.',
   ultimoAdministrador: 'O último Administrador ativo não passa para Equipe.',
+  ultimoInativado: 'O último Administrador ativo não pode ser inativado.',
+  comItens: 'Há itens abertos sob a responsabilidade desta pessoa. Redistribua os itens antes de inativar.',
+  itens: 'Escolha pelo menos um item.',
+  novoResponsavel: 'Escolha o novo responsável.',
+  semVinculo: 'O novo responsável precisa ter vínculo com o cliente de cada item.',
   vinculoComItens: (cliente: string) =>
     `Não é possível tirar o vínculo com ${cliente}: há itens abertos sob a responsabilidade desta pessoa.`,
 }

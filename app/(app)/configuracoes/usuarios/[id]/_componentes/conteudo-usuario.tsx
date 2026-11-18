@@ -7,8 +7,12 @@ import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { listarClientes } from '@/lib/dados/clientes'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
-import { obterUsuario } from '@/lib/dados/usuarios-configuracao'
+import { itensAbertosDoUsuario, obterUsuario, responsaveisParaRedistribuir } from '@/lib/dados/usuarios-configuracao'
+import { Painel } from '@/components/elo/painel'
+import { Num } from '@/components/elo/num'
 import { FormularioUsuario } from '../../_componentes/formulario-usuario'
+import { AcoesUsuario } from './acoes-usuario'
+import { ItensAbertos } from './itens-abertos'
 
 /**
  * O usuário (parte 8, 4.1; F01): os dados e os vínculos, editáveis pelo Administrador. A Equipe vê o acesso negado
@@ -27,7 +31,15 @@ export async function ConteudoUsuario({ params }: { params: Promise<{ id: string
   }
   const usuario = await obterUsuario(id)
   if (!usuario) notFound()
-  const clientes = (await listarClientes()).filter((c) => !c.ehCadastroElo)
+  const [todos, itens] = await Promise.all([listarClientes(), itensAbertosDoUsuario(usuario.id)])
+  const clientes = todos.filter((c) => !c.ehCadastroElo)
+  // Quem pode receber os itens de cada cliente (RN-19): a tela cruza os clientes dos itens escolhidos.
+  const idsDosClientes = [...new Set(itens.map((i) => i.clienteId))]
+  const candidatos = Object.fromEntries(
+    await Promise.all(
+      idsDosClientes.map(async (c) => [c, (await responsaveisParaRedistribuir(usuario.id, [c])).map((u) => ({ id: u.id, nome: u.nome }))]),
+    ),
+  )
 
   return (
     <>
@@ -43,8 +55,16 @@ export async function ConteudoUsuario({ params }: { params: Promise<{ id: string
             <EtiquetaStatus status={usuario.status} />
           </span>
         }
+        acoes={<AcoesUsuario usuarioId={usuario.id} status={usuario.status} />}
       />
-      <FormularioUsuario usuario={usuario} clientes={clientes.map((c) => ({ valor: c.id, rotulo: nomeDoCliente(c) }))} />
+      <div className="space-y-5">
+        <FormularioUsuario usuario={usuario} clientes={clientes.map((c) => ({ valor: c.id, rotulo: nomeDoCliente(c) }))} />
+        {itens.length > 0 ? (
+          <Painel titulo="Itens abertos" contagem={<Num>{itens.length}</Num>}>
+            <ItensAbertos usuarioId={usuario.id} itens={itens} candidatos={candidatos} />
+          </Painel>
+        ) : null}
+      </div>
     </>
   )
 }
