@@ -96,3 +96,7 @@ export const CATEGORIAS_DOCUMENTO: string[] = [
   'Documento do Escopo Contratado',
   'Outros',
 ]
+
+// Itens inativos das listas (DF-38): saem das novas escolhas e continuam nos registros que os usam. Ficam fora das
+// listas acima, que são as opções de cada formulário.
+export const ITENS_INATIVOS: { lista: string; nome: string }[] = [{ lista: 'contratantes', nome: 'Vale' }]
