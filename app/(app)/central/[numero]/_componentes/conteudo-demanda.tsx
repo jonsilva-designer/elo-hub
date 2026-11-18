@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
-import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaCriticidade, EtiquetaSinal, EtiquetaStatus } from '@/components/elo/etiquetas'
 import { ListaCampos } from '@/components/elo/lista-campos'
 import { ListaComentarios } from '@/components/elo/lista-comentarios'
@@ -21,6 +20,8 @@ import { formatarData } from '@/lib/formato'
 import { VoltarParaCentral } from '../../_componentes/voltar-para-central'
 import { AcoesDemanda } from './acoes-demanda'
 import { FormularioComentario } from './formulario-comentario'
+import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
+import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -118,6 +119,7 @@ export async function ConteudoDemanda({ params }: { params: Promise<{ numero: st
   if (!demanda) notFound()
   const [comentarios, historico] = await Promise.all([listarComentarios(demanda.numero), listarHistorico('demanda', demanda.numero)])
 
+  const documentos = await listarDocumentosLigados({ demandaNumero: demanda.numero })
   return (
     <>
       <div className="mb-3">
@@ -178,9 +180,7 @@ export async function ConteudoDemanda({ params }: { params: Promise<{ numero: st
             )}
           </div>
         </Painel>
-        <Painel titulo="Anexos">
-          <EstadoVazio titulo="Nenhum anexo nesta demanda." />
-        </Painel>
+        <PainelDocumentos titulo="Anexos" documentos={documentos} ligadoA={{ demandaNumero: demanda.numero }} vazio="Nenhum anexo nesta demanda." />
         <PainelHistorico entradas={historico} />
         <LinhaAutoria entradas={historico} />
       </div>

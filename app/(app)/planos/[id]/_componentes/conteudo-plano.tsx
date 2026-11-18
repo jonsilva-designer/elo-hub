@@ -14,7 +14,7 @@ import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico
 import { ResumoAtividades } from '@/components/elo/resumo-atividades'
 import { Button } from '@/components/ui/button'
 import { listarAtividadesDoPlano } from '@/lib/dados/atividades'
-import { temDocumentoLigado } from '@/lib/dados/documentos'
+import { listarDocumentosLigados, temDocumentoLigado } from '@/lib/dados/documentos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { atividadesQueImpedemFechar, obterPlano } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -24,6 +24,7 @@ import { formatarData } from '@/lib/formato'
 import { planoFechado } from '@/lib/planos/regras'
 import { TabelaAtividades } from '../../../atividades/_componentes/tabela-atividades'
 import { AcoesPlano } from './acoes-plano'
+import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -91,6 +92,7 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
   const admin = ehAdmin(usuario)
   const podeEditar = admin || !planoFechado(plano.status)
 
+  const documentos = await listarDocumentosLigados({ planoId: plano.id })
   return (
     <>
       <div className="mb-3">
@@ -146,9 +148,7 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
             vazio={<EstadoVazio titulo="Nenhuma atividade neste plano." />}
           />
         </Painel>
-        <Painel titulo="Documentos">
-          <EstadoVazio titulo="Nenhum documento ligado a este plano." />
-        </Painel>
+        <PainelDocumentos documentos={documentos} ligadoA={{ planoId: plano.id }} vazio="Nenhum documento ligado a este plano." />
         <PainelHistorico entradas={historico} />
         <LinhaAutoria entradas={historico} />
       </div>

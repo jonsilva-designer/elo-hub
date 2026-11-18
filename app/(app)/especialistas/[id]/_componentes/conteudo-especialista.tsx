@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
-import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaSinal, EtiquetaStatus } from '@/components/elo/etiquetas'
 import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
@@ -24,6 +23,8 @@ import { formatarData } from '@/lib/formato'
 import { VoltarParaEspecialistas } from '../../_componentes/voltar-para-especialistas'
 import { AcoesEspecialista } from './acoes-especialista'
 import { TabelaCandidaturas, TabelaLigacoes } from './tabelas-especialista'
+import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
+import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -71,6 +72,7 @@ export async function ConteudoEspecialista({ params }: { params: Promise<{ id: s
     admin ? especialistaTemItensLigados(especialista.id) : Promise.resolve(true),
   ])
 
+  const documentos = await listarDocumentosLigados({ especialistaId: especialista.id })
   return (
     <>
       <div className="mb-3">
@@ -118,9 +120,7 @@ export async function ConteudoEspecialista({ params }: { params: Promise<{ id: s
             <TabelaCandidaturas candidaturas={candidaturas} />
           </Painel>
         ) : null}
-        <Painel titulo="Documentos">
-          <EstadoVazio titulo="Nenhum documento deste especialista." />
-        </Painel>
+        <PainelDocumentos documentos={documentos} ligadoA={{ especialistaId: especialista.id }} vazio="Nenhum documento deste especialista." />
         <PainelHistorico entradas={historico} />
         <LinhaAutoria entradas={historico} />
       </div>

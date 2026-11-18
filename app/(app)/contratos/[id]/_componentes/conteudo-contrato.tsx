@@ -23,6 +23,8 @@ import { formatarData, formatarReal } from '@/lib/formato'
 import { VoltarParaContratos } from '../../_componentes/voltar-para-contratos'
 import { AcoesContrato } from './acoes-contrato'
 import { TabelaEscopos } from './tabela-escopos'
+import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
+import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
 const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
 
@@ -70,6 +72,7 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
     ? await Promise.all([impedimentosDoContrato(contrato.id), contratoTemItensLigados(contrato.id)])
     : [[], true]
 
+  const documentos = await listarDocumentosLigados({ contratoId: contrato.id })
   return (
     <>
       <div className="mb-3">
@@ -145,9 +148,7 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
         >
           <TabelaEscopos escopos={escopos} vazio={<EstadoVazio titulo="Nenhum escopo neste contrato." />} />
         </Painel>
-        <Painel titulo="Documentos">
-          <EstadoVazio titulo="Nenhum documento ligado a este contrato." />
-        </Painel>
+        <PainelDocumentos documentos={documentos} ligadoA={{ contratoId: contrato.id }} vazio="Nenhum documento ligado a este contrato." />
         <PainelHistorico entradas={historico} />
         <LinhaAutoria entradas={historico} />
       </div>

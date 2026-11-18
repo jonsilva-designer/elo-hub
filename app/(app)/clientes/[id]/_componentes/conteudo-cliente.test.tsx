@@ -141,9 +141,15 @@ describe('página do cliente (parte 2, 5.6)', () => {
     expect(screen.getByText('Nenhuma demanda deste cliente.')).toBeInTheDocument()
   })
 
-  it('a aba de documentos mostra o vazio da tela', async () => {
-    entrarComo('usr-helena')
-    await abrir('cli-vertice', { aba: 'documentos' })
+  it('a aba de documentos mostra os do cliente, sem o inativo, e inclui com o cliente (CA-12.3, CA-18.2)', async () => {
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('cli-atlantica', { aba: 'documentos' })
+    const documentos = within(screen.getByRole('region', { name: 'Documentos' }))
+    expect(documentos.getByText('Termo complementar do ciclo 2025')).toBeInTheDocument()
+    expect(documentos.queryByText('Ata da reunião de abertura do ciclo 2026')).not.toBeInTheDocument()
+    expect(documentos.getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?cliente=cli-atlantica')
+    unmount()
+    await abrir('cli-rede-norte', { aba: 'documentos' })
     expect(screen.getByText('Nenhum documento deste cliente.')).toBeInTheDocument()
   })
 

@@ -64,6 +64,15 @@ describe('página do especialista (parte 5, 5.6)', () => {
     expect(push).toHaveBeenCalledWith('/escopos/esc-vertice-documental')
   })
 
+  it('os documentos do especialista: o currículo sem cliente para a Equipe também (DF-65, CA-12.3)', async () => {
+    entrarComo('usr-rafael')
+    await abrir('esp-juridico')
+    const documentos = painel('Documentos')
+    expect(documentos.getByText('Currículo de Beatriz Fontes')).toBeInTheDocument()
+    expect(documentos.getByText('Parecer sobre a retenção do pagamento')).toBeInTheDocument()
+    expect(documentos.getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?especialista=esp-juridico')
+  })
+
   it('a candidatura repetida mostra a marca e as outras com o mesmo e-mail (DF-50, CA-11.6)', async () => {
     entrarComo('usr-rafael')
     const { container } = await abrir('esp-suprimentos-2')

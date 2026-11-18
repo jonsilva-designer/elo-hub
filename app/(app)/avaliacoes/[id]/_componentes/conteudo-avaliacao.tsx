@@ -23,6 +23,8 @@ import { formatarData, VAZIO } from '@/lib/formato'
 import { formatarMedia, oQueFaltaParaConcluir } from '@/lib/maturidade/regras'
 import { TabelaPlanos } from '../../../planos/_componentes/tabela-planos'
 import { AcoesAvaliacao } from './acoes-avaliacao'
+import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
+import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
 const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
 
@@ -88,6 +90,7 @@ export async function ConteudoAvaliacao({ params }: { params: Promise<{ id: stri
 
   const nome = nomeDoCliente(cliente)
 
+  const documentos = await listarDocumentosLigados({ avaliacaoId: avaliacao.id })
   return (
     <>
       <div className="mb-3">
@@ -158,9 +161,7 @@ export async function ConteudoAvaliacao({ params }: { params: Promise<{ id: stri
         <Painel titulo="Planos de desenvolvimento" semRespiro>
           <TabelaPlanos planos={planos} onde="avaliacao" vazio={<EstadoVazio titulo="Nenhum plano ligado a esta avaliação." />} />
         </Painel>
-        <Painel titulo="Documentos">
-          <EstadoVazio titulo="Nenhum documento ligado a esta avaliação." />
-        </Painel>
+        <PainelDocumentos documentos={documentos} ligadoA={{ avaliacaoId: avaliacao.id }} vazio="Nenhum documento ligado a esta avaliação." />
         <PainelHistorico entradas={historico} />
         <LinhaAutoria entradas={historico} />
       </div>

@@ -129,7 +129,11 @@ describe('página do contrato (parte 3, 5.6)', () => {
   it('Documentos e Histórico', async () => {
     entrarComo('usr-helena')
     await abrir('ctr-vertice-manutencao')
-    expect(painel('Documentos').getByText('Nenhum documento ligado a este contrato.')).toBeInTheDocument()
+    const documentos = painel('Documentos')
+    expect(documentos.getByText('Contrato CT-2025-031 assinado')).toBeInTheDocument()
+    expect(documentos.getByText('Primeiro aditivo de prazo')).toBeInTheDocument()
+    expect(documentos.getByText('Superado')).toBeInTheDocument()
+    expect(documentos.getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?contrato=ctr-vertice-manutencao')
     expect(screen.getByText(/Criado por Helena/)).toBeInTheDocument()
   })
 

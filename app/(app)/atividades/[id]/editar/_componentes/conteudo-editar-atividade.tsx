@@ -4,7 +4,7 @@ import { AcessoNegado } from '@/components/elo/estados'
 import { LinkVoltar } from '@/components/elo/link-voltar'
 import { atividadeFechada } from '@/lib/atividades/regras'
 import { obterAtividade } from '@/lib/dados/atividades'
-import { temDocumentoLigado } from '@/lib/dados/documentos'
+import { listarDocumentosLigados, temDocumentoLigado } from '@/lib/dados/documentos'
 import { obterPlano } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -12,6 +12,7 @@ import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { ExcluirAtividade } from '../../../_componentes/excluir-atividade'
 import { FormularioAtividade } from '../../../_componentes/formulario-atividade'
 import { VoltarParaMinhasAtividades } from '../../../_componentes/voltar-para-minhas-atividades'
+import { PainelDocumentos } from '../../../../documentos/_componentes/painel-documentos'
 
 type Busca = Record<string, string | string[] | undefined>
 
@@ -58,6 +59,7 @@ export async function ConteudoEditarAtividade({
   }
 
   const responsaveis = await listarResponsaveis(plano.clienteId)
+  const documentos = await listarDocumentosLigados({ atividadeId: atividade.id })
   return (
     <>
       {cabecalho}
@@ -68,6 +70,14 @@ export async function ConteudoEditarAtividade({
         responsaveis={responsaveis.map((u) => ({ valor: u.id, rotulo: u.nome }))}
         origem={origem}
       />
+      {/* A atividade não tem página própria: as evidências ficam na edição (parte 6, escolha 6; CA-12.3). */}
+      <div className="mt-5">
+        <PainelDocumentos
+          titulo="Evidências"
+          documentos={documentos} ligadoA={{ atividadeId: atividade.id }}
+          vazio="Nenhuma evidência ligada a esta atividade."
+        />
+      </div>
     </>
   )
 }

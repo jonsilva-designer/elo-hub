@@ -61,7 +61,8 @@ describe('página do plano (parte 4, 5.5)', () => {
       'Documentos',
       'Histórico',
     ])
-    expect(painel('Documentos').getByText('Nenhum documento ligado a este plano.')).toBeInTheDocument()
+    expect(painel('Documentos').getByText('Protocolo da renovação da licença de operação')).toBeInTheDocument()
+    expect(painel('Documentos').getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?plano=pla-vertice-licencas')
   })
 
   it('as atividades vêm com o resumo, na ordem, com a situação do prazo, o executor e a conclusão (CA-07.2, CA-08)', async () => {

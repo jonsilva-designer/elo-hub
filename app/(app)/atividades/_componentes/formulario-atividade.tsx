@@ -193,19 +193,6 @@ export function FormularioAtividade({
           <Campo rotulo="Observações">
             {(p) => <Textarea {...p} name="observacoes" defaultValue={inicial('observacoes', atividade?.observacoes)} />}
           </Campo>
-          <Campo rotulo="Evidência" ajuda="Os documentos entram numa próxima parte do protótipo">
-            {(p) => (
-              <SelecaoDoFormulario
-                nome="evidencia"
-                valor=""
-                aoMudar={() => {}}
-                opcoes={[]}
-                atributos={p}
-                disabled
-                placeholder="Nenhum documento"
-              />
-            )}
-          </Campo>
         </div>
       </Painel>
 

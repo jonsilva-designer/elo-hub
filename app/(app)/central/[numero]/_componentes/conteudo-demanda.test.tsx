@@ -41,7 +41,7 @@ describe('página da demanda (parte 5, 5.10)', () => {
     expect(cabecalho.getByText('Alta')).toBeInTheDocument()
   })
 
-  it('os painéis na ordem, com os dados, a triagem e o vazio dos anexos', async () => {
+  it('os painéis na ordem, com os dados, a triagem e os anexos (CA-12.3)', async () => {
     entrarComo('usr-rafael')
     await abrir('ELO-2026-0003')
     expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
@@ -58,7 +58,10 @@ describe('página da demanda (parte 5, 5.10)', () => {
     expect(triagem.getByText('Pedido de documento')).toBeInTheDocument()
     expect(triagem.getByText('Vencida')).toBeInTheDocument()
     expect(triagem.getByText('Beatriz Fontes').closest('li')).toHaveTextContent('Principal')
-    expect(painel('Anexos').getByText('Nenhum anexo nesta demanda.')).toBeInTheDocument()
+    const anexos = painel('Anexos')
+    expect(anexos.getByText('Lista das certidões vencidas, enviada pelo cliente')).toBeInTheDocument()
+    expect(anexos.getByText('Parecer sobre a retenção do pagamento')).toBeInTheDocument()
+    expect(anexos.getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?demanda=ELO-2026-0003')
   })
 
   it('os comentários com o contato com especialista (DF-30)', async () => {

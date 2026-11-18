@@ -122,13 +122,15 @@ describe('página da avaliação (parte 2, 5.9)', () => {
     expect(linha).toHaveTextContent('0 de 2 concluídas')
   })
 
-  it('as observações internas trazem a nota de uso interno; documentos, o estado vazio', async () => {
+  it('as observações internas trazem a nota de uso interno; os documentos trazem o instrumento (CA-12.3)', async () => {
     entrarComo('usr-helena')
     await abrir('ava-vertice-2')
     const observacoes = within(screen.getByRole('region', { name: 'Observações internas' }))
     expect(observacoes.getByText('Uso interno. Não sai na Visão Executiva nem no PDF.')).toBeInTheDocument()
     expect(observacoes.getByText(/^Evolução clara desde março/)).toBeInTheDocument()
-    expect(screen.getByText('Nenhum documento ligado a esta avaliação.')).toBeInTheDocument()
+    const documentos = within(screen.getByRole('region', { name: 'Documentos' }))
+    expect(documentos.getByText('Instrumento preenchido do diagnóstico de setembro')).toBeInTheDocument()
+    expect(documentos.getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?avaliacao=ava-vertice-2')
   })
 
   it('avaliação sem plano ligado mostra o vazio', async () => {

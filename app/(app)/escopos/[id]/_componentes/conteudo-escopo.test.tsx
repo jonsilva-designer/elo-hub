@@ -164,9 +164,15 @@ describe('página do escopo (parte 3, 5.9)', () => {
     expect(painel('Demandas').getByText('Nenhuma demanda ligada a este escopo.')).toBeInTheDocument()
   })
 
-  it('o painel de documentos fica vazio', async () => {
-    entrarComo('usr-helena')
-    await abrir('esc-vertice-documental')
+  it('os documentos do escopo, com a etapa; o vazio no escopo sem documento (CA-12.3)', async () => {
+    entrarComo('usr-rafael')
+    const { unmount } = await abrir('esc-vertice-documental')
+    const documentos = painel('Documentos')
+    expect(documentos.getByText('Relatório do levantamento documental').closest('tr')).toHaveTextContent('Diagnosticar')
+    expect(documentos.getByText('Protocolo da renovação da licença de operação').closest('tr')).toHaveTextContent('Sem etapa')
+    expect(documentos.getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?escopo=esc-vertice-documental')
+    unmount()
+    await abrir('esc-vertice-qualidade')
     expect(painel('Documentos').getByText('Nenhum documento ligado a este escopo.')).toBeInTheDocument()
   })
 

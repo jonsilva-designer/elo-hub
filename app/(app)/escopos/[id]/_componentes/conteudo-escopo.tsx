@@ -18,7 +18,7 @@ import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { escopoTemItensLigados, obterEscopo } from '@/lib/dados/escopos'
 import { impedimentosDoEscopo } from '@/lib/dados/impedimentos'
 import { listarDemandasDoEscopo } from '@/lib/dados/demandas'
-import { etapasComDocumento } from '@/lib/dados/documentos'
+import { listarDocumentosLigados, etapasComDocumento } from '@/lib/dados/documentos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { listarPlanosDoEscopo } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -34,6 +34,7 @@ import { VoltarParaEscopos } from '../../_componentes/voltar-para-escopos'
 import { AcoesEscopo } from './acoes-escopo'
 import { AtualizarEtapa } from './atualizar-etapa'
 import { ReclassificarCriticidade } from './reclassificar-criticidade'
+import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -173,6 +174,7 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
     listarDemandasDoEscopo(escopo.id),
   ])
 
+  const documentos = await listarDocumentosLigados({ escopoId: escopo.id })
   return (
     <>
       <div className="mb-3">
@@ -255,9 +257,7 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
             </ul>
           )}
         </Painel>
-        <Painel titulo="Documentos">
-          <EstadoVazio titulo="Nenhum documento ligado a este escopo." />
-        </Painel>
+        <PainelDocumentos documentos={documentos} ligadoA={{ escopoId: escopo.id }} vazio="Nenhum documento ligado a este escopo." comEtapa />
         <Painel titulo="Demandas" semRespiro>
           <TabelaDemandas demandas={demandas} vazio={<EstadoVazio titulo="Nenhuma demanda ligada a este escopo." />} />
         </Painel>

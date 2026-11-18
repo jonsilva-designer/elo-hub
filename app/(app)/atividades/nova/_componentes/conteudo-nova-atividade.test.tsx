@@ -40,10 +40,10 @@ describe('nova atividade (parte 4, 5.7)', () => {
     expect((await screen.findAllByRole('option')).map((o) => o.textContent)).toEqual(['Não iniciada', 'Em andamento'])
   })
 
-  it('a evidência fica bloqueada até a parte 6', async () => {
+  it('a evidência entra pelos documentos, depois de salvar: a nova atividade não tem o campo (parte 6)', async () => {
     entrarComo('usr-rafael')
     render(await nova({ plano: 'pla-vertice-licencas' }))
-    expect(screen.getByRole('combobox', { name: /Evidência/ })).toBeDisabled()
+    expect(screen.queryByRole('combobox', { name: /Evidência/ })).not.toBeInTheDocument()
   })
 
   it('plano fechado: avisa e leva de volta a ele, sem formulário (RN-23)', async () => {

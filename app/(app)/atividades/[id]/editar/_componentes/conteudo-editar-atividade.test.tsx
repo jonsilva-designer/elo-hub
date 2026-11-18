@@ -88,6 +88,14 @@ describe('editar atividade (parte 4, 5.7)', () => {
     expect(janela.getByRole('textbox', { name: /Justificativa/ })).toBeInTheDocument()
   })
 
+  it('as evidências da atividade, com a inclusão ligada a ela (CA-12.3)', async () => {
+    entrarComo('usr-rafael')
+    await abrir('atv-licencas-protocolo')
+    const evidencias = within(screen.getByRole('region', { name: 'Evidências' }))
+    expect(evidencias.getByText('Protocolo da renovação da licença de operação')).toBeInTheDocument()
+    expect(evidencias.getByRole('link', { name: 'Incluir documento' })).toHaveAttribute('href', '/documentos/novo?atividade=atv-licencas-protocolo')
+  })
+
   it('a atividade com evidência não oferece Excluir (RN-13, CA-18.4)', async () => {
     entrarComo('usr-helena')
     await abrir('atv-licencas-protocolo')

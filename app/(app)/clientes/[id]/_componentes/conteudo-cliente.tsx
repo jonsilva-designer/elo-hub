@@ -28,6 +28,8 @@ import { AbaMaturidade } from './aba-maturidade'
 import { AcoesCliente } from './acoes-cliente'
 import { AbaResumo } from './aba-resumo'
 import { AbasCliente } from './abas-cliente'
+import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
+import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
 type Busca = Record<string, string | string[] | undefined>
 
@@ -65,13 +67,14 @@ export async function ConteudoCliente({
     ? await Promise.all([itensQueImpedemInativar(cliente.id), temItensLigados(cliente.id)])
     : [[], true]
 
+  const documentos = await listarDocumentosLigados({ clienteId: cliente.id })
   const paineis: Record<AbaCliente, React.ReactNode> = {
     resumo: <AbaResumo cliente={cliente} atual={comparacao?.atual ?? null} historico={historico} />,
     maturidade: <AbaMaturidade cliente={cliente} avaliacoes={avaliacoes} comparacao={comparacao} />,
     contratos: <AbaContratos cliente={cliente} contratos={contratos} ehAdmin={admin} />,
     escopos: <AbaEscopos escopos={escopos} />,
     demandas: <TabelaDemandas demandas={demandas} vazio={<EstadoVazio titulo="Nenhuma demanda deste cliente." />} />,
-    documentos: <EstadoVazio titulo="Nenhum documento deste cliente." />,
+    documentos: <PainelDocumentos documentos={documentos} ligadoA={{ clienteId: cliente.id }} vazio="Nenhum documento deste cliente." />,
     historico: <PainelHistorico entradas={historico} />,
   }
 
