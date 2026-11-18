@@ -8,6 +8,7 @@ import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
 import type { Alerta } from '@/lib/alertas/regras'
 import { CRITICIDADES } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
+import { TextoComNumeros } from '../../documentos/_componentes/texto-com-numeros'
 
 const semValor = (texto: string) => <span className="text-muted-foreground">{texto}</span>
 
@@ -20,7 +21,9 @@ const COLUNAS: Coluna<Alerta>[] = [
     ordenarPor: (a) => a.registro,
     celula: (a) => (
       <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-foreground">{a.registro}</span>
+        <span className="text-foreground">
+          <TextoComNumeros texto={a.registro} />
+        </span>
         <span className="text-xs text-muted-foreground">{a.cliente}</span>
       </span>
     ),

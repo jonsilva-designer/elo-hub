@@ -58,6 +58,13 @@ describe('Início (parte 7, 4.2 e 4.3; F13, F15)', () => {
     expect(push).toHaveBeenCalledWith('/atividades/atv-licencas-protocolo/editar')
   })
 
+  it('os códigos dos registros dos alertas saem na fonte dos números (padrão visual)', async () => {
+    entrarComo('usr-helena')
+    render(await ConteudoInicio())
+    const vencido = regiao('Alertas').getByText('Contrato vencido').closest('tr')!
+    expect(vencido.querySelector('.font-mono')).toHaveTextContent('CT-2025-077')
+  })
+
   it('a Equipe não vê números nem alertas da Montareal (CA-13.2, CA-15.3)', async () => {
     entrarComo('usr-rafael')
     render(await ConteudoInicio())
