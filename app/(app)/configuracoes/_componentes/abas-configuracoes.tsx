@@ -22,7 +22,7 @@ export function AbasConfiguracoes() {
             key={a.href}
             href={a.href}
             aria-current={atual ? 'page' : undefined}
-            className={buttonVariants({ variant: atual ? 'secondary' : 'ghost' })}
+            className={buttonVariants({ variant: atual ? 'outline' : 'ghost' })}
           >
             {a.rotulo}
           </Link>
