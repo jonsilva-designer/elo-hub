@@ -1,3 +1,4 @@
+import { FileDown } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
@@ -5,6 +6,7 @@ import { LinkVoltar } from '@/components/elo/link-voltar'
 import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
+import { Button } from '@/components/ui/button'
 import type { TextoExecutivo } from '@/lib/dados/tipos'
 import { obterVisaoExecutiva } from '@/lib/dados/visao-executiva'
 import { formatarData, formatarDataHora } from '@/lib/formato'
@@ -96,6 +98,15 @@ export async function ConteudoVisaoExecutiva({
           <>
             <FiltroContrato clienteId={visao.cliente.id} contratoId={visao.contrato?.id ?? null} contratos={visao.contratos} />
             <TelaCheia />
+            <Button asChild>
+              <a
+                href={`/api/visao-executiva/${visao.cliente.id}/pdf${visao.contrato ? `?contrato=${encodeURIComponent(visao.contrato.id)}` : ''}`}
+                download
+              >
+                <FileDown aria-hidden="true" />
+                Gerar PDF
+              </a>
+            </Button>
           </>
         }
       />

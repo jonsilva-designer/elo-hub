@@ -102,6 +102,18 @@ describe('Visão Executiva (parte 7, 4.4; F14)', () => {
     expect(push).toHaveBeenCalledWith('/clientes/cli-vertice/visao-executiva')
   })
 
+  it('Gerar PDF leva o filtro do contrato (CA-14.3, CA-14.6)', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = await abrir('cli-vertice')
+    expect(screen.getByRole('link', { name: 'Gerar PDF' })).toHaveAttribute('href', '/api/visao-executiva/cli-vertice/pdf')
+    unmount()
+    await abrir('cli-vertice', { contrato: 'ctr-vertice-mobilizacao' })
+    expect(screen.getByRole('link', { name: 'Gerar PDF' })).toHaveAttribute(
+      'href',
+      '/api/visao-executiva/cli-vertice/pdf?contrato=ctr-vertice-mobilizacao',
+    )
+  })
+
   it('tela cheia para a projeção (CA-14.2)', async () => {
     entrarComo('usr-helena')
     const pedir = vi.fn().mockResolvedValue(undefined)
