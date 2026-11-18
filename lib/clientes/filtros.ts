@@ -4,7 +4,13 @@ import { normalizarBusca } from '@/lib/texto'
 // Busca e filtros da lista de clientes (F16, CA-16.1, CA-16.2). A tela e a exportação usam as mesmas
 // funções, e os filtros vão para o endereço, para a volta da página do cliente encontrar a lista igual.
 
-export type FiltrosClientes = { busca: string; status: StatusCliente[]; segmento: string | null }
+export type FiltrosClientes = {
+  busca: string
+  status: StatusCliente[]
+  segmento: string | null
+  /** Só a carteira: sem o cadastro da ELO, como o total de clientes ativos do painel (DF-40, CA-13.4). */
+  carteira?: boolean
+}
 
 /** Onde a lista guarda os filtros na aba do navegador (sessionStorage), para o caminho de volta. */
 export const CHAVE_FILTROS_DA_LISTA = 'elo:filtros-clientes'
@@ -39,6 +45,7 @@ export function lerFiltros(params: URLSearchParams, segmentos: readonly string[]
     busca: params.get('busca') ?? '',
     status: [...new Set(status)],
     segmento: segmento && segmentos.includes(segmento) ? segmento : null,
+    ...(params.get('carteira') === 'sim' ? { carteira: true } : {}),
   }
 }
 
@@ -48,6 +55,7 @@ export function escreverFiltros(filtros: FiltrosClientes): string {
   if (filtros.busca.trim()) params.set('busca', filtros.busca)
   if (filtros.status.length > 0) params.set('status', filtros.status.join(','))
   if (filtros.segmento) params.set('segmento', filtros.segmento)
+  if (filtros.carteira) params.set('carteira', 'sim')
   return params.toString().replace(/%2C/g, ',')
 }
 
@@ -71,6 +79,7 @@ export function filtrarClientes(clientes: readonly Cliente[], filtros: FiltrosCl
       (c) =>
         status.includes(c.status) &&
         (!filtros.segmento || c.segmento === filtros.segmento) &&
+        (!filtros.carteira || !c.ehCadastroElo) &&
         casaComBusca(c, filtros.busca),
     )
     .sort((a, b) => nomeDoCliente(a).localeCompare(nomeDoCliente(b), 'pt-BR'))

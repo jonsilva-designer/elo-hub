@@ -166,6 +166,19 @@ export function ListaClientes({
                   ))}
                 </SelectContent>
               </Select>
+              {/* A carteira, sem o cadastro da ELO, é a lista que o total de clientes ativos do painel abre (CA-13.4). */}
+              <Select
+                value={filtros.carteira ? 'carteira' : 'todos'}
+                onValueChange={(v) => mudar({ ...filtros, carteira: v === 'carteira' })}
+              >
+                <SelectTrigger aria-label="Cadastros" className="w-full sm:w-56">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Com o cadastro da ELO</SelectItem>
+                  <SelectItem value="carteira">Só a carteira</SelectItem>
+                </SelectContent>
+              </Select>
             </>
           }
         />

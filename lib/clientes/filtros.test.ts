@@ -110,3 +110,17 @@ describe('lerFiltros e escreverFiltros (CA-16.2)', () => {
     expect(paramsDaBusca({ busca: ['a', 'b'], status: 'Ativo', vazio: undefined }).toString()).toBe('busca=a&status=Ativo')
   })
 })
+
+describe('filtro da carteira (CA-13.4)', () => {
+  const elo = { id: 'e', razaoSocial: 'ELO HUB', cnpj: '1', status: 'Ativo', ehCadastroElo: true } as const
+  const vertice = { id: 'v', razaoSocial: 'Vértice', cnpj: '2', status: 'Ativo', ehCadastroElo: false } as const
+
+  it('com carteira=sim, a lista tira o cadastro da ELO; sem ele, mostra', () => {
+    const lidos = lerFiltros(new URLSearchParams('status=Ativo&carteira=sim'), [])
+    expect(lidos).toEqual({ busca: '', status: ['Ativo'], segmento: null, carteira: true })
+    expect(filtrarClientes([elo, vertice], lidos).map((c) => c.id)).toEqual(['v'])
+    expect(filtrarClientes([elo, vertice], { ...lidos, carteira: false }).map((c) => c.id)).toEqual(['e', 'v'])
+    expect(escreverFiltros(lidos)).toBe('status=Ativo&carteira=sim')
+    expect(lerFiltros(new URLSearchParams('carteira=nao'), [])).toEqual({ busca: '', status: [], segmento: null })
+  })
+})

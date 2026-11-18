@@ -109,6 +109,17 @@ describe('ListaClientes', () => {
     expect(larguras()).toEqual(antes)
   })
 
+  it('vindo do painel, só a carteira: sem o cadastro da ELO, e o filtro aparece e sai (CA-13.4)', async () => {
+    const elo = { ...cliente('cli-elo', 'ELO HUB'), ehCadastroElo: true }
+    montar({ clientes: [elo, ...CLIENTES], filtrosIniciais: { busca: '', status: ['Ativo'], segmento: null, carteira: true } })
+    expect(screen.queryByText('ELO HUB')).not.toBeInTheDocument()
+    const cadastros = screen.getByRole('combobox', { name: 'Cadastros' })
+    expect(cadastros).toHaveTextContent('Só a carteira')
+    await userEvent.click(cadastros)
+    await userEvent.click(await screen.findByRole('option', { name: 'Com o cadastro da ELO' }))
+    expect(screen.getByText('ELO HUB')).toBeInTheDocument()
+  })
+
   it('começa com os filtros vindos do endereço', () => {
     montar({ filtrosIniciais: { busca: 'atl', status: [], segmento: null } })
     expect(screen.getByRole('textbox', { name: 'Buscar' })).toHaveValue('atl')
