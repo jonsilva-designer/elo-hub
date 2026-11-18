@@ -150,8 +150,9 @@ describe('incluirDocumento como nova versão (DF-44, CA-12.4)', () => {
 })
 
 describe('salvarDocumento (parte 6, 4.2; matriz 4.3)', () => {
+  // O formulário da edição sempre envia a data do documento (matriz 4.3).
   const editar = (id: string, campos: Record<string, string>) =>
-    salvarDocumento(ESTADO_INICIAL_DOCUMENTO, formulario({ id, ...campos }, null))
+    salvarDocumento(ESTADO_INICIAL_DOCUMENTO, formulario({ id, data: '2026-04-30', ...campos }, null))
 
   const LEVANTAMENTO = {
     nome: 'Relatório do levantamento, revisado',
@@ -161,18 +162,22 @@ describe('salvarDocumento (parte 6, 4.2; matriz 4.3)', () => {
     etapa: 'Diagnosticar',
   }
 
-  it('a Equipe vinculada altera nome, categoria, vínculos e observações, e volta para a página', async () => {
+  it('a Equipe vinculada altera nome, categoria, data, vínculos e observações, e volta para a página', async () => {
     entrarComo('usr-rafael')
     const estado = await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, observacoes: 'Revisado.' })
     expect(estado.erros).toEqual({})
     expect(estado.sucesso).toEqual({ mensagem: `Documento salvo. ${NAO_GRAVA}`, destino: '/documentos/doc-vertice-levantamento' })
   })
 
-  it('a data e o arquivo não mudam na edição: a data enviada é ignorada', async () => {
+  it('a data do documento muda na edição e continua obrigatória; o arquivo só muda por nova versão (matriz 4.3)', async () => {
     entrarComo('usr-rafael')
-    const estado = await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, data: '' })
+    const estado = await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, data: '2026-05-04' })
     expect(estado.erros).toEqual({})
-    expect(estado.valores?.data).toBe('2026-04-30')
+    expect(estado.valores?.data).toBe('2026-05-04')
+    expect((await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, data: '' })).erros).toEqual({ data: MENSAGENS_DOCUMENTO.data })
+    expect((await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, data: '2026-02-30' })).erros).toEqual({
+      data: MENSAGENS_DOCUMENTO.data,
+    })
   })
 
   it('recusa o vínculo de outro cliente, enviado à mão (RN-02)', async () => {

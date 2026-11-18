@@ -24,7 +24,7 @@ describe('editar documento (parte 6, 4.2; matriz 4.3)', () => {
     expect(metadata.title).toBe('Editar documento | Plataforma ELO')
   })
 
-  it('vem preenchido; a data e o arquivo são só leitura; salvar volta para a página', async () => {
+  it('vem preenchido, com a data editável e o arquivo só leitura; salvar volta para a página', async () => {
     entrarComo('usr-rafael')
     render(await editar('doc-vertice-protocolo-licenca'))
     expect(screen.getByRole('heading', { level: 1, name: 'Editar documento' })).toBeInTheDocument()
@@ -34,7 +34,7 @@ describe('editar documento (parte 6, 4.2; matriz 4.3)', () => {
     )
     expect(screen.getByRole('textbox', { name: /Nome/ })).toHaveValue('Protocolo da renovação da licença de operação')
     expect(screen.getByRole('combobox', { name: /Atividade/ })).toHaveTextContent('Protocolar a renovação da licença de operação')
-    expect(screen.getByText('21/10/2026')).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: /Data do documento/ })).toHaveValue('21/10/2026')
     expect(screen.getByText('Protocolo LO 2026.pdf')).toBeInTheDocument()
     expect(screen.getByText('Para trocar o arquivo, envie uma nova versão.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Escolher arquivo/ })).not.toBeInTheDocument()

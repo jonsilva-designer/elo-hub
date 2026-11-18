@@ -20,7 +20,7 @@ import { incluirDocumento, salvarDocumento } from '@/lib/documentos/acoes'
 import { ESTADO_INICIAL_DOCUMENTO } from '@/lib/documentos/estados'
 import { ACEITAR_ARQUIVO, DOCUMENTO_DO_ESPECIALISTA, erroDoArquivo } from '@/lib/documentos/regras'
 import type { DadosDocumento } from '@/lib/documentos/validacao'
-import { formatarData, formatarTamanho } from '@/lib/formato'
+import { formatarTamanho } from '@/lib/formato'
 import { ETAPAS } from '@/lib/jornada/regras'
 
 const opcao = (o: { id: string; rotulo: string }) => ({ valor: o.id, rotulo: o.rotulo })
@@ -29,8 +29,8 @@ const opcao = (o: { id: string; rotulo: string }) => ({ valor: o.id, rotulo: o.r
  * Inclusão e edição do documento (parte 6, 4.2 e 4.4; F12). Uma página só para todos os registros: os vínculos chegam
  * preenchidos pelo endereço, e as opções descem a partir do cliente escolhido (RN-02). Na inclusão, o arquivo é
  * conferido na tela antes de enviar e guardado no estado, para não se perder quando o servidor recusa outro campo; a
- * ação confere tudo de novo. Na edição, a data e o arquivo ficam só leitura (matriz 4.3): o arquivo muda por nova
- * versão. Quem confere tudo é o servidor; com `noValidate`, valem as mensagens da plataforma.
+ * ação confere tudo de novo. Na edição, o arquivo fica só leitura (matriz 4.3, PRD v1.19): o arquivo muda por nova
+ * versão, e a data do documento se altera como os outros dados. Quem confere tudo é o servidor; com `noValidate`, valem as mensagens da plataforma.
  */
 export function FormularioDocumento({
   documento,
@@ -162,24 +162,14 @@ export function FormularioDocumento({
                 <SelecaoDoFormulario nome="categoria" valor={categoria} aoMudar={mudarCategoria} opcoes={categorias} atributos={p} />
               )}
             </Campo>
-            {documento ? (
-              <Campo rotulo="Data do documento" grupo>
-                {() => (
-                  <p className="text-sm font-medium text-foreground">
-                    <Num>{formatarData(documento.data)}</Num>
-                  </p>
-                )}
-              </Campo>
-            ) : (
-              <Campo rotulo="Data do documento" obrigatorio erro={erros.data}>
-                {(p) => (
-                  <>
-                    <CampoData {...p} valor={data} onChange={setData} />
-                    <input type="hidden" name="data" value={data ?? ''} />
-                  </>
-                )}
-              </Campo>
-            )}
+            <Campo rotulo="Data do documento" obrigatorio erro={erros.data}>
+              {(p) => (
+                <>
+                  <CampoData {...p} valor={data} onChange={setData} />
+                  <input type="hidden" name="data" value={data ?? ''} />
+                </>
+              )}
+            </Campo>
           </div>
           {documento ? (
             <Campo rotulo="Arquivo" grupo ajuda="Para trocar o arquivo, envie uma nova versão.">

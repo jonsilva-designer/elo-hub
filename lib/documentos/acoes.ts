@@ -66,9 +66,9 @@ export async function incluirDocumento(_estado: EstadoDocumento, formData: FormD
 }
 
 /**
- * Salva os dados do documento (matriz 4.3): nome, categoria, vínculos e observações. A data e o arquivo não mudam: o
- * arquivo muda por nova versão. A Equipe só no documento de cliente vinculado; o Documento do Especialista sem cliente,
- * só o Administrador (DF-65). O documento com versões ligadas não muda de cliente (CA-12.4), e o documento principal
+ * Salva os dados do documento (matriz 4.3, PRD v1.19): nome, categoria, data do documento, vínculos e observações. A
+ * mudança iria para o histórico, com o valor anterior e o novo (DF-16). O arquivo não muda: muda por nova versão. A
+ * Equipe só no documento de cliente vinculado; o Documento do Especialista sem cliente, só o Administrador (DF-65). O documento com versões ligadas não muda de cliente (CA-12.4), e o documento principal
  * de um contrato continua um contrato ou uma proposta dele (F03).
  */
 export async function salvarDocumento(_estado: EstadoDocumento, formData: FormData): Promise<EstadoDocumento> {
@@ -82,7 +82,7 @@ export async function salvarDocumento(_estado: EstadoDocumento, formData: FormDa
     opcoesDeVinculoDoDocumento(),
     contratoDoPrincipal(documento.id),
   ])
-  const dados = { ...completarVinculos(lidos, opcoes), data: documento.data, substitui: '', origem: '' }
+  const dados = { ...completarVinculos(lidos, opcoes), substitui: '', origem: '' }
   const erros = validarDocumento(dados, { categorias, opcoes, semClientePermitido: ehAdmin(usuario) })
 
   const comVersoes = documento.substituidoPor !== null || documento.substitui.length > 0
