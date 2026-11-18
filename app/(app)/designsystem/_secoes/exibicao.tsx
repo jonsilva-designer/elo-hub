@@ -146,6 +146,16 @@ export function Exibicao() {
           </GradeIndicadores>
         </div>
       </Exemplo>
+      <Exemplo
+        largo
+        rotulo="Indicadores com destaque"
+        nota="No painel do Início: a barra âmbar ou vermelha na borda esquerda, como na linha da tabela."
+      >
+        <GradeIndicadores>
+          <CartaoIndicador rotulo="Próximos do vencimento" valor={2} tom="atencao" />
+          <CartaoIndicador rotulo="Vencidos" valor={1} tom="problema" />
+        </GradeIndicadores>
+      </Exemplo>
       <Exemplo largo rotulo="Indicador zerado, sem link">
         <GradeIndicadores>
           <CartaoIndicador rotulo="Demandas sem triagem" valor={0} detalhe="nenhuma pendente" />

@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
-import { EstadoVazio } from '@/components/elo/estados'
+import { Carregando } from '@/components/elo/estados'
+import { ConteudoInicio } from './_componentes/conteudo-inicio'
 import { DataDeHoje } from './_componentes/data-de-hoje'
 
 // O layout raiz não usa modelo de título: o sufixo vai completo aqui.
 export const metadata: Metadata = { title: 'Início | Plataforma ELO' }
 
-// Início provisório da parte 1. A parte 7 o substitui pelo painel com os alertas (F13, F15).
+// O painel lê a sessão e a data de hoje, então fica dentro do Suspense (cacheComponents).
 export default function PaginaInicio() {
   return (
     <div className="w-full max-w-6xl">
@@ -20,10 +21,9 @@ export default function PaginaInicio() {
           </Suspense>
         }
       />
-      <EstadoVazio
-        titulo="Em construção"
-        descricao="O painel com os alertas do dia entra numa próxima parte do protótipo."
-      />
+      <Suspense fallback={<Carregando />}>
+        <ConteudoInicio />
+      </Suspense>
     </div>
   )
 }
