@@ -1,7 +1,6 @@
-import { Pencil } from 'lucide-react'
+import { Pencil, Presentation } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { BotaoBloqueado } from '@/components/elo/botao-bloqueado'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
@@ -104,10 +103,14 @@ export async function ConteudoCliente({
                 </Link>
               </Button>
             ) : null}
+            {/* O cadastro da ELO não tem carteira: sem Visão Executiva (DF-40). */}
             {cliente.ehCadastroElo ? null : (
-              <BotaoBloqueado variant="outline" motivo="A Visão Executiva entra numa próxima parte do protótipo.">
-                Visão Executiva
-              </BotaoBloqueado>
+              <Button asChild variant="outline">
+                <Link href={`/clientes/${cliente.id}/visao-executiva`}>
+                  <Presentation aria-hidden="true" />
+                  Visão Executiva
+                </Link>
+              </Button>
             )}
             {comMenu ? <AcoesCliente cliente={cliente} impedimentos={impedimentos} podeExcluir={!ligados} /> : null}
           </>

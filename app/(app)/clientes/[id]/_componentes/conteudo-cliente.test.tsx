@@ -35,7 +35,7 @@ describe('página do cliente (parte 2, 5.6)', () => {
     expect(metadata.title).toBe('Cliente | Plataforma ELO')
   })
 
-  it('a Helena vê o cabeçalho, Editar, a Visão Executiva bloqueada e as 7 abas', async () => {
+  it('a Helena vê o cabeçalho, Editar, o link da Visão Executiva e as 7 abas', async () => {
     entrarComo('usr-helena')
     const { container } = await abrir('cli-vertice')
     expect(screen.getByRole('heading', { level: 1, name: 'Vértice Manutenção' })).toBeInTheDocument()
@@ -44,7 +44,7 @@ describe('página do cliente (parte 2, 5.6)', () => {
     expect(cabecalho).toHaveTextContent('21.473.509/0001-21')
     expect(within(cabecalho).getByText('Ativo')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Editar' })).toHaveAttribute('href', '/clientes/cli-vertice/editar')
-    expect(screen.getByRole('button', { name: 'Visão Executiva' })).toHaveAttribute('aria-disabled', 'true')
+    expect(screen.getByRole('link', { name: 'Visão Executiva' })).toHaveAttribute('href', '/clientes/cli-vertice/visao-executiva')
     expect(abas()).toEqual(['Resumo', 'Maturidade', 'Contratos', 'Escopos', 'Demandas', 'Documentos', 'Histórico'])
   })
 
@@ -265,14 +265,14 @@ describe('página do cliente (parte 2, 5.6)', () => {
     expect(screen.getByRole('tab', { name: 'Resumo' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByText('Cadastro da própria ELO, usado nas demandas institucionais')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Maturidade atual' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Visão Executiva' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Visão Executiva' })).not.toBeInTheDocument()
   })
 
   it('o Rafael não vê Editar e cria avaliação na Vértice', async () => {
     entrarComo('usr-rafael')
     await abrir('cli-vertice', { aba: 'maturidade' })
     expect(screen.queryByRole('link', { name: 'Editar' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Visão Executiva' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Visão Executiva' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Nova avaliação' })[0]).toHaveAttribute(
       'href',
       '/avaliacoes/nova?cliente=cli-vertice',
