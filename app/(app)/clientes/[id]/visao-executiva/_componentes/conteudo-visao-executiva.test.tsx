@@ -73,6 +73,19 @@ describe('Visão Executiva (parte 7, 4.4; F14)', () => {
     }
   })
 
+  it('o Administrador e a Equipe vinculada editam cada texto (CA-14.7)', async () => {
+    entrarComo('usr-rafael')
+    await abrir('cli-vertice')
+    await userEvent.click(painel('Próximos passos').getByRole('button', { name: 'Editar Próximos passos' }))
+    const janela = within(await screen.findByRole('alertdialog'))
+    const campo = janela.getByRole('textbox', { name: 'Próximos passos' })
+    expect(campo).toHaveValue('Renovar a licença de operação, implantar o controle de validade e decidir a renovação do contrato de mobilização.')
+    await userEvent.clear(campo)
+    await userEvent.type(campo, 'Assinar o segundo aditivo.')
+    await userEvent.click(janela.getByRole('button', { name: 'Salvar' }))
+    await vi.waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+  })
+
   it('o texto não escrito mostra o vazio, sem autor', async () => {
     entrarComo('usr-rafael')
     await abrir('cli-rede-norte')

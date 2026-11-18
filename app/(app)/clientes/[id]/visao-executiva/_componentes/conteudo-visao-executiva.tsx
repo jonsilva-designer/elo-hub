@@ -17,6 +17,7 @@ import {
   TabelaPendentesDaVisao,
   TabelaPlanosDaVisao,
 } from './blocos-visao'
+import { EditarTexto } from './editar-texto'
 import { FiltroContrato } from './filtro-contrato'
 import { TelaCheia } from './tela-cheia'
 
@@ -24,10 +25,13 @@ type Busca = Record<string, string | string[] | undefined>
 
 const primeiro = (valor: string | string[] | undefined) => (Array.isArray(valor) ? valor[0] : valor)
 
-/** Um dos três textos do cliente, com quem atualizou e quando (CA-14.7). */
-function Texto({ texto }: { texto: TextoExecutivo }) {
+/** Um dos três textos do cliente, com quem atualizou e quando, e o Editar (CA-14.7). */
+function Texto({ clienteId, texto }: { clienteId: string; texto: TextoExecutivo }) {
   return (
-    <Painel titulo={texto.titulo}>
+    <Painel
+      titulo={texto.titulo}
+      acao={<EditarTexto clienteId={clienteId} campo={texto.campo} titulo={texto.titulo} texto={texto.texto} />}
+    >
       {texto.texto ? (
         <div className="space-y-2">
           <p className="whitespace-pre-line text-sm text-foreground">{texto.texto}</p>
@@ -135,7 +139,7 @@ export async function ConteudoVisaoExecutiva({
           )}
         </Painel>
         {visao.textos.map((t) => (
-          <Texto key={t.campo} texto={t} />
+          <Texto key={t.campo} clienteId={visao.cliente.id} texto={t} />
         ))}
       </div>
     </>
