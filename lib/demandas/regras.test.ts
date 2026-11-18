@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { StatusDemanda } from '@/lib/dados/tipos'
 import {
   acoesDaDemanda,
+  correcoesDaDemanda,
   demandaFechada,
   demandaVencida,
   faltaParaAtendimento,
@@ -84,6 +85,31 @@ describe('acoesDaDemanda (PRD 6.1)', () => {
     expect(acoesDaDemanda(demanda('Resolvida', 'usr-ana'), BRUNO)).toEqual(['voltar-ao-atendimento'])
     expect(acoesDaDemanda(demanda('Encerrada', 'usr-ana'), ANA)).toEqual([])
     expect(acoesDaDemanda(demanda('Encerrada', 'usr-ana'), ADMIN)).toEqual(['reabrir'])
+  })
+
+  it('o Administrador também corrige o status da demanda aberta; a Equipe, não (RN-22, CA-17.4)', () => {
+    expect(acoesDaDemanda(demanda('Em atendimento', 'usr-ana'), ADMIN)).toEqual([
+      'aguardar-retorno',
+      'resolver',
+      'encerrar-sem-resolver',
+      'corrigir-status',
+    ])
+    expect(acoesDaDemanda(demanda('Resolvida', 'usr-ana'), ADMIN)).toEqual(['voltar-ao-atendimento', 'encerrar', 'corrigir-status'])
+    expect(acoesDaDemanda(demanda('Em atendimento', 'usr-ana'), ANA)).not.toContain('corrigir-status')
+  })
+})
+
+describe('correcoesDaDemanda (RN-22)', () => {
+  it('os status abertos que não são mudança listada na 6.1 a partir do atual', () => {
+    expect(correcoesDaDemanda('Nova')).toEqual(['Aguardando retorno', 'Resolvida'])
+    expect(correcoesDaDemanda('Em triagem')).toEqual(['Nova', 'Aguardando retorno', 'Resolvida'])
+    expect(correcoesDaDemanda('Em atendimento')).toEqual(['Nova', 'Em triagem'])
+    expect(correcoesDaDemanda('Aguardando retorno')).toEqual(['Nova', 'Em triagem'])
+    expect(correcoesDaDemanda('Resolvida')).toEqual(['Nova', 'Em triagem', 'Aguardando retorno'])
+  })
+
+  it('a Encerrada não se corrige: volta por Reabrir', () => {
+    expect(correcoesDaDemanda('Encerrada')).toEqual([])
   })
 })
 

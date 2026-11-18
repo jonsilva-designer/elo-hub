@@ -18,8 +18,10 @@ import {
   CHAVE_FILTROS_DOS_ESCOPOS,
   contratosDosEscopos,
   escreverFiltrosEscopos,
+  ETAPAS_ATUAIS,
   filtrarEscopos,
   responsaveisDosEscopos,
+  type EtapaAtual,
   type FiltrosEscopos,
 } from '@/lib/escopos/filtros'
 import { CRITICIDADES, PRIORIDADES, STATUS_ESCOPO } from '@/lib/escopos/regras'
@@ -33,6 +35,7 @@ const SEM_FILTRO: FiltrosEscopos = {
   status: [],
   criticidade: [],
   prioridade: [],
+  etapa: [],
 }
 const comoOpcoes = (lista: readonly string[]) => lista.map((s) => ({ valor: s, rotulo: s }))
 
@@ -262,6 +265,15 @@ export function ListaEscopos({
                   valores={filtros.prioridade}
                   onChange={(prioridade) => mudar({ ...filtros, prioridade: prioridade as Prioridade[] })}
                   placeholder="Todas as prioridades"
+                />
+              </div>
+              <div className="w-full sm:w-48">
+                <SelecaoMultipla
+                  aria-label="Etapa atual"
+                  opcoes={comoOpcoes(ETAPAS_ATUAIS)}
+                  valores={filtros.etapa}
+                  onChange={(etapa) => mudar({ ...filtros, etapa: etapa as EtapaAtual[] })}
+                  placeholder="Todas as etapas"
                 />
               </div>
             </>

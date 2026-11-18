@@ -22,6 +22,7 @@ const SEM_FILTRO: FiltrosEscopos = {
   status: [],
   criticidade: [],
   prioridade: [],
+  etapa: [],
 }
 
 const CLIENTES = [
@@ -101,6 +102,14 @@ describe('ListaEscopos', () => {
     await userEvent.click(await screen.findByRole('option', { name: 'Vértice Manutenção' }))
     expect(trocar).toHaveBeenLastCalledWith(null, '', '/escopos?cliente=cli-vertice')
     expect(linhas()).toHaveLength(4)
+  })
+
+  it('o filtro Etapa atual mostra só os escopos nessa etapa da Jornada (CA-06.4)', () => {
+    montar({ filtrosIniciais: { ...SEM_FILTRO, etapa: ['Implementar'] } })
+    const esperados = ESCOPOS.filter((e) => e.etapaAtual === 'Implementar')
+    expect(esperados.length).toBeGreaterThan(0)
+    expect(linhas()).toHaveLength(esperados.length)
+    expect(screen.getByRole('combobox', { name: 'Etapa atual' })).toBeInTheDocument()
   })
 
   it('o filtro Responsável oferece quem responde pelos escopos', async () => {

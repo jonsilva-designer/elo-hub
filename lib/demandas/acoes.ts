@@ -20,6 +20,7 @@ import { dataValida } from '@/lib/escopos/validacao'
 import type { EstadoComentario, EstadoRegistrarDemanda, EstadoSalvarDemanda } from './estados'
 import {
   acoesDaDemanda,
+  correcoesDaDemanda,
   demandaFechada,
   faltaParaAtendimento,
   STATUS_DEMANDA_ABERTOS,
@@ -90,7 +91,7 @@ const TEXTO_EXIGIDO: Partial<Record<AcaoDemanda, string>> = {
   'encerrar-sem-resolver': 'Escreva a justificativa do encerramento.',
 }
 
-const SUCESSO: Record<Exclude<AcaoDemanda, 'reabrir'>, string> = {
+const SUCESSO: Record<Exclude<AcaoDemanda, 'reabrir' | 'corrigir-status'>, string> = {
   'iniciar-triagem': 'Demanda em triagem.',
   'iniciar-atendimento': 'Atendimento iniciado.',
   'aguardar-retorno': 'Demanda aguardando retorno.',
@@ -112,10 +113,10 @@ const faltaParaAtender = (falta: string[]) => `Falta para iniciar o atendimento:
 export async function mudarStatusDemanda(numero: string, acao: string, texto: string): Promise<ResultadoAcao> {
   const usuario = await obterUsuarioAtual()
   const demanda = typeof numero === 'string' ? await obterDemanda(numero) : null
-  if (!demanda || acao === 'reabrir') return recusa(SEM_PERMISSAO)
+  if (!demanda || acao === 'reabrir' || acao === 'corrigir-status') return recusa(SEM_PERMISSAO)
   const doStatus = acoesDaDemanda(demanda, { id: '', perfil: 'Administrador' })
   if (!(doStatus as string[]).includes(acao)) return recusa('Esta mudança não vale para a demanda neste status.')
-  const escolhida = acao as Exclude<AcaoDemanda, 'reabrir'>
+  const escolhida = acao as Exclude<AcaoDemanda, 'reabrir' | 'corrigir-status'>
   if (!acoesDaDemanda(demanda, usuario).includes(escolhida)) return recusa(SEM_PERMISSAO)
 
   if (escolhida === 'iniciar-atendimento') {
@@ -144,6 +145,26 @@ export async function reabrirDemanda(numero: string, status: string, justificati
   }
   if (status === 'Resolvida' && !demanda.solucao.trim()) return recusa('Escreva a solução.')
   return { ok: true, mensagem: mensagemDeSucesso('Demanda reaberta.') }
+}
+
+/**
+ * Corrige o status da demanda aberta, só o Administrador (RN-22, CA-17.4, PRD v1.20): para um status aberto que não é
+ * mudança listada na 6.1, cumprindo as exigências do destino, com justificativa. A justificativa iria para o histórico,
+ * com o status anterior e o novo (DF-16, DF-17).
+ */
+export async function corrigirStatusDemanda(numero: string, status: string, justificativa: string): Promise<ResultadoAcao> {
+  const usuario = await obterUsuarioAtual()
+  const demanda = ehAdmin(usuario) && typeof numero === 'string' ? await obterDemanda(numero) : null
+  if (!demanda) return recusa(SEM_PERMISSAO)
+  if (demandaFechada(demanda.status)) return recusa('A demanda Encerrada volta por Reabrir.')
+  if (!(correcoesDaDemanda(demanda.status) as string[]).includes(status)) return recusa('Escolha um dos status da correção.')
+  if (!temTexto(justificativa)) return recusa('Escreva a justificativa da correção.')
+  if (status === 'Aguardando retorno') {
+    const falta = faltaParaAtendimento(demanda)
+    if (falta.length > 0) return recusa(faltaParaAtender(falta))
+  }
+  if (status === 'Resolvida' && !demanda.solucao.trim()) return recusa('Para passar a Resolvida, a demanda precisa ter a solução.')
+  return { ok: true, mensagem: mensagemDeSucesso('Status corrigido.') }
 }
 
 /**

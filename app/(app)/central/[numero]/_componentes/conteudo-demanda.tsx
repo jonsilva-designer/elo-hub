@@ -15,7 +15,7 @@ import { listarHistorico } from '@/lib/dados/historico'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { DemandaDetalhada } from '@/lib/dados/tipos'
-import { acoesDaDemanda, demandaFechada, faltaParaAtendimento } from '@/lib/demandas/regras'
+import { acoesDaDemanda, correcoesDaDemanda, demandaFechada, faltaParaAtendimento } from '@/lib/demandas/regras'
 import { formatarData } from '@/lib/formato'
 import { VoltarParaCentral } from '../../_componentes/voltar-para-central'
 import { AcoesDemanda } from './acoes-demanda'
@@ -154,6 +154,7 @@ export async function ConteudoDemanda({ params }: { params: Promise<{ numero: st
               numero={demanda.numero}
               acoes={acoesDaDemanda(demanda, usuario)}
               falta={faltaParaAtendimento(demanda)}
+              correcoes={correcoesDaDemanda(demanda.status)}
             />
           </>
         }

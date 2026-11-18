@@ -49,6 +49,7 @@ export type AcaoDemanda =
   | 'encerrar'
   | 'encerrar-sem-resolver'
   | 'reabrir'
+  | 'corrigir-status'
 
 type Pessoa = { id: string; perfil: Perfil }
 type Responsaveis = { responsavelTriagemId: string; responsavelAtendimentoId: string | null }
@@ -59,7 +60,10 @@ export function podeEncerrar(d: Responsaveis, usuario: Pessoa): boolean {
   return d.responsavelAtendimentoId ? usuario.id === d.responsavelAtendimentoId : usuario.id === d.responsavelTriagemId
 }
 
-/** As ações de status que o usuário pode fazer, na ordem da tela (PRD 6.1). O acesso ao cliente é conferido antes. */
+/**
+ * As ações de status que o usuário pode fazer, na ordem da tela (PRD 6.1). O acesso ao cliente é conferido antes. Na
+ * demanda aberta, o Administrador também corrige o status (RN-22).
+ */
 export function acoesDaDemanda(d: Responsaveis & { status: StatusDemanda }, usuario: Pessoa): AcaoDemanda[] {
   const encerra = podeEncerrar(d, usuario)
   const porStatus: Record<StatusDemanda, AcaoDemanda[]> = {
@@ -71,7 +75,31 @@ export function acoesDaDemanda(d: Responsaveis & { status: StatusDemanda }, usua
     Encerrada: usuario.perfil === 'Administrador' ? ['reabrir'] : [],
   }
   const semResolver = !demandaFechada(d.status) && d.status !== 'Resolvida' && encerra
-  return [...porStatus[d.status], ...(semResolver ? (['encerrar-sem-resolver'] as const) : [])]
+  const corrige = !demandaFechada(d.status) && usuario.perfil === 'Administrador'
+  return [
+    ...porStatus[d.status],
+    ...(semResolver ? (['encerrar-sem-resolver'] as const) : []),
+    ...(corrige ? (['corrigir-status'] as const) : []),
+  ]
+}
+
+/** Os status abertos a que cada status chega pelas mudanças listadas na 6.1, sem contar o encerramento. */
+const MUDANCAS_LISTADAS: Record<StatusDemanda, StatusDemanda[]> = {
+  Nova: ['Em triagem', 'Em atendimento'],
+  'Em triagem': ['Em atendimento'],
+  'Em atendimento': ['Aguardando retorno', 'Resolvida'],
+  'Aguardando retorno': ['Em atendimento', 'Resolvida'],
+  Resolvida: ['Em atendimento'],
+  Encerrada: [],
+}
+
+/**
+ * Para onde o Administrador corrige a demanda aberta (RN-22, CA-17.4, PRD v1.20): os outros status abertos que não são
+ * mudança listada na 6.1, que têm ação própria. A Encerrada volta por Reabrir, e não por correção.
+ */
+export function correcoesDaDemanda(status: StatusDemanda): StatusDemanda[] {
+  if (demandaFechada(status)) return []
+  return STATUS_DEMANDA_ABERTOS.filter((s) => s !== status && !MUDANCAS_LISTADAS[status].includes(s))
 }
 
 /** O que falta para o atendimento começar (CA-09.2). */

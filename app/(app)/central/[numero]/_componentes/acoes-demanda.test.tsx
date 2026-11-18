@@ -3,12 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { avisarSalvo } from '@/lib/avisos'
-import { mudarStatusDemanda, reabrirDemanda } from '@/lib/demandas/acoes'
+import { corrigirStatusDemanda, mudarStatusDemanda, reabrirDemanda } from '@/lib/demandas/acoes'
 import type { AcaoDemanda } from '@/lib/demandas/regras'
 import { AcoesDemanda } from './acoes-demanda'
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }) }))
-vi.mock('@/lib/demandas/acoes', () => ({ mudarStatusDemanda: vi.fn(), reabrirDemanda: vi.fn() }))
+vi.mock('@/lib/demandas/acoes', () => ({ mudarStatusDemanda: vi.fn(), reabrirDemanda: vi.fn(), corrigirStatusDemanda: vi.fn() }))
 vi.mock('@/lib/avisos', () => ({ avisarSalvo: vi.fn() }))
 
 const SUCESSO = { ok: true, mensagem: 'Feito. No protótipo, os dados não são gravados.' } as const
@@ -16,6 +16,7 @@ const SUCESSO = { ok: true, mensagem: 'Feito. No protótipo, os dados não são 
 beforeEach(() => {
   vi.mocked(mudarStatusDemanda).mockReset()
   vi.mocked(reabrirDemanda).mockReset()
+  vi.mocked(corrigirStatusDemanda).mockReset()
   vi.mocked(avisarSalvo).mockReset()
 })
 
@@ -76,5 +77,25 @@ describe('AcoesDemanda (parte 5, 5.10)', () => {
     await userEvent.type(janela.getByRole('textbox', { name: /Justificativa/ }), 'Não era duplicada.')
     await userEvent.click(janela.getByRole('button', { name: 'Reabrir' }))
     await waitFor(() => expect(reabrirDemanda).toHaveBeenCalledWith('ELO-2026-0010', 'Nova', 'Não era duplicada.'))
+  })
+
+  it('corrigir status: escolhe entre os status da correção e pede a justificativa (RN-22)', async () => {
+    vi.mocked(corrigirStatusDemanda).mockResolvedValue(SUCESSO)
+    render(
+      <TooltipProvider>
+        <AcoesDemanda numero="ELO-2026-0003" acoes={['corrigir-status']} falta={[]} correcoes={['Nova', 'Em triagem']} />
+      </TooltipProvider>,
+    )
+    const janela = await escolher('Corrigir status')
+    expect(janela.getAllByRole('radio').map((r) => r.getAttribute('value'))).toEqual(['Nova', 'Em triagem'])
+    await userEvent.click(janela.getByRole('button', { name: 'Corrigir status' }))
+    expect(janela.getByText('Escreva a justificativa da correção.')).toBeInTheDocument()
+    await userEvent.click(janela.getByRole('radio', { name: 'Em triagem' }))
+    await userEvent.type(janela.getByRole('textbox', { name: /Justificativa/ }), 'Atendimento iniciado por engano.')
+    await userEvent.click(janela.getByRole('button', { name: 'Corrigir status' }))
+    await waitFor(() =>
+      expect(corrigirStatusDemanda).toHaveBeenCalledWith('ELO-2026-0003', 'Em triagem', 'Atendimento iniciado por engano.'),
+    )
+    expect(mudarStatusDemanda).not.toHaveBeenCalled()
   })
 })

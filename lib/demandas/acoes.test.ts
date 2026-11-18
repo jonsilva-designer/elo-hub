@@ -2,7 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { obterDemanda } from '@/lib/dados/demandas'
 import { obterInicioDaOperacao } from '@/lib/dados/parametros'
-import { comentarDemanda, mudarStatusDemanda, reabrirDemanda, registrarDemanda, salvarDemanda } from './acoes'
+import {
+  comentarDemanda,
+  corrigirStatusDemanda,
+  mudarStatusDemanda,
+  reabrirDemanda,
+  registrarDemanda,
+  salvarDemanda,
+} from './acoes'
 import { ESTADO_INICIAL_COMENTARIO, ESTADO_INICIAL_REGISTRAR_DEMANDA, ESTADO_INICIAL_SALVAR_DEMANDA } from './estados'
 import { MENSAGENS_DEMANDA } from './validacao'
 
@@ -172,6 +179,50 @@ describe('mudarStatusDemanda (PRD 6.1; critérios 7 a 10)', () => {
     })
     expect(await mudarStatusDemanda('ELO-2026-0011', 'iniciar-triagem', '')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
     expect(await mudarStatusDemanda('ELO-2026-0001', 'reabrir', 'x')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+  })
+})
+
+describe('corrigirStatusDemanda (RN-22, CA-17.4)', () => {
+  const ok = { ok: true, mensagem: 'Status corrigido. No protótipo, os dados não são gravados.' }
+
+  it('só o Administrador corrige, com justificativa, para um status fora das mudanças listadas', async () => {
+    entrarComo('usr-rafael')
+    expect(await corrigirStatusDemanda('ELO-2026-0003', 'Nova', 'Triagem feita por engano.')).toEqual({
+      ok: false,
+      mensagem: SEM_PERMISSAO,
+    })
+    entrarComo('usr-helena')
+    expect(await corrigirStatusDemanda('ELO-2026-0003', 'Nova', 'Triagem feita por engano.')).toEqual(ok)
+    expect(await corrigirStatusDemanda('ELO-2026-0003', 'Nova', '  ')).toEqual({
+      ok: false,
+      mensagem: 'Escreva a justificativa da correção.',
+    })
+    expect(await corrigirStatusDemanda('ELO-2026-0003', 'Resolvida', 'Motivo')).toEqual({
+      ok: false,
+      mensagem: 'Escolha um dos status da correção.',
+    })
+    expect(await corrigirStatusDemanda('ELO-2026-0005', 'Em triagem', 'Faltou classificar.')).toEqual(ok)
+    expect(await corrigirStatusDemanda('ELO-2026-0099', 'Nova', 'Motivo')).toEqual({ ok: false, mensagem: SEM_PERMISSAO })
+  })
+
+  it('cumpre as exigências do status de destino', async () => {
+    entrarComo('usr-helena')
+    expect(await corrigirStatusDemanda('ELO-2026-0009', 'Aguardando retorno', 'Já estava com o cliente.')).toEqual({
+      ok: false,
+      mensagem: 'Falta para iniciar o atendimento: Categoria, Criticidade, Responsável pelo atendimento.',
+    })
+    expect(await corrigirStatusDemanda('ELO-2026-0009', 'Resolvida', 'Já tinha sido resolvida por telefone.')).toEqual({
+      ok: false,
+      mensagem: 'Para passar a Resolvida, a demanda precisa ter a solução.',
+    })
+  })
+
+  it('a Encerrada não se corrige: volta por Reabrir', async () => {
+    entrarComo('usr-helena')
+    expect(await corrigirStatusDemanda('ELO-2026-0001', 'Nova', 'Motivo')).toEqual({
+      ok: false,
+      mensagem: 'A demanda Encerrada volta por Reabrir.',
+    })
   })
 })
 

@@ -67,9 +67,14 @@ export async function ConteudoInicio() {
       </Bloco>
       <div className="grid gap-5 lg:grid-cols-2">
         <Painel titulo="Escopos">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Detalhamento indicadores={painel.escopos.porStatus} />
-            <Detalhamento indicadores={painel.escopos.porCriticidade} />
+          <div className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Detalhamento indicadores={painel.escopos.porStatus} />
+              <Detalhamento indicadores={painel.escopos.porCriticidade} />
+            </div>
+            <Bloco titulo="Etapa atual dos escopos abertos">
+              <Detalhamento indicadores={painel.escopos.porEtapa} />
+            </Bloco>
           </div>
         </Painel>
         <Painel titulo="Central ELO">

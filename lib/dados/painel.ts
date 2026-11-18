@@ -3,8 +3,8 @@ import { filtrarClientes, lerFiltros } from '@/lib/clientes/filtros'
 import { filtrarContratos, lerFiltrosContratos } from '@/lib/contratos/filtros'
 import { STATUS_DEMANDA_ABERTOS } from '@/lib/demandas/regras'
 import { filtrarDemandas, lerFiltrosDemandas } from '@/lib/demandas/filtros'
-import { CRITICIDADES, STATUS_ESCOPO } from '@/lib/escopos/regras'
-import { filtrarEscopos, lerFiltrosEscopos } from '@/lib/escopos/filtros'
+import { CRITICIDADES, STATUS_ESCOPO, STATUS_ESCOPO_ABERTOS } from '@/lib/escopos/regras'
+import { ETAPAS_ATUAIS, filtrarEscopos, lerFiltrosEscopos } from '@/lib/escopos/filtros'
 import { listarAtividades } from './atividades'
 import { listarClientes } from './clientes'
 import { listarContratos } from './contratos'
@@ -23,7 +23,8 @@ export type Painel = {
   clientesAtivos: Indicador
   /** Vigentes, Próximos do vencimento, Vencidos e Suspensos (DF-25, DF-34, DF-54). */
   contratos: Indicador[]
-  escopos: { total: Indicador; porStatus: Indicador[]; porCriticidade: Indicador[] }
+  /** A etapa atual conta só os escopos abertos: o fechado já terminou a Jornada (CA-06.4, PRD v1.20). */
+  escopos: { total: Indicador; porStatus: Indicador[]; porCriticidade: Indicador[]; porEtapa: Indicador[] }
   /** Abertas, Concluídas, Atrasadas e Próximas do prazo (RN-09, RN-10). */
   atividades: Indicador[]
   demandas: { abertas: Indicador; porStatus: Indicador[]; porCriticidade: Indicador[] }
@@ -79,6 +80,9 @@ export async function indicadoresDoPainel(): Promise<Painel> {
       total: indicador('Escopos', '/escopos'),
       porStatus: STATUS_ESCOPO.map((s) => indicador(s, endereco('/escopos', { status: s }))),
       porCriticidade: DA_CRITICA_PARA_A_BAIXA.map((c) => indicador(c, endereco('/escopos', { criticidade: c }))),
+      porEtapa: ETAPAS_ATUAIS.map((et) =>
+        indicador(et, endereco('/escopos', { status: STATUS_ESCOPO_ABERTOS.join(','), etapa: et })),
+      ),
     },
     atividades: [
       indicador('Abertas', atividadesCom({ status: 'Não iniciada,Em andamento' })),

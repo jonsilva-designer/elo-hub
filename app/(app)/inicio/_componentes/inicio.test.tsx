@@ -41,6 +41,10 @@ describe('Início (parte 7, 4.2 e 4.3; F13, F15)', () => {
     expect(screen.getByRole('link', { name: /Vencidos/ })).toHaveAttribute('data-tom', 'problema')
     expect(screen.getByRole('link', { name: /Atrasadas/ })).toHaveAttribute('href', '/minhas-atividades?responsavel=todos&prazo=Atrasada')
     expect(regiao('Escopos').getByRole('link', { name: /Em andamento/ })).toHaveAttribute('href', '/escopos?status=Em+andamento')
+    expect(regiao('Etapa atual dos escopos abertos').getByRole('link', { name: /Implementar/ })).toHaveAttribute(
+      'href',
+      '/escopos?status=Planejado,Em+andamento,Em+espera&etapa=Implementar',
+    )
     expect(regiao('Central ELO').getByRole('link', { name: /Crítica/ })).toHaveAttribute(
       'href',
       '/central?status=Nova,Em+triagem,Em+atendimento,Aguardando+retorno,Resolvida&criticidade=Cr%C3%ADtica',

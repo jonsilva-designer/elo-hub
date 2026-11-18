@@ -25,6 +25,7 @@ const todos = async (usuarioId: string) => {
     p.escopos.total,
     ...p.escopos.porStatus,
     ...p.escopos.porCriticidade,
+    ...p.escopos.porEtapa,
     ...p.atividades,
     p.demandas.abertas,
     ...p.demandas.porStatus,
@@ -94,6 +95,11 @@ describe('indicadores do painel (F13)', () => {
     expect(p.contratos[1].href).toBe('/contratos?vigencia=Pr%C3%B3ximo+do+vencimento')
     expect(p.escopos.porStatus.map((i) => i.rotulo)).toEqual(['Planejado', 'Em andamento', 'Em espera', 'Concluído', 'Cancelado'])
     expect(p.escopos.porCriticidade.map((i) => i.rotulo)).toEqual(['Crítica', 'Alta', 'Moderada', 'Baixa'])
+    // A etapa atual conta os escopos abertos: o fechado já terminou a Jornada (CA-06.4).
+    expect(p.escopos.porEtapa.map((i) => i.rotulo)).toEqual(['Não iniciada', 'Diagnosticar', 'Estruturar', 'Implementar', 'Monitorar', 'Evoluir'])
+    expect(p.escopos.porEtapa[3].href).toBe('/escopos?status=Planejado,Em+andamento,Em+espera&etapa=Implementar')
+    const abertos = p.escopos.porStatus.slice(0, 3).reduce((soma, i) => soma + i.valor, 0)
+    expect(p.escopos.porEtapa.reduce((soma, i) => soma + i.valor, 0)).toBe(abertos)
     expect(p.atividades.map((i) => i.rotulo)).toEqual(['Abertas', 'Concluídas', 'Atrasadas', 'Próximas do prazo'])
     expect(p.atividades[0].href).toBe('/minhas-atividades?responsavel=todos&status=N%C3%A3o+iniciada,Em+andamento')
     expect(p.demandas.porStatus.map((i) => i.rotulo)).toEqual(['Nova', 'Em triagem', 'Em atendimento', 'Aguardando retorno', 'Resolvida'])

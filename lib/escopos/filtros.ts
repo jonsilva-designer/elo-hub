@@ -1,10 +1,17 @@
-import type { EscopoDetalhado, StatusEscopo } from '@/lib/dados/tipos'
+import type { EscopoDetalhado, EtapaJornada, StatusEscopo } from '@/lib/dados/tipos'
 import type { Criticidade, Prioridade } from '@/lib/design/status'
+import { ETAPAS } from '@/lib/jornada/regras'
 import { normalizarBusca } from '@/lib/texto'
 import { CRITICIDADES, PRIORIDADES, STATUS_ESCOPO, escopoFechado } from './regras'
 
 // Busca e filtros da lista de escopos (parte 3, 5.7; CA-05.5). Os filtros vão para o endereço, para a volta da
-// página do escopo encontrar a lista igual, como na lista de contratos (CA-16.2).
+// página do escopo encontrar a lista igual, como na lista de contratos (CA-16.2). A etapa atual é a calculada pela
+// RN-08; é por ela que o Início abre a lista (CA-06.4, PRD v1.20).
+
+export type EtapaAtual = EtapaJornada | 'Não iniciada'
+
+/** As etapas atuais possíveis, na ordem da Jornada: sem etapa iniciada, "Não iniciada". */
+export const ETAPAS_ATUAIS: EtapaAtual[] = ['Não iniciada', ...ETAPAS]
 
 export type FiltrosEscopos = {
   busca: string
@@ -14,6 +21,7 @@ export type FiltrosEscopos = {
   status: StatusEscopo[]
   criticidade: Criticidade[]
   prioridade: Prioridade[]
+  etapa: EtapaAtual[]
 }
 
 /** Onde a lista guarda os filtros na aba do navegador (sessionStorage), para o caminho de volta. */
@@ -45,6 +53,7 @@ export function lerFiltrosEscopos(
     status: lista(params.get('status'), STATUS_ESCOPO),
     criticidade: lista(params.get('criticidade'), CRITICIDADES),
     prioridade: lista(params.get('prioridade'), PRIORIDADES),
+    etapa: lista(params.get('etapa'), ETAPAS_ATUAIS),
   }
 }
 
@@ -58,6 +67,7 @@ export function escreverFiltrosEscopos(filtros: FiltrosEscopos): string {
   if (filtros.status.length > 0) params.set('status', filtros.status.join(','))
   if (filtros.criticidade.length > 0) params.set('criticidade', filtros.criticidade.join(','))
   if (filtros.prioridade.length > 0) params.set('prioridade', filtros.prioridade.join(','))
+  if (filtros.etapa.length > 0) params.set('etapa', filtros.etapa.join(','))
   return params.toString().replace(/%2C/g, ',')
 }
 
@@ -88,7 +98,8 @@ export function filtrarEscopos(escopos: readonly EscopoDetalhado[], filtros: Fil
         (!filtros.responsavel || e.responsavelId === filtros.responsavel) &&
         (filtros.status.length === 0 || filtros.status.includes(e.status)) &&
         (filtros.criticidade.length === 0 || filtros.criticidade.includes(e.criticidade)) &&
-        (filtros.prioridade.length === 0 || filtros.prioridade.includes(e.prioridade)),
+        (filtros.prioridade.length === 0 || filtros.prioridade.includes(e.prioridade)) &&
+        (filtros.etapa.length === 0 || filtros.etapa.includes(e.etapaAtual)),
     )
     .sort(pelaOrdemInicial)
 }

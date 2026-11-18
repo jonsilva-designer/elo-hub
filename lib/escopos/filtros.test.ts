@@ -7,6 +7,7 @@ import {
   escreverFiltrosEscopos,
   filtrarEscopos,
   lerFiltrosEscopos,
+  ETAPAS_ATUAIS,
   ordenarEscopos,
   responsaveisDosEscopos,
   type FiltrosEscopos,
@@ -25,6 +26,7 @@ const SEM_FILTRO: FiltrosEscopos = {
   status: [],
   criticidade: [],
   prioridade: [],
+  etapa: [],
 }
 
 const OPCOES = {
@@ -52,6 +54,7 @@ describe('filtros da lista de escopos (parte 3, 5.7; critério 11)', () => {
       status: ['Planejado', 'Em andamento'],
       criticidade: ['Alta', 'Crítica'],
       prioridade: ['Média'],
+      etapa: ['Não iniciada', 'Implementar'],
     }
     const texto = escreverFiltrosEscopos(filtros)
     expect(texto).toContain('status=Planejado,Em+andamento')
@@ -64,7 +67,7 @@ describe('filtros da lista de escopos (parte 3, 5.7; critério 11)', () => {
 
   it('ignora o que não está nas opções', () => {
     const params = new URLSearchParams(
-      'cliente=cli-montareal&contrato=ctr-x&responsavel=usr-marcos&status=Arquivado&criticidade=Altíssima,Alta&prioridade=Urgente',
+      'cliente=cli-montareal&contrato=ctr-x&responsavel=usr-marcos&status=Arquivado&criticidade=Altíssima,Alta&prioridade=Urgente&etapa=Planejar',
     )
     expect(lerFiltrosEscopos(params, OPCOES)).toEqual({ ...SEM_FILTRO, criticidade: ['Alta'] })
   })
@@ -82,6 +85,16 @@ describe('filtros da lista de escopos (parte 3, 5.7; critério 11)', () => {
     expect(filtrarEscopos(escopos, { ...SEM_FILTRO, busca: 'regularizacao' }).map((e) => e.nome)).toEqual([
       'Regularização documental',
     ])
+  })
+
+  it('filtra pela etapa atual da Jornada, calculada (CA-06.4, RN-08)', async () => {
+    const escopos = await escoposDaHelena()
+    for (const etapa of ETAPAS_ATUAIS) {
+      const filtrados = filtrarEscopos(escopos, { ...SEM_FILTRO, etapa: [etapa] })
+      expect(filtrados.map((e) => e.id).sort()).toEqual(escopos.filter((e) => e.etapaAtual === etapa).map((e) => e.id).sort())
+    }
+    expect(ETAPAS_ATUAIS).toEqual(['Não iniciada', 'Diagnosticar', 'Estruturar', 'Implementar', 'Monitorar', 'Evoluir'])
+    expect(new Set(escopos.map((e) => e.etapaAtual)).size).toBeGreaterThan(2)
   })
 
   it('busca sem letra nem dígito conta como vazia', async () => {

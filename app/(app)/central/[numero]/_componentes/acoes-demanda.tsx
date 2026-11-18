@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import type { StatusDemanda } from '@/lib/dados/tipos'
-import { mudarStatusDemanda, reabrirDemanda } from '@/lib/demandas/acoes'
+import { corrigirStatusDemanda, mudarStatusDemanda, reabrirDemanda } from '@/lib/demandas/acoes'
 import { STATUS_DEMANDA_ABERTOS, type AcaoDemanda } from '@/lib/demandas/regras'
 import type { ResultadoAcao } from '@/lib/resultado-acao'
 
@@ -61,6 +61,13 @@ const COMO: Record<AcaoDemanda, { rotulo: string; titulo: string; descricao: str
     descricao: 'Escolha o status de volta e escreva o motivo. A data de encerramento é apagada.',
     campo: { rotulo: 'Justificativa', falta: 'Escreva a justificativa da reabertura.' },
   },
+  'corrigir-status': {
+    rotulo: 'Corrigir status',
+    titulo: 'Corrigir o status?',
+    descricao:
+      'Para um status fora das mudanças do menu. Escolha o status certo e escreva o motivo, que fica no histórico com o status anterior e o novo.',
+    campo: { rotulo: 'Justificativa', falta: 'Escreva a justificativa da correção.' },
+  },
 }
 
 /** Recusa do servidor, dentro da janela. */
@@ -81,12 +88,15 @@ export function AcoesDemanda({
   numero,
   acoes,
   falta,
+  correcoes = [],
 }: {
   numero: string
   /** As mudanças que valem para o status e para o usuário (acoesDaDemanda). */
   acoes: AcaoDemanda[]
   /** O que falta da triagem para iniciar o atendimento. */
   falta: string[]
+  /** Os status para onde o Administrador corrige a demanda (correcoesDaDemanda, RN-22). */
+  correcoes?: StatusDemanda[]
 }) {
   const [janela, setJanela] = useState<AcaoDemanda | null>(null)
   const [pendente, iniciar] = useTransition()
@@ -101,7 +111,7 @@ export function AcoesDemanda({
     setTexto('')
     setErro(undefined)
     setRecusa(null)
-    setStatusDeVolta('Nova')
+    setStatusDeVolta(acao === 'corrigir-status' ? (correcoes[0] ?? 'Nova') : 'Nova')
     setJanela(acao)
   }
 
@@ -119,7 +129,11 @@ export function AcoesDemanda({
     setRecusa(null)
     iniciar(async () => {
       const resultado: ResultadoAcao =
-        acao === 'reabrir' ? await reabrirDemanda(numero, statusDeVolta, texto) : await mudarStatusDemanda(numero, acao, texto)
+        acao === 'reabrir'
+          ? await reabrirDemanda(numero, statusDeVolta, texto)
+          : acao === 'corrigir-status'
+            ? await corrigirStatusDemanda(numero, statusDeVolta, texto)
+            : await mudarStatusDemanda(numero, acao, texto)
       if (resultado.ok) {
         avisarSalvo(resultado.mensagem)
         setJanela(null)
@@ -178,14 +192,14 @@ export function AcoesDemanda({
             conteudo={
               como.campo || recusa ? (
                 <div className="space-y-3">
-                  {a === 'reabrir' ? (
-                    <Campo rotulo="Status de volta" grupo>
+                  {a === 'reabrir' || a === 'corrigir-status' ? (
+                    <Campo rotulo={a === 'reabrir' ? 'Status de volta' : 'Status certo'} grupo>
                       {(p) => (
                         <RadioGroup {...p} value={statusDeVolta} onValueChange={(v) => setStatusDeVolta(v as StatusDemanda)}>
-                          {STATUS_DEMANDA_ABERTOS.map((s) => (
+                          {(a === 'reabrir' ? STATUS_DEMANDA_ABERTOS : correcoes).map((s) => (
                             <div key={s} className="flex items-center gap-2">
-                              <RadioGroupItem id={`reabrir-demanda-${s}`} value={s} />
-                              <Label htmlFor={`reabrir-demanda-${s}`} className="font-normal">
+                              <RadioGroupItem id={`${a}-demanda-${s}`} value={s} />
+                              <Label htmlFor={`${a}-demanda-${s}`} className="font-normal">
                                 {s}
                               </Label>
                             </div>
