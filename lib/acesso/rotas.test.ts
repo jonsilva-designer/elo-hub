@@ -44,7 +44,7 @@ describe('decidirRota (proxy)', () => {
     expect(decidirRota('/designsystem', '', true)).toBeNull()
   })
 
-  it.each(['/login', '/recuperar-senha', '/definir-senha', '/site', '/site/diagnostico'])(
+  it.each(['/login', '/recuperar-senha', '/definir-senha', '/site', '/site/diagnostico', '/site/especialista'])(
     '%s fica aberta, com e sem cookie',
     (caminho) => {
       expect(decidirRota(caminho, '', false)).toBeNull()
