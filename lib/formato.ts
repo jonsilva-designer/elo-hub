@@ -121,6 +121,14 @@ export function formatarNumero(valor: number | null | undefined): string {
   return n === null ? VAZIO : numero.format(n);
 }
 
+/** O tamanho do arquivo: em bytes até 1 KB, em KB inteiros até 1 MB e em MB com uma casa ("2,4 MB", "10 MB"). */
+export function formatarTamanho(bytes: number): string {
+  if (bytes < 1024) return `${bytes} ${bytes === 1 ? "byte" : "bytes"}`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  const mb = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(bytes / (1024 * 1024));
+  return `${mb} MB`;
+}
+
 export function formatarPercentual(fracao: number | null | undefined): string {
   const n = finito(fracao);
   return n === null ? VAZIO : percentual.format(n);

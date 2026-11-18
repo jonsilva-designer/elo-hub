@@ -8,6 +8,7 @@ import {
   formatarNumero,
   formatarPercentual,
   formatarReal,
+  formatarTamanho,
   lerValorEmReais,
   formatarDataHora,
   hojeEmBrasilia,
@@ -210,3 +211,13 @@ describe('somarDias', () => {
     expect(somarDias('2027-03-01', -1)).toBe('2027-02-28')
   })
 })
+
+describe("formatarTamanho", () => {
+  it("bytes, KB inteiros e MB com uma casa, no formato brasileiro (F12)", () => {
+    expect(formatarTamanho(800)).toBe("800 bytes");
+    expect(formatarTamanho(1)).toBe("1 byte");
+    expect(formatarTamanho(350 * 1024)).toBe("350 KB");
+    expect(formatarTamanho(Math.round(2.4 * 1024 * 1024))).toBe("2,4 MB");
+    expect(formatarTamanho(10 * 1024 * 1024)).toBe("10 MB");
+  });
+});

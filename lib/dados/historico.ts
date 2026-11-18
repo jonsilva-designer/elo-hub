@@ -3,10 +3,12 @@ import { AVALIACOES } from './mock/avaliacoes'
 import { CONTRATOS } from './mock/contratos'
 import { ESCOPOS } from './mock/escopos'
 import { DEMANDAS } from './mock/demandas'
+import { DOCUMENTOS } from './mock/documentos'
 import { ESPECIALISTAS } from './mock/especialistas'
 import { HISTORICO } from './mock/historico'
 import { PLANOS } from './mock/planos'
 import { USUARIOS, VINCULOS } from './mock/usuarios'
+import { podeVerDocumento } from '@/lib/documentos/regras'
 import { podeVerCliente } from './regras'
 import { obterUsuarioAtual } from './sessao'
 import type { EntradaHistorico, TipoRegistro } from './tipos'
@@ -50,6 +52,10 @@ export async function listarHistorico(tipo: TipoRegistro, id: string): Promise<E
   // O especialista não tem cliente: todos os usuários logados o leem, e o histórico dele também (DF-02, F17).
   if (tipo === 'especialista') {
     if (!ESPECIALISTAS.some((e) => e.id === id)) return []
+  } else if (tipo === 'documento') {
+    // O documento segue o acesso dele: o cliente, ou todos no Documento do Especialista sem cliente (DF-65).
+    const documento = DOCUMENTOS.find((d) => d.id === id)
+    if (!documento || !podeVerDocumento(documento, usuario, VINCULOS)) return []
   } else {
     const clienteId = clienteDoRegistro(tipo, id)
     if (!clienteId || !podeVerCliente(usuario, clienteId, VINCULOS)) return []

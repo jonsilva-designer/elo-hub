@@ -6,11 +6,13 @@ import { AVALIACOES } from './avaliacoes'
 import { CLIENTES } from './clientes'
 import { CONTRATOS } from './contratos'
 import { COMENTARIOS, DEMANDAS } from './demandas'
+import { DOCUMENTOS } from './documentos'
 import { ESCOPOS } from './escopos'
 import { ESPECIALISTAS } from './especialistas'
 import { HISTORICO } from './historico'
-import { CATEGORIAS, CONTRATANTES, DIMENSOES, ESPECIALIDADES, SEGMENTOS, SERVICOS } from './listas'
+import { CATEGORIAS, CATEGORIAS_DOCUMENTO, CONTRATANTES, DIMENSOES, ESPECIALIDADES, SEGMENTOS, SERVICOS } from './listas'
 import { PLANOS } from './planos'
+import { erroDoArquivo, nomeDeArquivoSeguro } from '@/lib/documentos/regras'
 import { USUARIOS, VINCULOS } from './usuarios'
 
 const digitos = (cnpj: string) => cnpj.replace(/\D/g, '')
@@ -440,6 +442,86 @@ describe('demandas de exemplo (F09)', () => {
       expect(['cli-ondamar', 'cli-limpar'], d.numero).not.toContain(d.clienteId)
       expect(['esc-vertice-qualidade', 'esc-rede-norte-rmm'], d.numero).not.toContain(d.escopoId)
       expect(d.contratoId, d.numero).not.toBe('ctr-atlantica-ssma')
+    }
+  })
+})
+
+describe('documentos de exemplo (F12)', () => {
+  it('categoria da lista, arquivo válido e com nome higienizado, sem repetir id (CA-12.1, CA-12.2)', () => {
+    expect(new Set(DOCUMENTOS.map((d) => d.id)).size).toBe(DOCUMENTOS.length)
+    for (const d of DOCUMENTOS) {
+      expect(CATEGORIAS_DOCUMENTO, d.id).toContain(d.categoria)
+      expect(erroDoArquivo(d.arquivo), d.id).toBeNull()
+      expect(nomeDeArquivoSeguro(d.arquivo.nome), d.id).toBe(d.arquivo.nome)
+      expect(USUARIOS.map((u) => u.id), d.id).toContain(d.incluidoPorId)
+      expect(d.nome.trim(), d.id).not.toBe('')
+    }
+  })
+
+  it('sem cliente só no Documento do Especialista, que sempre tem especialista (DF-65)', () => {
+    for (const d of DOCUMENTOS) {
+      if (d.categoria === 'Documento do Especialista') {
+        expect(ESPECIALISTAS.map((e) => e.id), d.id).toContain(d.especialistaId)
+      } else {
+        expect(d.clienteId, d.id).not.toBeNull()
+        expect(d.especialistaId, d.id).toBeNull()
+      }
+      if (d.clienteId === null) {
+        for (const campo of ['contratoId', 'escopoId', 'etapa', 'planoId', 'atividadeId', 'demandaNumero', 'avaliacaoId'] as const) {
+          expect(d[campo], `${d.id} ${campo}`).toBeNull()
+        }
+      }
+    }
+  })
+
+  it('os vínculos são do cliente do documento, e cada ancestral bate (RN-02)', () => {
+    for (const d of DOCUMENTOS) {
+      const contrato = CONTRATOS.find((c) => c.id === d.contratoId)
+      const escopo = ESCOPOS.find((e) => e.id === d.escopoId)
+      const plano = PLANOS.find((p) => p.id === d.planoId)
+      const atividade = ATIVIDADES.find((a) => a.id === d.atividadeId)
+      if (d.contratoId) expect(contrato?.clienteId, d.id).toBe(d.clienteId)
+      if (d.escopoId) expect(escopo && escopo.clienteId === d.clienteId && escopo.contratoId === d.contratoId, d.id).toBe(true)
+      if (d.etapa) expect(escopo, d.id).toBeDefined()
+      if (d.planoId) expect(plano?.escopoId, d.id).toBe(d.escopoId)
+      if (d.atividadeId) expect(atividade?.planoId, d.id).toBe(d.planoId)
+      if (d.demandaNumero) expect(DEMANDAS.find((x) => x.numero === d.demandaNumero)?.clienteId, d.id).toBe(d.clienteId)
+      if (d.avaliacaoId) expect(AVALIACOES.find((a) => a.id === d.avaliacaoId)?.clienteId, d.id).toBe(d.clienteId)
+    }
+  })
+
+  it('Superado só com substituto do mesmo cliente; os outros sem (RN-15, DF-63)', () => {
+    for (const d of DOCUMENTOS) {
+      if (d.status !== 'Superado') {
+        expect(d.substituidoPorId, d.id).toBeNull()
+        continue
+      }
+      const substituto = DOCUMENTOS.find((x) => x.id === d.substituidoPorId)
+      expect(substituto?.clienteId, d.id).toBe(d.clienteId)
+      expect(substituto?.status, d.id).toBe('Vigente')
+    }
+  })
+
+  it('o documento principal do contrato é um Contrato ou Proposta Comercial dele (F03)', () => {
+    for (const c of CONTRATOS) {
+      if (!c.documentoPrincipalId) continue
+      const principal = DOCUMENTOS.find((d) => d.id === c.documentoPrincipalId)
+      expect(principal?.contratoId, c.id).toBe(c.id)
+      expect(['Contrato', 'Proposta Comercial'], c.id).toContain(principal?.categoria)
+    }
+  })
+
+  it('sem documento nos exemplos que precisam continuar sem nada ligado (partes 2 a 5)', () => {
+    for (const d of DOCUMENTOS) {
+      expect(['cli-ondamar', 'cli-limpar', 'cli-fortec'], d.id).not.toContain(d.clienteId)
+      expect(['esc-vertice-qualidade', 'esc-rede-norte-rmm'], d.id).not.toContain(d.escopoId)
+      expect(d.contratoId, d.id).not.toBe('ctr-atlantica-ssma')
+    }
+  })
+
+  it('todo documento tem "Documento incluído" no histórico', () => {
+    for (const d of DOCUMENTOS) {
+      expect(HISTORICO.some((h) => h.tipo === 'documento' && h.registroId === d.id && h.descricao === 'Documento incluído'), d.id).toBe(true)
     }
   })
 })

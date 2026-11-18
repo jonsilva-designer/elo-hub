@@ -77,7 +77,16 @@ export type AvaliacaoDetalhada = AvaliacaoMaturidade & { nomeAvaliador: string }
 
 // Histórico de alterações (F17, DF-16): só leitura. Na Etapa 3, o banco grava sozinho (arquitetura 4.4).
 
-export type TipoRegistro = 'cliente' | 'avaliacao' | 'contrato' | 'escopo' | 'plano' | 'atividade' | 'especialista' | 'demanda'
+export type TipoRegistro =
+  | 'cliente'
+  | 'avaliacao'
+  | 'contrato'
+  | 'escopo'
+  | 'plano'
+  | 'atividade'
+  | 'especialista'
+  | 'demanda'
+  | 'documento'
 
 export type RegistroAlteracao = {
   id: string
@@ -379,3 +388,59 @@ export type ComentarioDemanda = {
 }
 
 export type ComentarioDetalhado = ComentarioDemanda & { autor: string; nomeEspecialista: string }
+
+// Documentos e evidências (F12). O acesso segue o cliente (RN-16); o Documento do Especialista sem cliente, o acesso a
+// especialistas (DF-65). A inativação é um sinal à parte do status (RN-24).
+
+export type StatusDocumento = 'Vigente' | 'Superado' | 'Encerrado'
+
+/** O arquivo como foi recebido: o nome higienizado, o tipo informado e o tamanho em bytes. */
+export type ArquivoDocumento = { nome: string; tipo: string; tamanho: number }
+
+export type Documento = {
+  id: string
+  nome: string
+  categoria: string
+  /** Opcional só no Documento do Especialista (DF-65). */
+  clienteId: string | null
+  /** Obrigatório no Documento do Especialista. */
+  especialistaId: string | null
+  /** Os vínculos opcionais, todos do cliente do documento (RN-02). */
+  contratoId: string | null
+  escopoId: string | null
+  etapa: EtapaJornada | null
+  planoId: string | null
+  atividadeId: string | null
+  demandaNumero: string | null
+  avaliacaoId: string | null
+  /** AAAA-MM-DD */
+  data: string
+  incluidoEm: string
+  incluidoPorId: string
+  status: StatusDocumento
+  /** Quando Superado (DF-13, RN-15). */
+  substituidoPorId: string | null
+  inativo: boolean
+  observacoes: string
+  arquivo: ArquivoDocumento
+}
+
+/** Um registro ligado ao documento, como a tela mostra, com o link. */
+export type VinculoDocumento = { tipo: string; rotulo: string; href: string }
+
+export type DocumentoDetalhado = Documento & {
+  nomeCliente: string | null
+  nomeEspecialista: string | null
+  codigoContrato: string | null
+  nomeEscopo: string | null
+  nomePlano: string | null
+  nomeAtividade: string | null
+  assuntoDemanda: string | null
+  dataAvaliacao: string | null
+  nomeIncluidoPor: string
+  substituidoPor: { id: string; nome: string } | null
+  /** Os documentos que este substituiu. */
+  substitui: { id: string; nome: string }[]
+  /** O registro mais específico: atividade, plano, etapa, escopo, demanda, avaliação, contrato ou especialista. */
+  vinculo: VinculoDocumento | null
+}

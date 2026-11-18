@@ -4,7 +4,11 @@ import type { Contrato } from '../tipos'
 // O contrato Próximo do vencimento tem o término calculado a partir de hoje (`terminoEmDias`), para continuar
 // Próximo do vencimento em qualquer dia em que o protótipo for navegado. Quem lê troca o campo pela data.
 
-export type ContratoFicticio = Contrato & { terminoEmDias?: number }
+export type ContratoFicticio = Contrato & {
+  terminoEmDias?: number
+  /** O documento principal, da categoria Contrato ou Proposta Comercial (F03, F12). */
+  documentoPrincipalId?: string
+}
 
 export const CONTRATOS: ContratoFicticio[] = [
   {
@@ -22,6 +26,7 @@ export const CONTRATOS: ContratoFicticio[] = [
     responsavelId: 'usr-helena',
     status: 'Ativo',
     observacoes: 'Contrato principal da Vértice. Medição mensal até o dia 5.',
+    documentoPrincipalId: 'doc-vertice-contrato',
   },
   {
     id: 'ctr-vertice-mobilizacao',

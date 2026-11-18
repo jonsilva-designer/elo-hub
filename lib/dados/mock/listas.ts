@@ -79,3 +79,20 @@ export const CATEGORIAS: string[] = [
   'Auditoria e avaliação de fornecedores',
   'Outros assuntos',
 ]
+
+// As categorias de documento (F12, MVP §15), na ordem do PRD. Contrato, Proposta Comercial e Documento do
+// Especialista têm código fixo, porque entram em regras (arquitetura 4.3).
+export const CATEGORIAS_DOCUMENTO: string[] = [
+  'Contrato',
+  'Proposta Comercial',
+  'Aditivo Contratual',
+  'Anexo Contratual',
+  'Termo Complementar',
+  'Relatório',
+  'Plano de Ação',
+  'Evidência',
+  'Documento do Cliente',
+  'Documento do Especialista',
+  'Documento do Escopo Contratado',
+  'Outros',
+]

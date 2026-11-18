@@ -21,6 +21,7 @@ const plano = (...e: Entrada) => ({ tipo: 'plano' as const, e })
 const atividade = (...e: Entrada) => ({ tipo: 'atividade' as const, e })
 const especialista = (...e: Entrada) => ({ tipo: 'especialista' as const, e })
 const demanda = (...e: Entrada) => ({ tipo: 'demanda' as const, e })
+const documento = (...e: Entrada) => ({ tipo: 'documento' as const, e })
 
 const ENTRADAS = [
   cliente('cli-elo', '2026-01-05T09:00:00-03:00', 'usr-helena', 'Cadastro criado'),
@@ -152,6 +153,24 @@ const ENTRADAS = [
   demanda('ELO-2026-0009', '2026-11-11T08:00:00-03:00', 'usr-rafael', 'Status da demanda', 'Nova', 'Em triagem'),
   demanda('ELO-2026-0010', '2026-11-14T16:20:00-03:00', 'usr-rafael', 'Demanda registrada'),
   demanda('ELO-2026-0011', '2026-11-15T11:05:00-03:00', 'usr-rafael', 'Demanda registrada'),
+  // Parte 6: a inclusão de cada documento, a nova versão do aditivo e a ata inativada.
+  documento('doc-especialista-curriculo', '2026-01-16T10:00:00-03:00', 'usr-helena', 'Documento incluído'),
+  documento('doc-vertice-contrato', '2026-02-03T10:05:00-03:00', 'usr-helena', 'Documento incluído'),
+  documento('doc-atlantica-termo-2025', '2026-02-11T09:10:00-03:00', 'usr-helena', 'Documento incluído'),
+  documento('doc-atlantica-ata-duplicada', '2026-02-21T08:40:00-03:00', 'usr-rafael', 'Documento incluído'),
+  documento('doc-atlantica-ata-duplicada', '2026-02-23T11:00:00-03:00', 'usr-helena', 'Inativo', 'Não', 'Sim'),
+  documento('doc-montareal-cronograma', '2026-03-06T15:00:00-03:00', 'usr-helena', 'Documento incluído'),
+  documento('doc-vertice-certidoes', '2026-04-02T16:30:00-03:00', 'usr-rafael', 'Documento incluído'),
+  documento('doc-vertice-parecer', '2026-04-10T09:00:00-03:00', 'usr-rafael', 'Documento incluído'),
+  documento('doc-vertice-levantamento', '2026-04-30T17:20:00-03:00', 'usr-rafael', 'Documento incluído'),
+  documento('doc-vertice-aditivo-minuta', '2026-05-13T10:00:00-03:00', 'usr-rafael', 'Documento incluído'),
+  documento('doc-vertice-aditivo-assinado', '2026-06-03T09:12:00-03:00', 'usr-rafael', 'Documento incluído'),
+  documento('doc-vertice-aditivo-assinado', '2026-06-03T09:12:00-03:00', 'usr-rafael', 'Substitui', undefined, 'Primeiro aditivo de prazo'),
+  documento('doc-vertice-aditivo-minuta', '2026-06-03T09:12:00-03:00', 'usr-rafael', 'Status do documento', 'Vigente', 'Superado'),
+  documento('doc-vertice-aditivo-minuta', '2026-06-03T09:12:00-03:00', 'usr-rafael', 'Substituído por', undefined, 'Primeiro aditivo de prazo, versão assinada'),
+  documento('doc-vertice-instrumento', '2026-09-18T17:15:00-03:00', 'usr-helena', 'Documento incluído'),
+  documento('doc-vertice-controle-validade', '2026-10-08T14:00:00-03:00', 'usr-rafael', 'Documento incluído'),
+  documento('doc-vertice-protocolo-licenca', '2026-10-21T11:30:00-03:00', 'usr-rafael', 'Documento incluído'),
 ]
 
 export const HISTORICO: RegistroAlteracao[] = ENTRADAS.map(({ tipo, e }, i) => {

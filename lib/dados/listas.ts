@@ -1,4 +1,4 @@
-import { CATEGORIAS, CONTRATANTES, ESPECIALIDADES, SEGMENTOS, SERVICOS } from './mock/listas'
+import { CATEGORIAS, CATEGORIAS_DOCUMENTO, CONTRATANTES, ESPECIALIDADES, SEGMENTOS, SERVICOS } from './mock/listas'
 
 /** A lista oficial de segmentos (DF-70). Uma cópia: quem a altera não muda a lista. */
 export async function listarSegmentos(): Promise<string[]> {
@@ -23,4 +23,9 @@ export async function listarEspecialidades(): Promise<string[]> {
 /** As categorias da Central ELO (DF-70), na ordem do Apêndice C. Uma cópia. */
 export async function listarCategorias(): Promise<string[]> {
   return [...CATEGORIAS]
+}
+
+/** As categorias de documento (F12), na ordem do PRD. Uma cópia. */
+export async function listarCategoriasDeDocumento(): Promise<string[]> {
+  return [...CATEGORIAS_DOCUMENTO]
 }
