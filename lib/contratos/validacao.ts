@@ -22,6 +22,7 @@ export const MENSAGENS_CONTRATO = {
   termino: 'Informe o término da vigência.',
   terminoAntes: 'O término não pode ser antes do início.',
   valor: 'Informe um valor em reais.',
+  documentoPrincipal: 'O documento principal precisa ser um contrato ou uma proposta deste contrato.',
 }
 
 export type DadosContrato = {
@@ -57,7 +58,8 @@ export type ErrosContrato = Partial<
     | 'dataProposta'
     | 'inicio'
     | 'termino'
-    | 'valor',
+    | 'valor'
+    | 'documentoPrincipalId',
     string
   >
 >

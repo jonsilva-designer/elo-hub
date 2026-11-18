@@ -81,7 +81,7 @@ describe('página do contrato (parte 3, 5.6)', () => {
     const dados = painel('Dados do contrato')
     // O Intl separa o R$ com espaço sem quebra: o normalizador padrão o troca por espaço comum e não acharia o valor.
     expect(dados.getByText(formatarReal(1850000), { normalizer: (t) => t.trim() })).toBeInTheDocument()
-    expect(dados.getByText('Nenhum documento')).toBeInTheDocument()
+    expect(dados.getByRole('link', { name: 'Contrato CT-2025-031 assinado' })).toHaveAttribute('href', '/documentos/doc-vertice-contrato')
     for (const rotulo of ['Objeto', 'Serviços', 'Responsável ELO', 'Valor', 'Data da proposta', 'Documento principal', 'Observações']) {
       expect(dados.getByText(rotulo)).toBeInTheDocument()
     }

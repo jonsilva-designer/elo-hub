@@ -24,7 +24,7 @@ import { VoltarParaContratos } from '../../_componentes/voltar-para-contratos'
 import { AcoesContrato } from './acoes-contrato'
 import { TabelaEscopos } from './tabela-escopos'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
-import { listarDocumentosLigados } from '@/lib/dados/documentos'
+import { documentoPrincipalDoContrato, listarDocumentosLigados } from '@/lib/dados/documentos'
 
 const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
 
@@ -72,7 +72,10 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
     ? await Promise.all([impedimentosDoContrato(contrato.id), contratoTemItensLigados(contrato.id)])
     : [[], true]
 
-  const documentos = await listarDocumentosLigados({ contratoId: contrato.id })
+  const [documentos, principal] = await Promise.all([
+    listarDocumentosLigados({ contratoId: contrato.id }),
+    documentoPrincipalDoContrato(contrato.id),
+  ])
   return (
     <>
       <div className="mb-3">
@@ -121,7 +124,16 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
               { rotulo: 'Responsável ELO', valor: ou(contrato.nomeResponsavel) },
               { rotulo: 'Valor', valor: contrato.valor === null ? naoInformado : <Num>{formatarReal(contrato.valor)}</Num> },
               { rotulo: 'Data da proposta', valor: data(contrato.dataProposta) },
-              { rotulo: 'Documento principal', valor: apagado('Nenhum documento') },
+              {
+                rotulo: 'Documento principal',
+                valor: principal ? (
+                  <Link href={`/documentos/${principal.id}`} className="rounded-sm text-primary underline-offset-4 hover:underline">
+                    {principal.nome}
+                  </Link>
+                ) : (
+                  apagado('Nenhum documento')
+                ),
+              },
               { rotulo: 'Observações', valor: ou(contrato.observacoes) },
             ]}
           />

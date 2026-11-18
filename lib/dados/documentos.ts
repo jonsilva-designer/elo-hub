@@ -1,5 +1,5 @@
 import { nomeDoCliente } from '@/lib/clientes/filtros'
-import { podeAlterarDocumento, podeVerDocumento } from '@/lib/documentos/regras'
+import { CATEGORIAS_DO_PRINCIPAL, podeAlterarDocumento, podeVerDocumento } from '@/lib/documentos/regras'
 import { formatarData } from '@/lib/formato'
 import { ATIVIDADES } from './mock/atividades'
 import { AVALIACOES } from './mock/avaliacoes'
@@ -169,4 +169,19 @@ export async function usuarioAlteraDocumento(d: Pick<Documento, 'clienteId'>): P
 export async function contratoDoPrincipal(id: string): Promise<string | null> {
   await obterUsuarioAtual()
   return CONTRATOS.find((c) => c.documentoPrincipalId === id)?.id ?? null
+}
+
+/** O documento principal do contrato (F03), se o usuário o vê; null sem documento principal. */
+export async function documentoPrincipalDoContrato(contratoId: string): Promise<{ id: string; nome: string } | null> {
+  const id = CONTRATOS.find((c) => c.id === contratoId)?.documentoPrincipalId
+  const documento = id ? await obterDocumento(id) : null
+  return documento ? { id: documento.id, nome: documento.nome } : null
+}
+
+/** Os documentos que podem ser o principal do contrato (F03): Contrato ou Proposta Comercial ligados a ele, ativos. */
+export async function documentosPrincipaisPossiveis(contratoId: string): Promise<{ id: string; nome: string }[]> {
+  const documentos = await lerDocumentos(
+    (d) => d.contratoId === contratoId && !d.inativo && CATEGORIAS_DO_PRINCIPAL.includes(d.categoria),
+  )
+  return documentos.map((d) => ({ id: d.id, nome: d.nome }))
 }

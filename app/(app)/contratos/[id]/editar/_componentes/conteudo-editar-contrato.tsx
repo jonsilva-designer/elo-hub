@@ -9,6 +9,7 @@ import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
 import { FormularioContrato } from '../../../_componentes/formulario-contrato'
+import { documentoPrincipalDoContrato, documentosPrincipaisPossiveis } from '@/lib/dados/documentos'
 
 /**
  * Edição do contrato, só do Administrador. Fora do vínculo ou com id que não existe, "não encontrado", sem revelar
@@ -36,10 +37,12 @@ export async function ConteudoEditarContrato({ params }: { params: Promise<{ id:
     )
   }
 
-  const [contratantes, servicos, responsaveis] = await Promise.all([
+  const [contratantes, servicos, responsaveis, possiveis, principal] = await Promise.all([
     listarContratantes(),
     listarServicos(),
     listarResponsaveis(contrato.clienteId),
+    documentosPrincipaisPossiveis(contrato.id),
+    documentoPrincipalDoContrato(contrato.id),
   ])
   return (
     <>
@@ -51,6 +54,7 @@ export async function ConteudoEditarContrato({ params }: { params: Promise<{ id:
         responsaveisPorCliente={{ [contrato.clienteId]: responsaveis.map((u) => ({ valor: u.id, rotulo: u.nome })) }}
         contratantes={contratantes}
         servicos={servicos}
+        documentos={{ opcoes: possiveis.map((d) => ({ valor: d.id, rotulo: d.nome })), principal: principal?.id ?? '' }}
       />
     </>
   )

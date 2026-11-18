@@ -37,6 +37,7 @@ export function FormularioContrato({
   responsaveisPorCliente,
   contratantes,
   servicos,
+  documentos,
 }: {
   contrato: ContratoDetalhado | null
   clienteInicial: string | null
@@ -45,6 +46,8 @@ export function FormularioContrato({
   responsaveisPorCliente: Record<string, Opcao[]>
   contratantes: string[]
   servicos: string[]
+  /** Na edição: os Contratos e Propostas Comerciais ligados ao contrato e o principal de hoje (F03). */
+  documentos?: { opcoes: Opcao[]; principal: string }
 }) {
   const router = useRouter()
   const [estado, enviar, enviando] = useActionState(salvarContrato, ESTADO_INICIAL_SALVAR_CONTRATO)
@@ -53,6 +56,7 @@ export function FormularioContrato({
   const [servicosEscolhidos, setServicosEscolhidos] = useState<string[]>(contrato?.servicos ?? [])
   const [responsavel, setResponsavel] = useState(contrato?.responsavelId ?? '')
   const [status, setStatus] = useState<string>(contrato?.status ?? '')
+  const [principal, setPrincipal] = useState(documentos?.principal ?? '')
   const [tipoVigencia, setTipoVigencia] = useState<string>(contrato?.tipoVigencia ?? 'Prazo determinado')
   const [dataProposta, setDataProposta] = useState<string | null>(contrato?.dataProposta ?? null)
   const [inicio, setInicio] = useState<string | null>(contrato?.inicio ?? null)
@@ -243,16 +247,25 @@ export function FormularioContrato({
 
       <Painel titulo="Outros">
         <div className="space-y-4">
-          <Campo rotulo="Documento principal" ajuda="Os documentos entram numa próxima parte do protótipo">
+          <Campo
+            rotulo="Documento principal"
+            erro={estado.erros.documentoPrincipalId}
+            ajuda={
+              contrato
+                ? 'Um Contrato ou Proposta Comercial já incluído neste contrato'
+                : 'Inclua o documento depois de salvar o contrato.'
+            }
+          >
             {(p) => (
               <SelecaoDoFormulario
-                nome="documentoPrincipal"
-                valor=""
-                aoMudar={() => {}}
-                opcoes={[]}
+                nome="documentoPrincipalId"
+                valor={principal}
+                aoMudar={setPrincipal}
+                opcoes={documentos?.opcoes ?? []}
+                rotuloVazio="Nenhum"
                 atributos={p}
-                disabled
-                placeholder="Nenhum documento deste contrato"
+                disabled={!contrato}
+                placeholder="Nenhum"
               />
             )}
           </Campo>

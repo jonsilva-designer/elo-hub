@@ -52,6 +52,20 @@ describe('salvarContrato (F03, matriz 4.3, critérios 5 e 9)', () => {
     expect((await salvar(EDICAO_VERTICE)).erroGeral).toBe(SEM_PERMISSAO)
   })
 
+  it('o documento principal é um Contrato ou Proposta Comercial do próprio contrato (F03)', async () => {
+    entrarComo('usr-helena')
+    const mensagem = 'O documento principal precisa ser um contrato ou uma proposta deste contrato.'
+    expect((await salvar({ ...EDICAO_VERTICE, documentoPrincipalId: 'doc-vertice-contrato' })).erros).toEqual({})
+    expect((await salvar({ ...EDICAO_VERTICE, documentoPrincipalId: '' })).erros).toEqual({})
+    expect((await salvar({ ...EDICAO_VERTICE, documentoPrincipalId: 'doc-vertice-aditivo-assinado' })).erros).toEqual({
+      documentoPrincipalId: mensagem,
+    })
+    expect((await salvar({ ...EDICAO_VERTICE, documentoPrincipalId: 'doc-montareal-cronograma' })).erros).toEqual({
+      documentoPrincipalId: mensagem,
+    })
+    expect((await salvar({ documentoPrincipalId: 'doc-vertice-contrato' })).erros).toEqual({ documentoPrincipalId: mensagem })
+  })
+
   it('id que não existe recebe a mesma recusa', async () => {
     entrarComo('usr-helena')
     expect((await salvar({ id: 'ctr-nao-existe' })).erroGeral).toBe(SEM_PERMISSAO)

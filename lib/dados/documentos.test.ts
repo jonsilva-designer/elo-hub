@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import {
+  documentoPrincipalDoContrato,
+  documentosPrincipaisPossiveis,
   documentoTemLigacao,
   etapasComDocumento,
   listarDocumentos,
@@ -150,6 +152,19 @@ describe('leitura dos documentos (F12, RN-16, DF-65)', () => {
     expect(await documentoTemLigacao('doc-vertice-aditivo-assinado')).toBe(true)
     expect(await documentoTemLigacao('doc-vertice-contrato')).toBe(true)
     expect(await documentoTemLigacao('doc-vertice-levantamento')).toBe(false)
+  })
+
+  it('o documento principal do contrato e as opções: Contrato ou Proposta Comercial do contrato, ativos (F03)', async () => {
+    entrarComo('usr-rafael')
+    expect(await documentoPrincipalDoContrato('ctr-vertice-manutencao')).toEqual({
+      id: 'doc-vertice-contrato',
+      nome: 'Contrato CT-2025-031 assinado',
+    })
+    expect(await documentoPrincipalDoContrato('ctr-atlantica-porto')).toBeNull()
+    expect(await documentosPrincipaisPossiveis('ctr-vertice-manutencao')).toEqual([
+      { id: 'doc-vertice-contrato', nome: 'Contrato CT-2025-031 assinado' },
+    ])
+    expect(await documentosPrincipaisPossiveis('ctr-montareal-montagem')).toEqual([])
   })
 
   it('o histórico do documento segue o acesso ao documento (F17)', async () => {

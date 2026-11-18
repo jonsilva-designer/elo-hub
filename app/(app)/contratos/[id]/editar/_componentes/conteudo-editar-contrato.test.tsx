@@ -31,6 +31,14 @@ describe('editar contrato (seção 5.5)', () => {
     expect(screen.getByRole('link', { name: 'Voltar para CT-2025-031' }).querySelector('.font-mono')).toHaveTextContent('CT-2025-031')
   })
 
+  it('o documento principal vem escolhido, entre os contratos e propostas do contrato (F03)', async () => {
+    entrarComo('usr-helena')
+    render(await editar('ctr-vertice-manutencao'))
+    const principal = screen.getByRole('combobox', { name: /Documento principal/ })
+    expect(principal).toBeEnabled()
+    expect(principal).toHaveTextContent('Contrato CT-2025-031 assinado')
+  })
+
   it('o Rafael, vinculado, vê acesso negado; fora do vínculo ou com id que não existe, não encontrado (critério 10)', async () => {
     entrarComo('usr-rafael')
     render(await editar('ctr-vertice-manutencao'))

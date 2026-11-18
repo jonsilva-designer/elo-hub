@@ -2,6 +2,7 @@
 
 import { listarClientes, obterCliente } from '@/lib/dados/clientes'
 import { contratoTemItensLigados, listarContratosDoCliente, obterContrato } from '@/lib/dados/contratos'
+import { documentosPrincipaisPossiveis } from '@/lib/dados/documentos'
 import { impedimentosDoContrato } from '@/lib/dados/impedimentos'
 import { listarContratantes, listarServicos } from '@/lib/dados/listas'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -11,7 +12,7 @@ import type { ContratoDetalhado } from '@/lib/dados/tipos'
 import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoSalvarContrato } from './estados'
 import { STATUS_ABERTOS, TIPOS_VIGENCIA } from './regras'
-import { lerDadosContrato, validarContrato } from './validacao'
+import { lerDadosContrato, MENSAGENS_CONTRATO, validarContrato } from './validacao'
 
 // Ações do contrato (parte 3, 5.3). Só o Administrador cadastra, edita e muda o status (matriz 4.3). Conferem tudo
 // no servidor, mesmo quando a tela esconde o botão. No protótipo, salvar só simula: nada é gravado.
@@ -53,6 +54,12 @@ export async function salvarContrato(_estado: EstadoSalvarContrato, formData: Fo
     codigosDoCliente: outros.filter((c) => c.id !== atual?.id).map((c) => c.codigo),
     responsaveisPermitidos: responsaveis.map((u) => u.id),
   })
+  // O documento principal (F03): um Contrato ou Proposta Comercial já ligado a este contrato. No cadastro, o contrato
+  // ainda não tem documento: o principal é escolhido depois, na edição.
+  const principal = texto(formData.get('documentoPrincipalId'))
+  if (principal && !(atual ? await documentosPrincipaisPossiveis(atual.id) : []).some((d) => d.id === principal)) {
+    erros.documentoPrincipalId = MENSAGENS_CONTRATO.documentoPrincipal
+  }
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
 
   return {
