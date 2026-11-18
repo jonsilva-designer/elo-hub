@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import type { OpcoesDeVinculo } from '@/lib/dados/opcoes-documento'
 import type { DocumentoDetalhado } from '@/lib/dados/tipos'
-import { incluirDocumento } from '@/lib/documentos/acoes'
+import { incluirDocumento, salvarDocumento } from '@/lib/documentos/acoes'
 import { ESTADO_INICIAL_DOCUMENTO } from '@/lib/documentos/estados'
 import { ACEITAR_ARQUIVO, DOCUMENTO_DO_ESPECIALISTA, erroDoArquivo } from '@/lib/documentos/regras'
 import type { DadosDocumento } from '@/lib/documentos/validacao'
@@ -54,7 +54,7 @@ export function FormularioDocumento({
 }) {
   const router = useRouter()
   const editando = documento !== null
-  const [estado, enviar, enviando] = useActionState(incluirDocumento, ESTADO_INICIAL_DOCUMENTO)
+  const [estado, enviar, enviando] = useActionState(editando ? salvarDocumento : incluirDocumento, ESTADO_INICIAL_DOCUMENTO)
   const [categoria, setCategoria] = useState(inicial.categoria)
   const [clienteId, setClienteId] = useState(inicial.clienteId)
   const [especialistaId, setEspecialistaId] = useState(inicial.especialistaId)

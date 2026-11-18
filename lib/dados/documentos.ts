@@ -164,3 +164,9 @@ export async function documentoTemLigacao(id: string): Promise<boolean> {
 export async function usuarioAlteraDocumento(d: Pick<Documento, 'clienteId'>): Promise<boolean> {
   return podeAlterarDocumento(d, await obterUsuarioAtual(), VINCULOS)
 }
+
+/** O contrato que tem o documento como documento principal (F03), ou null. */
+export async function contratoDoPrincipal(id: string): Promise<string | null> {
+  await obterUsuarioAtual()
+  return CONTRATOS.find((c) => c.documentoPrincipalId === id)?.id ?? null
+}

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { incluirDocumento } from './acoes'
+import { incluirDocumento, salvarDocumento } from './acoes'
 import { ESTADO_INICIAL_DOCUMENTO } from './estados'
 import { MENSAGENS_ARQUIVO, TAMANHO_MAXIMO } from './regras'
 import { MENSAGENS_DOCUMENTO } from './validacao'
@@ -139,5 +139,85 @@ describe('incluirDocumento como nova versão (DF-44, CA-12.4)', () => {
     }
     expect((await incluir(curriculo)).erros).toEqual({})
     expect((await incluir({ ...curriculo, especialistaId: 'esp-esg' })).erros).toEqual({ clienteId: MENSAGENS_DOCUMENTO.mesmoDono })
+  })
+})
+
+describe('salvarDocumento (parte 6, 4.2; matriz 4.3)', () => {
+  const editar = (id: string, campos: Record<string, string>) =>
+    salvarDocumento(ESTADO_INICIAL_DOCUMENTO, formulario({ id, ...campos }, null))
+
+  const LEVANTAMENTO = {
+    nome: 'Relatório do levantamento, revisado',
+    categoria: 'Relatório',
+    clienteId: 'cli-vertice',
+    escopoId: 'esc-vertice-documental',
+    etapa: 'Diagnosticar',
+  }
+
+  it('a Equipe vinculada altera nome, categoria, vínculos e observações, e volta para a página', async () => {
+    entrarComo('usr-rafael')
+    const estado = await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, observacoes: 'Revisado.' })
+    expect(estado.erros).toEqual({})
+    expect(estado.sucesso).toEqual({ mensagem: `Documento salvo. ${NAO_GRAVA}`, destino: '/documentos/doc-vertice-levantamento' })
+  })
+
+  it('a data e o arquivo não mudam na edição: a data enviada é ignorada', async () => {
+    entrarComo('usr-rafael')
+    const estado = await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, data: '' })
+    expect(estado.erros).toEqual({})
+    expect(estado.valores?.data).toBe('2026-04-30')
+  })
+
+  it('recusa o vínculo de outro cliente, enviado à mão (RN-02)', async () => {
+    entrarComo('usr-helena')
+    expect((await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, planoId: 'pla-atlantica-indicadores' })).erros).toEqual({
+      planoId: MENSAGENS_DOCUMENTO.plano,
+    })
+    expect((await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, escopoId: 'esc-atlantica-2026', etapa: '' })).erros).toEqual({
+      escopoId: MENSAGENS_DOCUMENTO.escopo,
+    })
+    expect((await editar('doc-vertice-levantamento', { ...LEVANTAMENTO, demandaNumero: 'ELO-2026-0011' })).erros).toEqual({
+      demandaNumero: MENSAGENS_DOCUMENTO.demanda,
+    })
+  })
+
+  it('a Equipe não edita o currículo sem cliente nem o documento fora dos vínculos (DF-65, CA-12.5)', async () => {
+    entrarComo('usr-rafael')
+    expect((await editar('doc-especialista-curriculo', { nome: 'Currículo', categoria: 'Documento do Especialista' })).erroGeral).toBe(
+      SEM_PERMISSAO,
+    )
+    expect((await editar('doc-montareal-cronograma', { nome: 'Cronograma', categoria: 'Outros', clienteId: 'cli-montareal' })).erroGeral).toBe(
+      SEM_PERMISSAO,
+    )
+    expect((await editar('doc-nao-existe', LEVANTAMENTO)).erroGeral).toBe(SEM_PERMISSAO)
+  })
+
+  it('a Equipe não tira o cliente do Documento do Especialista; o Administrador tira (DF-65)', async () => {
+    const parecer = { nome: 'Parecer', categoria: 'Documento do Especialista', especialistaId: 'esp-juridico', clienteId: '' }
+    entrarComo('usr-rafael')
+    expect((await editar('doc-vertice-parecer', parecer)).erros).toEqual({ clienteId: MENSAGENS_DOCUMENTO.semClienteSoAdmin })
+    entrarComo('usr-helena')
+    expect((await editar('doc-vertice-parecer', parecer)).erros).toEqual({})
+  })
+
+  it('o cliente não muda no documento com versões ligadas (CA-12.4)', async () => {
+    entrarComo('usr-helena')
+    const aditivo = { nome: 'Aditivo', categoria: 'Aditivo Contratual' }
+    expect((await editar('doc-vertice-aditivo-minuta', { ...aditivo, clienteId: 'cli-atlantica' })).erros).toEqual({
+      clienteId: MENSAGENS_DOCUMENTO.clienteComVersoes,
+    })
+    expect((await editar('doc-vertice-aditivo-assinado', { ...aditivo, clienteId: 'cli-vertice' })).erros).toEqual({})
+  })
+
+  it('o documento principal do contrato continua um contrato ou proposta dele (F03)', async () => {
+    entrarComo('usr-helena')
+    const principal = { nome: 'Contrato assinado', clienteId: 'cli-vertice', contratoId: 'ctr-vertice-manutencao' }
+    expect((await editar('doc-vertice-contrato', { ...principal, categoria: 'Proposta Comercial' })).erros).toEqual({})
+    expect((await editar('doc-vertice-contrato', { ...principal, categoria: 'Relatório' })).erros).toEqual({
+      categoria: MENSAGENS_DOCUMENTO.principal,
+    })
+    expect((await editar('doc-vertice-contrato', { ...principal, categoria: 'Contrato', contratoId: 'ctr-vertice-mobilizacao' })).erros).toEqual({
+      contratoId: MENSAGENS_DOCUMENTO.principal,
+    })
   })
 })

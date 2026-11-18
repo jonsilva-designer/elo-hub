@@ -1,6 +1,6 @@
 'use server'
 
-import { obterDocumento, usuarioAlteraDocumento } from '@/lib/dados/documentos'
+import { contratoDoPrincipal, obterDocumento, usuarioAlteraDocumento } from '@/lib/dados/documentos'
 import { listarCategoriasDeDocumento } from '@/lib/dados/listas'
 import { opcoesDeVinculoDoDocumento } from '@/lib/dados/opcoes-documento'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -8,7 +8,7 @@ import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import type { DocumentoDetalhado } from '@/lib/dados/tipos'
 import { mensagemDeSucesso, SEM_PERMISSAO } from '@/lib/resultado-acao'
 import type { EstadoDocumento } from './estados'
-import { erroDoArquivo } from './regras'
+import { CATEGORIAS_DO_PRINCIPAL, erroDoArquivo } from './regras'
 import {
   completarVinculos,
   destinoDaInclusao,
@@ -57,4 +57,41 @@ export async function incluirDocumento(_estado: EstadoDocumento, formData: FormD
 
   const frase = anterior ? 'Documento incluído. O anterior passou a Superado.' : 'Documento incluído.'
   return { erros: {}, valores: dados, sucesso: { mensagem: mensagemDeSucesso(frase), destino: destinoDaInclusao(dados) } }
+}
+
+/**
+ * Salva os dados do documento (matriz 4.3): nome, categoria, vínculos e observações. A data e o arquivo não mudam: o
+ * arquivo muda por nova versão. A Equipe só no documento de cliente vinculado; o Documento do Especialista sem cliente,
+ * só o Administrador (DF-65). O documento com versões ligadas não muda de cliente (CA-12.4), e o documento principal
+ * de um contrato continua um contrato ou uma proposta dele (F03).
+ */
+export async function salvarDocumento(_estado: EstadoDocumento, formData: FormData): Promise<EstadoDocumento> {
+  const usuario = await obterUsuarioAtual()
+  const lidos = lerDadosDocumento(formData)
+  const documento = lidos.id ? await obterDocumento(lidos.id) : null
+  if (!documento || !(await usuarioAlteraDocumento(documento))) return { erros: {}, valores: lidos, erroGeral: SEM_PERMISSAO }
+
+  const [categorias, opcoes, contratoPrincipal] = await Promise.all([
+    listarCategoriasDeDocumento(),
+    opcoesDeVinculoDoDocumento(),
+    contratoDoPrincipal(documento.id),
+  ])
+  const dados = { ...completarVinculos(lidos, opcoes), data: documento.data, substitui: '', origem: '' }
+  const erros = validarDocumento(dados, { categorias, opcoes, semClientePermitido: ehAdmin(usuario) })
+
+  const comVersoes = documento.substituidoPor !== null || documento.substitui.length > 0
+  const mesmoDonoQueAntes =
+    dados.clienteId === (documento.clienteId ?? '') &&
+    (documento.clienteId !== null || dados.especialistaId === documento.especialistaId)
+  if (comVersoes && !erros.clienteId && !mesmoDonoQueAntes) erros.clienteId = MENSAGENS_DOCUMENTO.clienteComVersoes
+  if (contratoPrincipal) {
+    if (!CATEGORIAS_DO_PRINCIPAL.includes(dados.categoria)) erros.categoria ??= MENSAGENS_DOCUMENTO.principal
+    else if (dados.contratoId !== contratoPrincipal) erros.contratoId ??= MENSAGENS_DOCUMENTO.principal
+  }
+  if (Object.keys(erros).length > 0) return { erros, valores: dados }
+  return {
+    erros: {},
+    valores: dados,
+    sucesso: { mensagem: mensagemDeSucesso('Documento salvo.'), destino: `/documentos/${documento.id}` },
+  }
 }

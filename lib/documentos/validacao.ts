@@ -24,6 +24,8 @@ export const MENSAGENS_DOCUMENTO = {
   avaliacao: 'A avaliação precisa ser do cliente.',
   mesmoDono: 'A nova versão precisa ser do mesmo cliente do documento anterior.',
   soVigente: 'Só um documento Vigente recebe nova versão.',
+  clienteComVersoes: 'O cliente não muda num documento com versões ligadas.',
+  principal: 'É o documento principal do contrato: continua um contrato ou uma proposta dele.',
 }
 
 export type DadosDocumento = {
