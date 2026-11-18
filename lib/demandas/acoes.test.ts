@@ -1,12 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { obterDemanda } from '@/lib/dados/demandas'
+import { obterInicioDaOperacao } from '@/lib/dados/parametros'
 import { comentarDemanda, mudarStatusDemanda, reabrirDemanda, registrarDemanda, salvarDemanda } from './acoes'
 import { ESTADO_INICIAL_COMENTARIO, ESTADO_INICIAL_REGISTRAR_DEMANDA, ESTADO_INICIAL_SALVAR_DEMANDA } from './estados'
 import { MENSAGENS_DEMANDA } from './validacao'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
 vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
+vi.mock('@/lib/dados/parametros', async (original) => ({
+  ...(await original<typeof import('@/lib/dados/parametros')>()),
+  obterInicioDaOperacao: vi.fn(async () => '2026-03-02'),
+}))
 
 beforeEach(() => limparCookies())
 
@@ -36,6 +41,14 @@ describe('registrarDemanda (parte 5, 5.9; F09, F10)', () => {
     expect(estado.erros).toEqual({})
     expect(estado.sucesso?.destino).toBe('/central')
     expect(estado.sucesso?.mensagem).toMatch(
+      /^Demanda ELO-\d{4}-\d{4} registrada\. O e-mail de aviso sai para a triagem e para a Central\. No protótipo, os dados não são gravados\.$/,
+    )
+  })
+
+  it('antes do início oficial da operação, avisa que o e-mail não sai (DF-46, CA-10.5)', async () => {
+    vi.mocked(obterInicioDaOperacao).mockResolvedValueOnce(null)
+    entrarComo('usr-rafael')
+    expect((await registrar({})).sucesso?.mensagem).toMatch(
       /^Demanda ELO-\d{4}-\d{4} registrada\. O e-mail de aviso só sai depois do início oficial da operação\. No protótipo, os dados não são gravados\.$/,
     )
   })

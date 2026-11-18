@@ -125,6 +125,6 @@ describe('listas e parâmetros da Central (Apêndice C)', () => {
     expect(categorias[0]).toBe('Dúvida contratual')
     expect(categorias.at(-1)).toBe('Outros assuntos')
     expect(await obterReferenciasDePrazo()).toEqual({})
-    expect(await obterInicioDaOperacao()).toBeNull()
+    expect(await obterInicioDaOperacao()).toBe('2026-03-02')
   })
 })

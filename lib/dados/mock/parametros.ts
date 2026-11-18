@@ -9,8 +9,13 @@ export const DIAS_PROXIMO_DO_PRAZO = 5
 /** Referência de prazo da demanda por criticidade, em dias: começa vazia, a ELO define (DF-22, Apêndice C). */
 export const REFERENCIAS_DE_PRAZO: Partial<Record<'Baixa' | 'Moderada' | 'Alta' | 'Crítica', number>> = {}
 
-/** Início oficial da operação: não registrado (DF-46, Apêndice C). Até ele, o e-mail da nova demanda não sai. */
-export const INICIO_DA_OPERACAO: string | null = null
+/**
+ * Início oficial da operação (DF-46). Na entrada no ar, começa não registrado (Apêndice C). Os dados fictícios
+ * representam a operação já em andamento: a carteira foi carregada em janeiro e fevereiro de 2026, e o início foi
+ * registrado em 02/03/2026, antes da primeira demanda. Por isso o painel mostra os alertas e a nova demanda avisa que
+ * o e-mail sai (decisão do Jonathan, 18/11/2026).
+ */
+export const INICIO_DA_OPERACAO: string | null = '2026-03-02'
 
 /** O remetente de cada finalidade, do domínio da ELO (DF-21). Os e-mails de acesso usam o padrão e não entram aqui. */
 export const REMETENTES = {

@@ -31,7 +31,7 @@ function formulario(campos: Record<string, string>): FormData {
 const salvar = (campos: Record<string, string>) => salvarParametros(ESTADO_INICIAL_PARAMETROS, formulario({ ...VALIDOS, ...campos }))
 
 describe('parâmetros (parte 8, 4.3; DF-81, Apêndice C)', () => {
-  it('os valores iniciais do Apêndice C; só o Administrador lê (CA-01.2)', async () => {
+  it('os valores do Apêndice C, com o início da operação já registrado nos fictícios; só o Administrador lê (CA-01.2)', async () => {
     entrarComo('usr-rafael')
     expect(await obterParametros()).toBeNull()
     entrarComo('usr-helena')
@@ -41,7 +41,7 @@ describe('parâmetros (parte 8, 4.3; DF-81, Apêndice C)', () => {
       remetenteDemanda: 'atendimento@elogovernance.com.br',
       remetenteSite: 'atendimento@elogovernance.com.br',
       referencias: {},
-      inicioOperacao: null,
+      inicioOperacao: '2026-03-02',
     })
   })
 
