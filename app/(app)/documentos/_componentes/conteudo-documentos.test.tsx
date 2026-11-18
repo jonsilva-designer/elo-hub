@@ -60,6 +60,15 @@ describe('lista de documentos (parte 6, 4.4)', () => {
     expect(push).toHaveBeenCalledWith('/documentos/doc-vertice-protocolo-licenca')
   })
 
+  it('os códigos e as datas do vínculo saem na fonte dos números (padrão visual)', async () => {
+    entrarComo('usr-helena')
+    await abrir()
+    const contrato = screen.getByText('Contrato CT-2025-031 assinado').closest('tr')!
+    expect(within(contrato).getByRole('link', { name: 'CT-2025-031' }).querySelector('.font-mono')).toHaveTextContent('CT-2025-031')
+    const anexo = screen.getByText('Lista das certidões vencidas, enviada pelo cliente').closest('tr')!
+    expect(within(anexo).getByRole('link').querySelector('.font-mono')).toHaveTextContent('ELO-2026-0003')
+  })
+
   it('o inativo volta com o filtro do endereço, com a etiqueta; os filtros ficam guardados para a volta', async () => {
     entrarComo('usr-helena')
     await abrir({ status: 'Inativo' })

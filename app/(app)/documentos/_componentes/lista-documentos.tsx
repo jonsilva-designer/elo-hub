@@ -24,6 +24,7 @@ import {
 } from '@/lib/documentos/filtros'
 import { formatarData } from '@/lib/formato'
 import { NomeDoDocumento, StatusDoDocumento } from './tabela-documentos'
+import { TextoComNumeros } from './texto-com-numeros'
 
 const TODOS = 'todos'
 const SEM_FILTRO: FiltrosDocumentos = { busca: '', cliente: null, categoria: null, status: [] }
@@ -62,7 +63,7 @@ const COLUNAS: Coluna<DocumentoDetalhado>[] = [
       d.vinculo ? (
         <span className="flex min-w-0 flex-col items-start gap-0.5">
           <Link href={d.vinculo.href} className={CLASSE_LINK}>
-            {d.vinculo.rotulo}
+            <TextoComNumeros texto={d.vinculo.rotulo} />
           </Link>
           <span className="text-xs text-muted-foreground">{d.vinculo.tipo}</span>
         </span>

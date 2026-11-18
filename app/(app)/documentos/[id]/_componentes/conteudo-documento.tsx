@@ -18,6 +18,7 @@ import type { DocumentoDetalhado } from '@/lib/dados/tipos'
 import { formatarData, formatarTamanho } from '@/lib/formato'
 import { VoltarParaDocumentos } from '../../_componentes/voltar-para-documentos'
 import { AcoesDocumento } from './acoes-documento'
+import { TextoComNumeros } from '../../_componentes/texto-com-numeros'
 
 const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
@@ -25,7 +26,7 @@ const naoInformado = <span className="font-normal text-muted-foreground">Não in
 
 const link = (href: string, texto: string) => (
   <Link href={href} className={CLASSE_LINK}>
-    {texto}
+    <TextoComNumeros texto={texto} />
   </Link>
 )
 
@@ -61,7 +62,7 @@ function vinculosDoDocumento(d: DocumentoDetalhado): { rotulo: string; valor: Re
     itens.push({ rotulo: 'Especialista', valor: link(`/especialistas/${d.especialistaId}`, d.nomeEspecialista) })
   }
   if (d.contratoId && d.codigoContrato) {
-    itens.push({ rotulo: 'Contrato', valor: <Num>{link(`/contratos/${d.contratoId}`, d.codigoContrato)}</Num> })
+    itens.push({ rotulo: 'Contrato', valor: link(`/contratos/${d.contratoId}`, d.codigoContrato) })
   }
   if (d.escopoId && d.nomeEscopo) itens.push({ rotulo: 'Escopo', valor: link(`/escopos/${d.escopoId}`, d.nomeEscopo) })
   if (d.etapa) itens.push({ rotulo: 'Etapa da Jornada', valor: d.etapa })

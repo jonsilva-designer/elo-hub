@@ -72,6 +72,15 @@ describe('página do documento (parte 6, 4.4)', () => {
     expect(vinculos.queryByText('Demanda')).not.toBeInTheDocument()
   })
 
+  it('a demanda e a avaliação dos vínculos levam o número e a data na fonte dos números', async () => {
+    entrarComo('usr-helena')
+    const { unmount } = await abrir('doc-vertice-certidoes')
+    expect(painel('Vínculos').getByRole('link', { name: /ELO-2026-0003/ }).querySelector('.font-mono')).toHaveTextContent('ELO-2026-0003')
+    unmount()
+    await abrir('doc-vertice-instrumento')
+    expect(painel('Vínculos').getByRole('link', { name: /Avaliação de/ }).querySelector('.font-mono')).toHaveTextContent('15/09/2026')
+  })
+
   it('as Versões ligam o anterior e o novo, nos dois sentidos (RN-15, CA-12.4)', async () => {
     entrarComo('usr-rafael')
     const { unmount } = await abrir('doc-vertice-aditivo-minuta')
