@@ -4,6 +4,9 @@ import type { ReactNode } from 'react'
 import type { AtributosDeCampo } from '@/components/elo/campo'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
+/** Um id de formulário que não existe na página (veja o Select abaixo). */
+const SEM_FORMULARIO = 'elo-selecao-fora-do-reset'
+
 /** Valor do item que limpa a escolha: a seleção não aceita texto vazio como item. */
 const VAZIA = '__vazia__'
 
@@ -41,7 +44,17 @@ export function SelecaoDoFormulario({
 }) {
   return (
     <>
-      <Select value={valor} onValueChange={(v) => aoMudar(v === VAZIA ? '' : v)} disabled={disabled}>
+      {/*
+        O `form` aponta para um formulário que não existe: assim o Select do Radix não escuta o reset do formulário de
+        verdade, que devolveria a escolha ao valor inicial depois de cada ação (o React limpa o formulário). O valor
+        enviado é o do campo oculto abaixo.
+      */}
+      <Select
+        value={valor}
+        onValueChange={(v) => aoMudar(v === VAZIA ? '' : v)}
+        disabled={disabled}
+        form={SEM_FORMULARIO}
+      >
         <SelectTrigger {...atributos} className={className ?? 'w-full'}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

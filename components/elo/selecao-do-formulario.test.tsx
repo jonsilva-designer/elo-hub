@@ -63,3 +63,14 @@ describe('SelecaoDoFormulario', () => {
     expect(screen.queryByRole('option', { name: 'Não informado' })).not.toBeInTheDocument()
   })
 })
+
+describe('SelecaoDoFormulario depois que o React limpa o formulário', () => {
+  it('o reset do formulário (depois de uma ação) não devolve a escolha ao valor inicial', async () => {
+    render(<Teste opcoes={['Administrador', 'Equipe']} />)
+    await userEvent.click(screen.getByRole('combobox', { name: 'Campo' }))
+    await userEvent.click(await screen.findByRole('option', { name: 'Equipe' }))
+    ;(screen.getByRole('form', { name: 'formulário' }) as HTMLFormElement).reset()
+    expect(await screen.findByRole('combobox', { name: 'Campo' })).toHaveTextContent('Equipe')
+    expect(document.querySelector('input[name="campo"]')).toHaveValue('Equipe')
+  })
+})
