@@ -82,6 +82,13 @@ describe('atualizarEtapa pelo Administrador (DF-49, RN-22, CN-22.2; pontos de at
     expect((await atualizar({ ...MOBILIZACAO, etapa: 'Monitorar', status: 'Não aplicável' })).sucesso).toBeDefined()
   })
 
+  it('etapa com documento não vira Não aplicável (DF-49; parte 6, critério 8)', async () => {
+    entrarComo('usr-helena')
+    const estado = await atualizar({ ...DOCUMENTAL, etapa: 'Implementar', status: 'Não aplicável', responsavelId: '' })
+    expect(estado.erros).toEqual({ status: 'Etapa com documento não vira Não aplicável.' })
+    expect(estado.sucesso).toBeUndefined()
+  })
+
   it('Em andamento não vira Não aplicável', async () => {
     entrarComo('usr-helena')
     const estado = await atualizar({

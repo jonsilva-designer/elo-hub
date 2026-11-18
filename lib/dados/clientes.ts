@@ -1,4 +1,5 @@
 import { demandasQueImpedem, temDemandaLigada } from './demandas'
+import { temDocumentoLigado } from './documentos'
 import { contratoFechado } from '@/lib/contratos/regras'
 import { formatarData } from '@/lib/formato'
 import { AVALIACOES } from './mock/avaliacoes'
@@ -67,13 +68,14 @@ export async function itensQueImpedemInativar(clienteId: string): Promise<ItemQu
   return [...avaliacoes, ...contratos, ...(await demandasQueImpedem({ clienteId }))]
 }
 
-/** Se o cliente tem algum registro ligado, o que impede excluí-lo (DF-33): avaliações, contratos e demandas. */
+/** Se o cliente tem algum registro ligado, o que impede excluí-lo (DF-33): avaliações, contratos, demandas e documentos. */
 export async function temItensLigados(clienteId: string): Promise<boolean> {
   const usuario = await obterUsuarioAtual()
   if (!podeVerCliente(usuario, clienteId, VINCULOS)) return false
   return (
     AVALIACOES.some((a) => a.clienteId === clienteId) ||
     CONTRATOS.some((c) => c.clienteId === clienteId) ||
-    (await temDemandaLigada({ clienteId }))
+    (await temDemandaLigada({ clienteId })) ||
+    (await temDocumentoLigado({ clienteId }))
   )
 }

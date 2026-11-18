@@ -2,6 +2,7 @@ import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { vigenciaDoContrato } from '@/lib/contratos/vigencia'
 import { somarDias } from '@/lib/formato'
 import { temDemandaLigada } from './demandas'
+import { temDocumentoLigado } from './documentos'
 import { hojeDaRequisicao } from './hoje'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS, type ContratoFicticio } from './mock/contratos'
@@ -62,12 +63,16 @@ export async function obterContrato(id: string): Promise<ContratoDetalhado | nul
 }
 
 /**
- * Se o contrato tem algo ligado, que impede excluí-lo (RN-13, DF-33). Nesta parte, os escopos; documentos e
- * demandas entram nas partes 4 a 6. Fora do vínculo, false, sem revelar nada: as ações conferem o acesso antes.
+ * Se o contrato tem algo ligado, que impede excluí-lo (RN-13, DF-33): escopos, demandas e documentos, também os
+ * inativos. Fora do vínculo, false, sem revelar nada: as ações conferem o acesso antes.
  */
 export async function contratoTemItensLigados(id: string): Promise<boolean> {
   const usuario = await obterUsuarioAtual()
   const contrato = CONTRATOS.find((c) => c.id === id)
   if (!contrato || !podeVerCliente(usuario, contrato.clienteId, VINCULOS)) return false
-  return ESCOPOS.some((e) => e.contratoId === id) || (await temDemandaLigada({ contratoId: id }))
+  return (
+    ESCOPOS.some((e) => e.contratoId === id) ||
+    (await temDemandaLigada({ contratoId: id })) ||
+    (await temDocumentoLigado({ contratoId: id }))
+  )
 }

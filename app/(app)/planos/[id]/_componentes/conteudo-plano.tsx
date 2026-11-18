@@ -14,6 +14,7 @@ import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico
 import { ResumoAtividades } from '@/components/elo/resumo-atividades'
 import { Button } from '@/components/ui/button'
 import { listarAtividadesDoPlano } from '@/lib/dados/atividades'
+import { temDocumentoLigado } from '@/lib/dados/documentos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { atividadesQueImpedemFechar, obterPlano } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -81,10 +82,11 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
   const { id } = await params
   const [usuario, plano] = await Promise.all([obterUsuarioAtual(), obterPlano(id)])
   if (!plano) notFound()
-  const [atividades, historico, impedimentos] = await Promise.all([
+  const [atividades, historico, impedimentos, comDocumento] = await Promise.all([
     listarAtividadesDoPlano(plano.id),
     listarHistorico('plano', plano.id),
     atividadesQueImpedemFechar(plano.id),
+    temDocumentoLigado({ planoId: plano.id }),
   ])
   const admin = ehAdmin(usuario)
   const podeEditar = admin || !planoFechado(plano.status)
@@ -120,12 +122,12 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
                 </Link>
               </Button>
             ) : null}
-            {/* Excluir só no plano sem atividades (RN-13, DF-33); o menu some quando o perfil não tem item. */}
+            {/* Excluir só no plano sem atividades nem documentos (RN-13, DF-33); o menu some quando o perfil não tem item. */}
             <AcoesPlano
               plano={plano}
               perfil={usuario.perfil}
               impedimentos={impedimentos}
-              podeExcluir={admin && plano.resumo.total === 0}
+              podeExcluir={admin && plano.resumo.total === 0 && !comDocumento}
             />
           </>
         }

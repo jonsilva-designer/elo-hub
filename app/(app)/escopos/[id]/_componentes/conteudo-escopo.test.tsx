@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
@@ -217,6 +218,13 @@ describe('página do escopo (parte 3, 5.9)', () => {
     entrarComo('usr-helena')
     await abrir('esc-vertice-documental')
     expect(comAtualizar()).toEqual(['Diagnosticar', 'Estruturar', 'Implementar', 'Monitorar', 'Evoluir'])
+  })
+
+  it('a etapa com documento não oferece Não aplicável e diz o motivo (DF-49; parte 6, critério 8)', async () => {
+    entrarComo('usr-helena')
+    await abrir('esc-vertice-documental')
+    await userEvent.click(screen.getByRole('button', { name: 'Atualizar Implementar' }))
+    expect(await screen.findByText('Etapa com documento não vira Não aplicável.')).toBeInTheDocument()
   })
 
   it('no escopo fechado, nenhuma etapa tem Atualizar (RN-23)', async () => {

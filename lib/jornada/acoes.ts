@@ -1,5 +1,6 @@
 'use server'
 
+import { etapasComDocumento } from '@/lib/dados/documentos'
 import { obterEscopo } from '@/lib/dados/escopos'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { listarResponsaveis } from '@/lib/dados/usuarios'
@@ -26,7 +27,9 @@ export async function atualizarEtapa(_estado: EstadoAtualizarEtapa, formData: Fo
   // 2. Escopo fechado: as etapas não mudam (RN-23).
   if (escopoFechado(escopo.status)) return recusa(MENSAGENS_ETAPA.fechado)
 
-  const { destinos, motivo } = mudancasDaEtapa(atual, escopo.etapas, usuario.perfil, escopo.status)
+  // Etapa com documento, também inativo, não vira Não aplicável (DF-49).
+  const comDocumento = (await etapasComDocumento(escopo.id)).includes(atual.etapa)
+  const { destinos, motivo } = mudancasDaEtapa(atual, escopo.etapas, usuario.perfil, escopo.status, comDocumento)
 
   // 3. A Equipe que envia à mão o que é do Administrador recebe a recusa, sem gravar (matriz 4.3).
   if (usuario.perfil === 'Equipe') {

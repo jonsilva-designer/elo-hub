@@ -4,6 +4,7 @@ import { AcessoNegado } from '@/components/elo/estados'
 import { LinkVoltar } from '@/components/elo/link-voltar'
 import { atividadeFechada } from '@/lib/atividades/regras'
 import { obterAtividade } from '@/lib/dados/atividades'
+import { temDocumentoLigado } from '@/lib/dados/documentos'
 import { obterPlano } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -33,6 +34,8 @@ export async function ConteudoEditarAtividade({
   if (!plano) notFound()
   const origem = busca.origem === 'minhas-atividades' ? 'minhas-atividades' : null
   const admin = ehAdmin(usuario)
+  // Com documento ligado, a atividade não é excluída e a opção não aparece (RN-13, CA-18.4).
+  const podeExcluir = admin && !(await temDocumentoLigado({ atividadeId: atividade.id }))
 
   const cabecalho = (
     <>
@@ -41,7 +44,7 @@ export async function ConteudoEditarAtividade({
       </div>
       <CabecalhoPagina
         titulo="Editar atividade"
-        acoes={admin ? <ExcluirAtividade atividadeId={atividade.id} planoId={plano.id} /> : null}
+        acoes={podeExcluir ? <ExcluirAtividade atividadeId={atividade.id} planoId={plano.id} /> : null}
       />
     </>
   )

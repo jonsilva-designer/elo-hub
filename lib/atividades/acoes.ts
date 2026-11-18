@@ -1,6 +1,7 @@
 'use server'
 
 import { obterAtividade } from '@/lib/dados/atividades'
+import { temDocumentoLigado } from '@/lib/dados/documentos'
 import { obterPlano } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
@@ -69,13 +70,16 @@ export async function salvarAtividade(_estado: EstadoSalvarAtividade, formData: 
 const temTexto = (valor: unknown): valor is string => typeof valor === 'string' && valor.trim() !== ''
 
 /**
- * Excluir a atividade (DF-33, RN-13): só o Administrador, com justificativa. Os documentos ligados, que impediriam,
- * vêm na parte 6. Quem não pode, ou um id que não existe, recebe a mesma recusa.
+ * Excluir a atividade (DF-33, RN-13): só o Administrador, sem documentos ligados (também os inativos) e com
+ * justificativa. Quem não pode, ou um id que não existe, recebe a mesma recusa.
  */
 export async function excluirAtividade(id: string, justificativa: string): Promise<ResultadoAcao> {
   const usuario = await obterUsuarioAtual()
   const atividade = ehAdmin(usuario) && typeof id === 'string' ? await obterAtividade(id) : null
   if (!atividade) return { ok: false, mensagem: SEM_PERMISSAO }
+  if (await temDocumentoLigado({ atividadeId: atividade.id })) {
+    return { ok: false, mensagem: 'Esta atividade tem documentos e não pode ser excluída.' }
+  }
   if (!temTexto(justificativa)) return { ok: false, mensagem: 'Escreva a justificativa da exclusão.' }
   return { ok: true, mensagem: mensagemDeSucesso('Atividade excluída.') }
 }

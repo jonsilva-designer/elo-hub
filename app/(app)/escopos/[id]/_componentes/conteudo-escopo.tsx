@@ -18,6 +18,7 @@ import { listarContratosDoCliente } from '@/lib/dados/contratos'
 import { escopoTemItensLigados, obterEscopo } from '@/lib/dados/escopos'
 import { impedimentosDoEscopo } from '@/lib/dados/impedimentos'
 import { listarDemandasDoEscopo } from '@/lib/dados/demandas'
+import { etapasComDocumento } from '@/lib/dados/documentos'
 import { listarHistorico } from '@/lib/dados/historico'
 import { listarPlanosDoEscopo } from '@/lib/dados/planos'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -94,12 +95,15 @@ function AutoriaDaCriticidade({ escopo }: { escopo: EscopoDetalhado }) {
 async function acoesDaJornada(escopo: EscopoDetalhado, usuario: Usuario): Promise<Partial<Record<EtapaJornada, ReactNode>>> {
   const atualizaveis = escopo.etapas.filter((l) => podeAtualizarEtapa(l, usuario.perfil, escopo.status))
   if (atualizaveis.length === 0) return {}
-  const responsaveis = ehAdmin(usuario)
-    ? (await listarResponsaveis(escopo.clienteId)).map((u) => ({ valor: u.id, rotulo: u.nome }))
-    : []
+  const [responsaveis, comDocumento] = await Promise.all([
+    ehAdmin(usuario)
+      ? listarResponsaveis(escopo.clienteId).then((us) => us.map((u) => ({ valor: u.id, rotulo: u.nome })))
+      : Promise.resolve([]),
+    etapasComDocumento(escopo.id),
+  ])
   return Object.fromEntries(
     atualizaveis.map((l) => {
-      const { destinos, motivo } = mudancasDaEtapa(l, escopo.etapas, usuario.perfil, escopo.status)
+      const { destinos, motivo } = mudancasDaEtapa(l, escopo.etapas, usuario.perfil, escopo.status, comDocumento.includes(l.etapa))
       return [
         l.etapa,
         <AtualizarEtapa

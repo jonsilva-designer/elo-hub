@@ -1,5 +1,6 @@
 'use server'
 
+import { temDocumentoLigado } from '@/lib/dados/documentos'
 import { obterEscopo } from '@/lib/dados/escopos'
 import { listarAvaliacoesDoCliente } from '@/lib/dados/maturidade'
 import { atividadesQueImpedemFechar, obterPlano } from '@/lib/dados/planos'
@@ -111,11 +112,12 @@ export async function reabrirPlano(id: string, status: string, justificativa: st
   return { ok: true, mensagem: mensagemDeSucesso('Plano reaberto.') }
 }
 
-/** Excluir o plano (DF-33, RN-13): só o Administrador, só sem atividades, e com justificativa. */
+/** Excluir o plano (DF-33, RN-13): só o Administrador, só sem atividades nem documentos, e com justificativa. */
 export async function excluirPlano(id: string, justificativa: string): Promise<ResultadoAcao> {
   const plano = await planoAoAlcance(id, true)
   if (ehRecusa(plano)) return plano
   if (plano.resumo.total > 0) return recusa('Este plano tem atividades e não pode ser excluído.')
+  if (await temDocumentoLigado({ planoId: plano.id })) return recusa('Este plano tem documentos e não pode ser excluído.')
   if (!temTexto(justificativa)) return recusa('Escreva a justificativa da exclusão.')
   return { ok: true, mensagem: mensagemDeSucesso('Plano excluído.') }
 }

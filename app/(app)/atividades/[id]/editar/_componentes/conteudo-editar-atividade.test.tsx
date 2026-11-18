@@ -88,6 +88,13 @@ describe('editar atividade (parte 4, 5.7)', () => {
     expect(janela.getByRole('textbox', { name: /Justificativa/ })).toBeInTheDocument()
   })
 
+  it('a atividade com evidência não oferece Excluir (RN-13, CA-18.4)', async () => {
+    entrarComo('usr-helena')
+    await abrir('atv-licencas-protocolo')
+    expect(screen.getByRole('heading', { level: 1, name: 'Editar atividade' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Excluir atividade' })).not.toBeInTheDocument()
+  })
+
   it('a Equipe na atividade fechada vê acesso negado (RN-17)', async () => {
     entrarComo('usr-rafael')
     await abrir('atv-licencas-levantamento')

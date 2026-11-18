@@ -2,6 +2,7 @@ import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { escopoFechado } from '@/lib/escopos/regras'
 import { mesmoEmail } from '@/lib/especialistas/regras'
 import { demandasDoEspecialista, temDemandaLigada } from './demandas'
+import { temDocumentoLigado } from './documentos'
 import { CLIENTES } from './mock/clientes'
 import { ESCOPOS } from './mock/escopos'
 import { ESPECIALISTAS } from './mock/especialistas'
@@ -88,12 +89,16 @@ export async function candidaturasComOMesmoEmail(
 }
 
 /**
- * O especialista tem vínculos e não pode ser excluído (RN-13, DF-33): algum escopo ou demanda, de qualquer cliente. Conta
+ * O especialista tem vínculos e não pode ser excluído (RN-13, DF-33): algum escopo, demanda ou documento, de qualquer cliente. Conta
  * também o que o usuário não vê, porque a exclusão apagaria o vínculo de outros clientes; não revela quais são.
  */
 export async function especialistaTemItensLigados(id: string): Promise<boolean> {
   await obterUsuarioAtual()
-  return ESCOPOS.some((e) => e.especialistaIds.includes(id)) || (await temDemandaLigada({ especialistaId: id }))
+  return (
+    ESCOPOS.some((e) => e.especialistaIds.includes(id)) ||
+    (await temDemandaLigada({ especialistaId: id })) ||
+    (await temDocumentoLigado({ especialistaId: id }))
+  )
 }
 
 /** O especialista está ligado a algum escopo aberto, de qualquer cliente: ao inativá-lo, o vínculo fica para troca (DF-51). */
