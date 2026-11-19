@@ -30,6 +30,19 @@ describe('Painel', () => {
     expect(contagem.compareDocumentPosition(botao) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
+  it('o cabeçalho tem a mesma altura com e sem ação: o botão não o faz crescer', () => {
+    const { unmount } = render(<Painel titulo="Dados">conteúdo</Painel>)
+    const semAcao = screen.getByRole('heading', { name: 'Dados' }).parentElement!
+    expect(semAcao.className).toContain('min-h-14')
+    unmount()
+    render(
+      <Painel titulo="Contratos" acao={<button>Novo contrato</button>}>
+        conteúdo
+      </Painel>,
+    )
+    expect(screen.getByRole('heading', { name: 'Contratos' }).parentElement!.className).toContain('min-h-14')
+  })
+
   it('contagem zero aparece', () => {
     render(
       <Painel titulo="Alertas" contagem={0}>

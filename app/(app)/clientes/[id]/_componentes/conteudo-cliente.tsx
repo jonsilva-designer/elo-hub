@@ -5,6 +5,7 @@ import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
+import { Painel } from '@/components/elo/painel'
 import { PainelHistorico } from '@/components/elo/painel-historico'
 import { Button } from '@/components/ui/button'
 import { abasDoCliente, abaValida, ROTULOS_DAS_ABAS, type AbaCliente } from '@/lib/clientes/abas'
@@ -72,7 +73,11 @@ export async function ConteudoCliente({
     maturidade: <AbaMaturidade cliente={cliente} avaliacoes={avaliacoes} comparacao={comparacao} />,
     contratos: <AbaContratos cliente={cliente} contratos={contratos} ehAdmin={admin} />,
     escopos: <AbaEscopos escopos={escopos} />,
-    demandas: <TabelaDemandas demandas={demandas} vazio={<EstadoVazio titulo="Nenhuma demanda deste cliente." />} />,
+    demandas: (
+      <Painel titulo="Demandas" semRespiro>
+        <TabelaDemandas demandas={demandas} vazio={<EstadoVazio titulo="Nenhuma demanda deste cliente." />} />
+      </Painel>
+    ),
     documentos: <PainelDocumentos documentos={documentos} ligadoA={{ clienteId: cliente.id }} vazio="Nenhum documento deste cliente." />,
     historico: <PainelHistorico entradas={historico} />,
   }

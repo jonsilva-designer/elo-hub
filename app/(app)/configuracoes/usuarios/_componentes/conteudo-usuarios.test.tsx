@@ -38,6 +38,10 @@ describe('usuários (parte 8, 4.1; F01)', () => {
     const abas = within(screen.getByRole('navigation', { name: 'Configurações' }))
     expect(abas.getAllByRole('link').map((l) => l.textContent)).toEqual(['Usuários', 'Listas oficiais', 'Parâmetros'])
     expect(abas.getByRole('link', { name: 'Usuários' })).toHaveAttribute('aria-current', 'page')
+    // As mesmas abas sublinhadas da página do cliente: a ativa ganha o sublinhado (data-active).
+    expect(abas.getByRole('link', { name: 'Usuários' })).toHaveAttribute('data-active')
+    expect(abas.getByRole('link', { name: 'Listas oficiais' })).not.toHaveAttribute('data-active')
+    expect(abas.getByRole('link', { name: 'Usuários' }).className).toContain('border-b-2')
     expect(screen.getByRole('link', { name: 'Novo usuário' })).toHaveAttribute('href', '/configuracoes/usuarios/novo')
     expect(linhas()).toHaveLength(2)
     const rafael = screen.getByText('Rafael Souza').closest('tr')!

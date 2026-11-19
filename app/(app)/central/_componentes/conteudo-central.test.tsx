@@ -63,6 +63,17 @@ describe('fila de demandas (parte 5, 5.8)', () => {
     expect(push).toHaveBeenCalledWith('/central/ELO-2026-0005')
   })
 
+  it('o período fica alinhado aos outros filtros: o rótulo vai dentro do campo, e não em cima', async () => {
+    entrarComo('usr-helena')
+    render(await ConteudoCentral({ searchParams: Promise.resolve({}) }))
+    const filtros = within(screen.getByRole('group', { name: 'Filtros' }))
+    const de = filtros.getByRole('textbox', { name: 'Aberta de' })
+    const ate = filtros.getByRole('textbox', { name: 'Aberta até' })
+    expect(de.closest('[data-slot="input-group"]')).toHaveTextContent('Aberta de')
+    expect(ate.closest('[data-slot="input-group"]')).toHaveTextContent('até')
+    expect(filtros.queryByText('Até', { selector: 'label' })).not.toBeInTheDocument()
+  })
+
   it('a volta para a Central leva os filtros guardados', () => {
     sessionStorage.setItem(CHAVE_FILTROS_DAS_DEMANDAS, 'status=Nova')
     render(<VoltarParaCentral />)

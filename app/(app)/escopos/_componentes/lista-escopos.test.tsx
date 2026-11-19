@@ -112,6 +112,13 @@ describe('ListaEscopos', () => {
     expect(screen.getByRole('combobox', { name: 'Etapa atual' })).toBeInTheDocument()
   })
 
+  it('em tela até 1536 px, a Prioridade some para o Responsável caber (revisão do Jonathan)', () => {
+    montar()
+    const prioridade = screen.getByRole('columnheader', { name: /Prioridade/ })
+    expect(prioridade.className.split(' ')).toEqual(expect.arrayContaining(['hidden', '2xl:table-cell']))
+    expect(screen.getByRole('columnheader', { name: /Responsável/ }).className.split(' ')).not.toContain('hidden')
+  })
+
   it('o filtro Responsável oferece quem responde pelos escopos', async () => {
     montar()
     await userEvent.click(screen.getByRole('combobox', { name: 'Responsável' }))

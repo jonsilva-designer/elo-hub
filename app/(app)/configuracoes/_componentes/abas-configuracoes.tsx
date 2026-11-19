@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { CLASSE_ABA, CLASSE_LISTA_ABAS } from '@/components/ui/tabs'
 
 const ABAS = [
   { rotulo: 'Usuários', href: '/configuracoes/usuarios' },
@@ -10,11 +11,14 @@ const ABAS = [
   { rotulo: 'Parâmetros', href: '/configuracoes/parametros' },
 ]
 
-/** As três telas de configuração do Administrador (parte 8, escolha 2), como abas no topo. */
+/**
+ * As três telas de configuração do Administrador (parte 8, escolha 2), como abas no topo. São links entre páginas,
+ * com o mesmo visual das abas da página do cliente: a ativa leva o sublinhado (data-active).
+ */
 export function AbasConfiguracoes() {
   const rota = usePathname()
   return (
-    <nav aria-label="Configurações" className="mb-5 flex flex-wrap gap-2">
+    <nav aria-label="Configurações" className={cn(CLASSE_LISTA_ABAS, 'mb-5')}>
       {ABAS.map((a) => {
         const atual = rota === a.href || rota.startsWith(`${a.href}/`)
         return (
@@ -22,7 +26,8 @@ export function AbasConfiguracoes() {
             key={a.href}
             href={a.href}
             aria-current={atual ? 'page' : undefined}
-            className={buttonVariants({ variant: atual ? 'outline' : 'ghost' })}
+            data-active={atual ? '' : undefined}
+            className={CLASSE_ABA}
           >
             {a.rotulo}
           </Link>

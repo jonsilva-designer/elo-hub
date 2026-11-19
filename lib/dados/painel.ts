@@ -17,7 +17,7 @@ import { obterUsuarioAtual } from './sessao'
 // pelo vínculo (RN-01). Assim, o número e a lista não divergem (CA-13.1, CA-13.3), e a Equipe só conta os seus
 // clientes (CA-13.2).
 
-export type Indicador = { rotulo: string; valor: number; href: string; tom?: 'atencao' | 'problema' }
+export type Indicador = { rotulo: string; valor: number; href: string; tom?: 'atencao' | 'problema' | 'concluido' }
 
 export type Painel = {
   clientesAtivos: Indicador
@@ -86,7 +86,7 @@ export async function indicadoresDoPainel(): Promise<Painel> {
     },
     atividades: [
       indicador('Abertas', atividadesCom({ status: 'Não iniciada,Em andamento' })),
-      indicador('Concluídas', atividadesCom({ status: 'Concluída' })),
+      indicador('Concluídas', atividadesCom({ status: 'Concluída' }), 'concluido'),
       indicador('Atrasadas', atividadesCom({ prazo: 'Atrasada' }), 'problema'),
       indicador('Próximas do prazo', atividadesCom({ prazo: 'Próxima do prazo' }), 'atencao'),
     ],

@@ -1,6 +1,6 @@
 'use client'
 
-import { LogOut, Palette } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { sair } from '@/lib/acesso/acoes'
 import type { Usuario } from '@/lib/dados/tipos'
@@ -69,20 +69,11 @@ export function Menu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
   )
 }
 
-/** Rodapé do menu: link do padrão visual, o usuário e Sair. Compartilhado pela lateral e pela gaveta. */
-export function RodapeMenu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
-  const atual = ativo(rotaAtual, '/designsystem')
+/** Rodapé do menu: o usuário e Sair. Compartilhado pela lateral e pela gaveta. O padrão visual saiu do menu
+ * (pedido do Jonathan, 19/11/2026) e abre só pelo endereço /designsystem. */
+export function RodapeMenu({ usuario }: PropsMenu) {
   return (
-    <div className="mt-auto border-t border-sidebar-border pt-2 pb-3">
-      <Link
-        href="/designsystem"
-        onNavigate={aoNavegar}
-        aria-current={atual ? 'page' : undefined}
-        className={cn(BASE_ITEM, 'mb-2 py-1.5 text-xs', atual && ITEM_ATIVO)}
-      >
-        <Palette className="size-4 shrink-0" aria-hidden="true" />
-        Padrão visual
-      </Link>
+    <div className="mt-auto border-t border-sidebar-border pt-3 pb-3">
       {usuario ? (
         <div className="mx-2.5 flex items-center justify-between gap-2 pl-3">
           <div className="min-w-0">

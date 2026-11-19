@@ -75,6 +75,8 @@ const COLUNAS: Coluna<EscopoDetalhado>[] = [
   {
     id: 'prioridade',
     titulo: 'Prioridade',
+    // A de menor impacto: some até 1536 px, para o Responsável caber sem cortar (revisão do Jonathan, 19/11/2026).
+    esconderAbaixoDe: '2xl',
     ordenarPor: (e) => PRIORIDADES.indexOf(e.prioridade),
     celula: (e) => <IndicadorPrioridade prioridade={e.prioridade} />,
   },

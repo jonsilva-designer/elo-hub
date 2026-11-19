@@ -1,9 +1,26 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { BarraFiltros } from './barra-filtros'
 
 describe('BarraFiltros', () => {
+  it('a busca e Exportar ficam na primeira linha; os filtros, num grupo próprio abaixo', () => {
+    render(<BarraFiltros busca="" aoBuscar={vi.fn()} filtros={<span>Meu filtro</span>} aoExportar={vi.fn()} />)
+    const grupo = screen.getByRole('group', { name: 'Filtros' })
+    expect(within(grupo).getByText('Meu filtro')).toBeInTheDocument()
+    expect(within(grupo).queryByRole('textbox', { name: 'Buscar' })).not.toBeInTheDocument()
+    expect(within(grupo).queryByRole('button', { name: 'Exportar' })).not.toBeInTheDocument()
+    // Busca e Exportar no mesmo contêiner de linha.
+    expect(screen.getByRole('textbox', { name: 'Buscar' }).closest('[data-linha-busca]')).toContainElement(
+      screen.getByRole('button', { name: 'Exportar' }),
+    )
+  })
+
+  it('sem filtros, não desenha o grupo vazio', () => {
+    render(<BarraFiltros busca="" aoBuscar={vi.fn()} />)
+    expect(screen.queryByRole('group', { name: 'Filtros' })).not.toBeInTheDocument()
+  })
+
   it('digitar em Buscar chama aoBuscar', async () => {
     const u = userEvent.setup()
     const aoBuscar = vi.fn()

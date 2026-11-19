@@ -126,6 +126,9 @@ describe('página do cliente (parte 2, 5.6)', () => {
   it('a aba Demandas lista as demandas do cliente, com a vencida marcada (parte 5, 5.12)', async () => {
     entrarComo('usr-rafael')
     await abrir('cli-vertice', { aba: 'demandas' })
+    // Num painel, como as outras abas: com fundo e título, e não a tabela solta.
+    const painel = within(screen.getByRole('region', { name: 'Demandas' }))
+    expect(painel.getByText('ELO-2026-0003')).toBeInTheDocument()
     const linha = screen.getByText('ELO-2026-0003').closest('tr')!
     expect(linha).toHaveTextContent('Certidões vencidas antes da medição')
     expect(within(linha).getByText('Vencida')).toBeInTheDocument()

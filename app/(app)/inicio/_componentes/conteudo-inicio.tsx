@@ -1,86 +1,75 @@
-import Link from 'next/link'
 import { useId, type ReactNode } from 'react'
-import { CartaoIndicador, GradeIndicadores } from '@/components/elo/cartao-indicador'
-import { ListaCampos } from '@/components/elo/lista-campos'
+import { FaixaIndicadores } from '@/components/elo/faixa-indicadores'
+import { ListaBarras, type ItemBarra } from '@/components/elo/lista-barras'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { listarAlertas } from '@/lib/dados/alertas'
 import { indicadoresDoPainel, type Indicador } from '@/lib/dados/painel'
 import { ListaAlertas } from './lista-alertas'
 
-const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
-
-/** Um bloco de cartões com o título do bloco, no estilo do título do painel. */
-function Bloco({ titulo, children }: { titulo: string; children: ReactNode }) {
+/** Um grupo dentro do painel (por status, por criticidade, etapa atual), com o título no estilo do rótulo. */
+function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
   const id = useId()
   return (
-    <section aria-labelledby={id} className="space-y-3">
-      <h2 id={id} className="text-sm font-bold text-primary">
+    <section aria-labelledby={id} className="min-w-0 space-y-2">
+      <h3 id={id} className="text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground">
         {titulo}
-      </h2>
+      </h3>
       {children}
     </section>
   )
 }
 
-/** Os números de um detalhamento (por status, por criticidade), cada um com o link da lista filtrada. */
-function Detalhamento({ indicadores }: { indicadores: Indicador[] }) {
-  return (
-    <ListaCampos
-      itens={indicadores.map((i) => ({
-        rotulo: i.rotulo,
-        valor: (
-          <Link href={i.href} className={CLASSE_LINK} aria-label={`${i.rotulo}: ${i.valor}`}>
-            <Num>{i.valor}</Num>
-          </Link>
-        ),
-      }))}
-    />
-  )
-}
-
-const cartao = (i: Indicador) => (
-  <CartaoIndicador key={i.href} rotulo={i.rotulo} valor={i.valor} href={i.href} tom={i.valor > 0 ? i.tom : undefined} />
-)
+const barras = (indicadores: Indicador[]): ItemBarra[] =>
+  indicadores.map((i) => ({ rotulo: i.rotulo, valor: i.valor, href: i.href, tom: i.tom }))
 
 /**
- * O painel do Início (parte 7, 4.2 e 4.3; F13, F15): os números da carteira, cada um levando à lista já filtrada
- * (CA-13.3), e os alertas. Tudo vem recortado pelo vínculo de quem vê (CA-13.2, CA-15.3) e calculado na hora (DF-14).
- * Os destaques de contrato e de atividade só aparecem quando o número não é zero.
+ * O painel do Início (parte 7, 4.2 e 4.3; F13, F15), refeito na revisão do Jonathan (19/11/2026): os quatro números
+ * principais numa faixa só; Contratos e Atividades como gráficos de barras, lado a lado; Escopos e Central ELO com
+ * os grupos separados por título; e os alertas. Cada número leva à lista já filtrada (CA-13.3). Tudo vem recortado
+ * pelo vínculo de quem vê (CA-13.2, CA-15.3) e calculado na hora (DF-14).
  */
 export async function ConteudoInicio() {
   const [painel, alertas] = await Promise.all([indicadoresDoPainel(), listarAlertas()])
-  const [abertas, ...atividades] = painel.atividades
+  const [abertas] = painel.atividades
   return (
     <div className="space-y-6">
-      <GradeIndicadores>
-        {cartao(painel.clientesAtivos)}
-        {cartao(painel.escopos.total)}
-        {cartao({ ...abertas, rotulo: 'Atividades abertas' })}
-        {cartao(painel.demandas.abertas)}
-      </GradeIndicadores>
-      <Bloco titulo="Contratos">
-        <GradeIndicadores>{painel.contratos.map(cartao)}</GradeIndicadores>
-      </Bloco>
-      <Bloco titulo="Atividades">
-        <GradeIndicadores>{atividades.map(cartao)}</GradeIndicadores>
-      </Bloco>
+      <FaixaIndicadores
+        rotulo="Números da carteira"
+        itens={[painel.clientesAtivos, painel.escopos.total, { ...abertas, rotulo: 'Atividades abertas' }, painel.demandas.abertas]}
+      />
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Painel titulo="Contratos">
+          <ListaBarras itens={barras(painel.contratos)} />
+        </Painel>
+        <Painel titulo="Atividades">
+          <ListaBarras itens={barras(painel.atividades)} />
+        </Painel>
+      </div>
       <div className="grid gap-5 lg:grid-cols-2">
         <Painel titulo="Escopos">
-          <div className="space-y-5">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Detalhamento indicadores={painel.escopos.porStatus} />
-              <Detalhamento indicadores={painel.escopos.porCriticidade} />
+          <div className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <Grupo titulo="Por status">
+                <ListaBarras itens={barras(painel.escopos.porStatus)} />
+              </Grupo>
+              <Grupo titulo="Por criticidade">
+                <ListaBarras itens={barras(painel.escopos.porCriticidade)} />
+              </Grupo>
             </div>
-            <Bloco titulo="Etapa atual dos escopos abertos">
-              <Detalhamento indicadores={painel.escopos.porEtapa} />
-            </Bloco>
+            <Grupo titulo="Etapa atual dos escopos abertos">
+              <ListaBarras itens={barras(painel.escopos.porEtapa)} duasColunas />
+            </Grupo>
           </div>
         </Painel>
         <Painel titulo="Central ELO">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Detalhamento indicadores={painel.demandas.porStatus} />
-            <Detalhamento indicadores={painel.demandas.porCriticidade} />
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Grupo titulo="Por status">
+              <ListaBarras itens={barras(painel.demandas.porStatus)} />
+            </Grupo>
+            <Grupo titulo="Por criticidade">
+              <ListaBarras itens={barras(painel.demandas.porCriticidade)} />
+            </Grupo>
           </div>
         </Painel>
       </div>

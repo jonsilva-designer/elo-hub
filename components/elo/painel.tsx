@@ -27,7 +27,8 @@ export function Painel({
       // Sem respiro, o corte arredonda o fundo da última linha nos cantos do painel.
       className={cn('min-w-0 rounded-xl border border-border bg-card', semRespiro && 'overflow-hidden')}
     >
-      <div className="flex items-center gap-3 border-b border-divisoria px-5 py-3">
+      {/* Altura mínima: com ou sem botão na ação, o cabeçalho tem a mesma altura em todos os painéis. */}
+      <div className="flex min-h-14 items-center gap-3 border-b border-divisoria px-5 py-3">
         <h2 id={id} className="font-heading text-sm font-bold text-primary">
           {titulo}
         </h2>

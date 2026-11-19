@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { BarraFiltros } from '@/components/elo/barra-filtros'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
-import { Campo } from '@/components/elo/campo'
 import { CampoData } from '@/components/elo/campo-data'
 import { EstadoVazio } from '@/components/elo/estados'
 import { Num } from '@/components/elo/num'
@@ -215,15 +214,12 @@ export function FilaDemandas({
                   placeholder="Todas as criticidades"
                 />
               </div>
-              <div className="w-full sm:w-40">
-                <Campo rotulo="Aberta de">
-                  {(p) => <CampoData {...p} valor={filtros.de} onChange={(de) => mudar({ ...filtros, de })} />}
-                </Campo>
+              {/* O período, com o rótulo dentro do campo: fica na altura dos outros filtros. */}
+              <div className="w-full sm:w-56">
+                <CampoData prefixo="Aberta de" aria-label="Aberta de" valor={filtros.de} onChange={(de) => mudar({ ...filtros, de })} />
               </div>
-              <div className="w-full sm:w-40">
-                <Campo rotulo="Até">
-                  {(p) => <CampoData {...p} valor={filtros.ate} onChange={(ate) => mudar({ ...filtros, ate })} />}
-                </Campo>
+              <div className="w-full sm:w-48">
+                <CampoData prefixo="até" aria-label="Aberta até" valor={filtros.ate} onChange={(ate) => mudar({ ...filtros, ate })} />
               </div>
             </>
           }

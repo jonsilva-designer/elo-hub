@@ -23,6 +23,18 @@ export type Coluna<T> = {
    * As colunas sem largura dividem o que sobra.
    */
   largura?: string
+  /**
+   * Some abaixo deste tamanho de tela, no cabeçalho e nas células, para as outras colunas caberem sem cortar o título.
+   * Vale para a coluna de menor impacto na leitura.
+   */
+  esconderAbaixoDe?: 'lg' | 'xl' | '2xl'
+}
+
+/** As classes escritas por inteiro, para o Tailwind encontrá-las. */
+const ESCONDER: Record<NonNullable<Coluna<unknown>['esconderAbaixoDe']>, string> = {
+  lg: 'hidden lg:table-cell',
+  xl: 'hidden xl:table-cell',
+  '2xl': 'hidden 2xl:table-cell',
 }
 
 type Destaque = 'atencao' | 'problema'
@@ -137,7 +149,11 @@ export function TabelaDados<T>({
               const sentido = ordem?.coluna === c.id ? ordem.sentido : undefined
               const Seta = sentido === 'ascending' ? ArrowUp : sentido === 'descending' ? ArrowDown : ArrowUpDown
               return (
-                <TableHead key={c.id} aria-sort={sentido} className={cn(direita && 'text-right', c.largura)}>
+                <TableHead
+                  key={c.id}
+                  aria-sort={sentido}
+                  className={cn(direita && 'text-right', c.largura, c.esconderAbaixoDe && ESCONDER[c.esconderAbaixoDe])}
+                >
                   {c.ordenarPor ? (
                     // Sem aria-label: o nome do botão vira o nome do cabeçalho, que o leitor de tela repete
                     // em cada célula. O título basta; o aria-sort do th diz a ordem.
@@ -176,7 +192,11 @@ export function TabelaDados<T>({
                 {colunas.map((c) => (
                   <TableCell
                     key={c.id}
-                    className={cn(c.alinhar === 'direita' && 'text-right', fixa && 'whitespace-normal break-words')}
+                    className={cn(
+                      c.alinhar === 'direita' && 'text-right',
+                      fixa && 'whitespace-normal break-words',
+                      c.esconderAbaixoDe && ESCONDER[c.esconderAbaixoDe],
+                    )}
                   >
                     {c.celula(linha)}
                   </TableCell>

@@ -63,17 +63,11 @@ describe('Lateral', () => {
     expect(within(nav).getByText('Apoio')).toBeInTheDocument()
   })
 
-  it('mostra o link Padrão visual e o usuário', () => {
+  it('mostra o usuário; o padrão visual saiu do menu e abre só pelo endereço /designsystem', () => {
     render(<Lateral usuario={helena} />)
-    expect(screen.getByRole('link', { name: 'Padrão visual' })).toHaveAttribute('href', '/designsystem')
+    expect(screen.queryByRole('link', { name: 'Padrão visual' })).not.toBeInTheDocument()
     expect(screen.getByText('Helena Prado')).toBeInTheDocument()
     expect(screen.getByText('Administrador')).toBeInTheDocument()
-  })
-
-  it('marca Padrão visual com aria-current em /designsystem', () => {
-    rota.pathname = '/designsystem'
-    render(<Lateral usuario={helena} />)
-    expect(screen.getByRole('link', { name: 'Padrão visual' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('Equipe não vê Configurações', () => {
@@ -102,7 +96,7 @@ describe('Lateral', () => {
 
   it('os itens têm um tom de pressionado mais forte que o de passar o mouse', () => {
     render(<Lateral usuario={helena} />)
-    for (const nome of ['Início', 'Clientes', 'Padrão visual']) {
+    for (const nome of ['Início', 'Clientes']) {
       const classes = screen.getByRole('link', { name: nome }).className.split(' ')
       expect(classes, nome).toContain('hover:bg-sidebar-accent/60')
       expect(classes, nome).toContain('active:bg-sidebar-accent-active')
@@ -119,7 +113,7 @@ describe('LateralEstatica', () => {
     render(<LateralEstatica usuario={null} />)
     expect(screen.getByRole('link', { name: 'Início' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Clientes' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Padrão visual' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Padrão visual' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Configurações' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Sair' })).not.toBeInTheDocument()
     expect(screen.queryByText('Helena Prado')).not.toBeInTheDocument()

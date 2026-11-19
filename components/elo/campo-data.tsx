@@ -6,7 +6,7 @@ import { useState } from 'react'
 // Locale do próprio react-day-picker: é o date-fns ptBR mais os textos de acessibilidade em português.
 import { ptBR } from 'react-day-picker/locale'
 import { Calendar } from '@/components/ui/calendar'
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { dataExiste } from '@/lib/formato'
 import type { AtributosDeCampo } from './campo'
@@ -66,17 +66,22 @@ function aplicarMascara(bruto: string): string {
 /**
  * Campo de data com máscara `dd/mm/aaaa` e calendário. O valor é `AAAA-MM-DD`.
  * `onChange(null)` significa campo vazio ou data inválida (incompleta, inexistente ou fora de 1900 a 2100).
+ * Fora de um `Campo` (num filtro, por exemplo), o `prefixo` é o rótulo visível dentro do campo, e o `aria-label`
+ * dá o nome: o campo fica na altura dos outros filtros, sem rótulo em cima.
  */
 export function CampoData({
   valor,
   onChange,
   disabled,
+  prefixo,
   ...props
 }: {
   valor: string | null
   onChange: (valor: string | null) => void
   disabled?: boolean
-} & AtributosDeCampo) {
+  prefixo?: string
+  'aria-label'?: string
+} & Partial<AtributosDeCampo>) {
   const [texto, setTexto] = useState(isoParaBr(valor))
   const [anterior, setAnterior] = useState(valor)
   const [aberto, setAberto] = useState(false)
@@ -91,6 +96,11 @@ export function CampoData({
 
   return (
     <InputGroup>
+      {prefixo ? (
+        <InputGroupAddon>
+          <InputGroupText>{prefixo}</InputGroupText>
+        </InputGroupAddon>
+      ) : null}
       <InputGroupInput
         {...props}
         type="text"

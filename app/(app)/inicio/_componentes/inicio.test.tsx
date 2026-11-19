@@ -51,6 +51,40 @@ describe('Início (parte 7, 4.2 e 4.3; F13, F15)', () => {
     )
   })
 
+  it('os quatro números principais ficam numa faixa só, sem um card solto para cada (revisão do Jonathan)', async () => {
+    entrarComo('usr-helena')
+    render(await ConteudoInicio())
+    const faixa = regiao('Números da carteira')
+    for (const nome of [/Clientes ativos/, /Escopos/, /Atividades abertas/, /Demandas abertas/]) {
+      expect(faixa.getByRole('link', { name: nome })).toBeInTheDocument()
+    }
+  })
+
+  it('Contratos e Atividades são gráficos de barras, cada barra levando à lista filtrada', async () => {
+    entrarComo('usr-helena')
+    render(await ConteudoInicio())
+    for (const [painel, nomes] of [
+      ['Contratos', [/Vigentes/, /Próximos do vencimento/, /Vencidos/, /Suspensos/]],
+      ['Atividades', [/Abertas/, /Concluídas/, /Atrasadas/, /Próximas do prazo/]],
+    ] as const) {
+      for (const nome of nomes) {
+        expect(regiao(painel).getByRole('link', { name: nome }).querySelector('[data-barra]'), `${painel} ${nome}`).not.toBeNull()
+      }
+    }
+    expect(regiao('Atividades').getByRole('link', { name: /Concluídas/ })).toHaveAttribute('data-tom', 'concluido')
+  })
+
+  it('Escopos e Central ELO separam os grupos com título (por status, por criticidade, etapa atual)', async () => {
+    entrarComo('usr-helena')
+    render(await ConteudoInicio())
+    for (const grupo of ['Por status', 'Por criticidade', 'Etapa atual dos escopos abertos']) {
+      expect(regiao('Escopos').getByRole('region', { name: grupo })).toBeInTheDocument()
+    }
+    for (const grupo of ['Por status', 'Por criticidade']) {
+      expect(regiao('Central ELO').getByRole('region', { name: grupo })).toBeInTheDocument()
+    }
+  })
+
   it('os alertas, dos mais críticos para os menos; a linha abre o registro (CA-15.1, CA-15.5)', async () => {
     entrarComo('usr-helena')
     render(await ConteudoInicio())

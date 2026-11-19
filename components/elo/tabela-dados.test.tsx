@@ -36,6 +36,15 @@ function muitas(n: number): Contrato[] {
 const cabecalho = (nome: string) => screen.getByRole('columnheader', { name: new RegExp(nome) })
 
 describe('TabelaDados', () => {
+  it('a coluna com esconderAbaixoDe some em tela menor, no cabeçalho e nas células', () => {
+    const colunas: Coluna<Contrato>[] = [COLUNAS[0], { ...COLUNAS[1], esconderAbaixoDe: '2xl' }]
+    render(<TabelaDados colunas={colunas} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
+    expect(cabecalho('Término').className.split(' ')).toEqual(expect.arrayContaining(['hidden', '2xl:table-cell']))
+    const celula = within(screen.getAllByRole('row')[1]).getAllByRole('cell')[1]
+    expect(celula.className.split(' ')).toEqual(expect.arrayContaining(['hidden', '2xl:table-cell']))
+    expect(cabecalho('Cliente').className.split(' ')).not.toContain('hidden')
+  })
+
   it('ordena de A a Z em pt-BR e depois inverte', async () => {
     const u = userEvent.setup()
     render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
