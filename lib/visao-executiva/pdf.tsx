@@ -1,4 +1,5 @@
-import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
+import path from 'node:path'
+import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import type { ReactNode } from 'react'
 import type { VisaoExecutiva } from '@/lib/dados/tipos'
 import { formatarData, formatarDataHora } from '@/lib/formato'
@@ -6,8 +7,25 @@ import { ETAPAS } from '@/lib/jornada/regras'
 
 // O PDF da Visão Executiva (F14, DF-74; arquitetura 3.5, DA-04): os mesmos blocos e a mesma leitura da tela, em A4
 // retrato. O PDF não lê CSS: as cores são as da marca, iguais aos tokens --elo-azul-marinho, --elo-dourado e
-// --elo-dourado-suave de app/globals.css. A fonte é a Helvetica do próprio PDF; o layout é a proposta da parte 7 (4.5),
-// para a Cleo aprovar (DT-04).
+// --elo-dourado-suave de app/globals.css. As fontes são as da tela (padrão visual 4.2): Playfair Display nos títulos,
+// Montserrat no texto e JetBrains Mono nos números, em arquivos de peso fixo (public/fontes/pdf), porque o PDF não lê
+// fonte variável. O layout é a proposta da parte 7 (4.5), para a Cleo aprovar (DT-04).
+
+const FONTES = path.join(process.cwd(), 'public', 'fontes', 'pdf')
+Font.register({
+  family: 'Montserrat',
+  fonts: [
+    { src: path.join(FONTES, 'Montserrat-Regular.ttf'), fontWeight: 400 },
+    { src: path.join(FONTES, 'Montserrat-SemiBold.ttf'), fontWeight: 600 },
+  ],
+})
+Font.register({ family: 'Playfair Display', src: path.join(FONTES, 'PlayfairDisplay-Bold.ttf'), fontWeight: 700 })
+Font.register({ family: 'JetBrains Mono', src: path.join(FONTES, 'JetBrainsMono-Medium.ttf'), fontWeight: 500 })
+// Sem hifenização: palavras e números não se partem no fim da linha.
+Font.registerHyphenationCallback((palavra) => [palavra])
+
+const TITULO = { fontFamily: 'Playfair Display', fontWeight: 700 } as const
+const NUMERO = { fontFamily: 'JetBrains Mono', fontWeight: 500 } as const
 
 const COR = {
   azul: '#182F4F',
@@ -19,17 +37,17 @@ const COR = {
 }
 
 const e = StyleSheet.create({
-  pagina: { paddingTop: 28, paddingBottom: 40, paddingHorizontal: 32, fontFamily: 'Helvetica', fontSize: 9, color: COR.texto },
+  pagina: { paddingTop: 28, paddingBottom: 40, paddingHorizontal: 32, fontFamily: 'Montserrat', fontWeight: 400, fontSize: 9, color: COR.texto },
   faixa: { backgroundColor: COR.azul, marginHorizontal: -32, marginTop: -28, paddingHorizontal: 32, paddingVertical: 18, marginBottom: 14 },
   faixaLinha: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  logo: { width: 70, height: 28, objectFit: 'contain' },
-  titulo: { color: '#FFFFFF', fontSize: 18, fontFamily: 'Helvetica-Bold', marginTop: 10 },
+  logo: { width: 118, height: 44, objectFit: 'contain' },
+  titulo: { ...TITULO, color: '#FFFFFF', fontSize: 18, marginTop: 10 },
   cliente: { color: COR.douradoSuave, fontSize: 12, marginTop: 2 },
   datas: { color: '#FFFFFF', fontSize: 8, marginTop: 8 },
   secao: { marginBottom: 12 },
   secaoTitulo: {
+    ...TITULO,
     fontSize: 11,
-    fontFamily: 'Helvetica-Bold',
     color: COR.azul,
     borderBottomWidth: 1.5,
     borderBottomColor: COR.dourado,
@@ -38,7 +56,7 @@ const e = StyleSheet.create({
   },
   linha: { flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: COR.linha, paddingVertical: 3 },
   cabecalho: { flexDirection: 'row', paddingVertical: 3, borderBottomWidth: 0.8, borderBottomColor: COR.azul },
-  celulaCabecalho: { fontFamily: 'Helvetica-Bold', color: COR.azul, paddingRight: 4 },
+  celulaCabecalho: { fontWeight: 600, color: COR.azul, paddingRight: 4 },
   celula: { paddingRight: 4 },
   vazio: { color: COR.apagado },
   paragrafo: { lineHeight: 1.4 },
@@ -50,7 +68,7 @@ function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <View style={e.secao}>
       {/* O título não fica sozinho no pé da página: ele vai junto com o começo do bloco. */}
-      <Text style={e.secaoTitulo} minPresenceAhead={40}>
+      <Text style={e.secaoTitulo} minPresenceAhead={90}>
         {titulo}
       </Text>
       {children}
@@ -58,8 +76,10 @@ function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
   )
 }
 
-/** Uma tabela simples: as larguras são frações que somam 1. */
-function Tabela({ colunas, linhas, vazio }: { colunas: { titulo: string; largura: number }[]; linhas: string[][]; vazio: string }) {
+type Coluna = { titulo: string; largura: number; numero?: boolean }
+
+/** Uma tabela simples: as larguras são frações que somam 1. As colunas de número (datas, contagens) vão em mono. */
+function Tabela({ colunas, linhas, vazio }: { colunas: Coluna[]; linhas: string[][]; vazio: string }) {
   if (linhas.length === 0) return <Text style={e.vazio}>{vazio}</Text>
   return (
     <View>
@@ -73,7 +93,7 @@ function Tabela({ colunas, linhas, vazio }: { colunas: { titulo: string; largura
       {linhas.map((linha, i) => (
         <View key={i} style={e.linha}>
           {linha.map((texto, j) => (
-            <Text key={j} style={[e.celula, { width: `${colunas[j].largura * 100}%` }]}>
+            <Text key={j} style={[e.celula, { width: `${colunas[j].largura * 100}%` }, colunas[j].numero ? NUMERO : {}]}>
               {texto}
             </Text>
           ))}
@@ -88,10 +108,10 @@ const data = (valor: string | null) => (valor ? formatarData(valor) : '—')
 export function DocumentoVisaoExecutiva({ visao, logo }: { visao: VisaoExecutiva; logo: string }) {
   const pendentes = visao.planos.flatMap((p) => p.pendentes.map((a) => ({ ...a, plano: p.nome })))
   const itens = (lista: VisaoExecutiva['entregas']) => lista.map((i) => [i.tipo, i.descricao, formatarData(i.data)])
-  const colunasItens = [
+  const colunasItens: Coluna[] = [
     { titulo: 'Tipo', largura: 0.18 },
     { titulo: 'Descrição', largura: 0.62 },
-    { titulo: 'Data', largura: 0.2 },
+    { titulo: 'Data', largura: 0.2, numero: true },
   ]
   return (
     <Document title={`Visão Executiva · ${visao.cliente.nome}`} author="ELO Governança Inteligente" language="pt-BR">
@@ -108,7 +128,8 @@ export function DocumentoVisaoExecutiva({ visao, logo }: { visao: VisaoExecutiva
             {visao.contrato ? ` · Contrato ${visao.contrato.codigo}` : ' · Todos os contratos'}
           </Text>
           <Text style={e.datas}>
-            Emitida em {formatarData(visao.hoje)} · Textos atualizados em {data(visao.textosAtualizadosEm)}
+            Emitida em <Text style={NUMERO}>{formatarData(visao.hoje)}</Text> · Textos atualizados em{' '}
+            <Text style={NUMERO}>{data(visao.textosAtualizadosEm)}</Text>
           </Text>
         </View>
 
@@ -145,9 +166,9 @@ export function DocumentoVisaoExecutiva({ visao, logo }: { visao: VisaoExecutiva
             colunas={[
               { titulo: 'Plano', largura: 0.4 },
               { titulo: 'Status', largura: 0.18 },
-              { titulo: 'Atividades', largura: 0.14 },
-              { titulo: 'Concluídas', largura: 0.14 },
-              { titulo: 'Atrasadas', largura: 0.14 },
+              { titulo: 'Atividades', largura: 0.14, numero: true },
+              { titulo: 'Concluídas', largura: 0.14, numero: true },
+              { titulo: 'Atrasadas', largura: 0.14, numero: true },
             ]}
             linhas={visao.planos.map((p) => [p.nome, p.status, String(p.total), String(p.concluidas), String(p.atrasadas)])}
             vazio="Nenhum plano aberto."
@@ -158,7 +179,7 @@ export function DocumentoVisaoExecutiva({ visao, logo }: { visao: VisaoExecutiva
           <Tabela
             colunas={[
               { titulo: 'Atividade', largura: 0.38 },
-              { titulo: 'Prazo', largura: 0.14 },
+              { titulo: 'Prazo', largura: 0.14, numero: true },
               { titulo: 'Responsável', largura: 0.2 },
               { titulo: 'Executor', largura: 0.28 },
             ]}
@@ -181,10 +202,10 @@ export function DocumentoVisaoExecutiva({ visao, logo }: { visao: VisaoExecutiva
           </Text>
           <Tabela
             colunas={[
-              { titulo: 'Número', largura: 0.18 },
+              { titulo: 'Número', largura: 0.18, numero: true },
               { titulo: 'Assunto', largura: 0.42 },
               { titulo: 'Criticidade', largura: 0.2 },
-              { titulo: 'Prazo', largura: 0.2 },
+              { titulo: 'Prazo', largura: 0.2, numero: true },
             ]}
             linhas={visao.demandas.abertas.map((d) => [
               d.numero,

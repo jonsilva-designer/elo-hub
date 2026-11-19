@@ -24,6 +24,15 @@ describe('GET /api/visao-executiva/[cliente]/pdf (arquitetura 5; CA-14.3, CA-14.
     expect(bytes.subarray(0, 4).toString()).toBe('%PDF')
   }, 30_000)
 
+  it('usa as fontes da marca: Playfair Display nos títulos, Montserrat no texto e JetBrains Mono nos números', async () => {
+    entrarComo('usr-helena')
+    const pdf = Buffer.from(await (await gerar('cli-vertice')).arrayBuffer()).toString('latin1')
+    expect(pdf).toMatch(/PlayfairDisplay/)
+    expect(pdf).toMatch(/Montserrat/)
+    expect(pdf).toMatch(/JetBrainsMono/)
+    expect(pdf).not.toMatch(/Helvetica/)
+  }, 30_000)
+
   it('aceita o filtro por contrato, e o cliente sem nada escrito também gera (CA-14.6)', async () => {
     entrarComo('usr-helena')
     expect((await gerar('cli-vertice', '?contrato=ctr-vertice-mobilizacao')).status).toBe(200)
