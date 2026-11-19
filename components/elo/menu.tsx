@@ -35,7 +35,7 @@ export function Menu({ usuario, rotaAtual, aoNavegar }: PropsMenu) {
   const grupos = [null, 'Carteira', 'Apoio'] as const
 
   return (
-    <nav aria-label="Menu principal" className="flex flex-col gap-4 overflow-y-auto py-2">
+    <nav aria-label="Menu principal" className="flex flex-col gap-4 overflow-y-auto overscroll-contain py-2">
       {grupos.map((grupo) => {
         const doGrupo = itens.filter((i) => i.grupo === grupo)
         if (doGrupo.length === 0) return null

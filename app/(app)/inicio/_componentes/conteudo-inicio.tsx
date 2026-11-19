@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from 'react'
 import { FaixaIndicadores } from '@/components/elo/faixa-indicadores'
-import { ListaBarras, type ItemBarra } from '@/components/elo/lista-barras'
+import { Composicao, type Contagem } from '@/components/elo/composicao'
+import { ListaContagens } from '@/components/elo/lista-contagens'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { listarAlertas } from '@/lib/dados/alertas'
@@ -20,30 +21,39 @@ function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
   )
 }
 
-const barras = (indicadores: Indicador[]): ItemBarra[] =>
+const contagens = (indicadores: Indicador[]): Contagem[] =>
   indicadores.map((i) => ({ rotulo: i.rotulo, valor: i.valor, href: i.href, tom: i.tom }))
 
 /**
  * O painel do Início (parte 7, 4.2 e 4.3; F13, F15), refeito na revisão do Jonathan (19/11/2026): os quatro números
- * principais numa faixa só; Contratos e Atividades como gráficos de barras, lado a lado; Escopos e Central ELO com
- * os grupos separados por título; e os alertas. Cada número leva à lista já filtrada (CA-13.3). Tudo vem recortado
+ * principais numa faixa só; Contratos e Atividades lado a lado, cada um com um todo e as partes dele numa barra só
+ * (os contratos em vigor pela vigência, as atividades abertas pelo prazo); Escopos e Central ELO com as contagens em
+ * grupos separados por título; e os alertas. Cada número leva à lista já filtrada (CA-13.3). Tudo vem recortado
  * pelo vínculo de quem vê (CA-13.2, CA-15.3) e calculado na hora (DF-14).
  */
 export async function ConteudoInicio() {
   const [painel, alertas] = await Promise.all([indicadoresDoPainel(), listarAlertas()])
-  const [abertas] = painel.atividades
+  const { contratos, atividades } = painel
   return (
     <div className="space-y-6">
       <FaixaIndicadores
         rotulo="Números da carteira"
-        itens={[painel.clientesAtivos, painel.escopos.total, { ...abertas, rotulo: 'Atividades abertas' }, painel.demandas.abertas]}
+        itens={[painel.clientesAtivos, painel.escopos.total, { ...atividades.abertas, rotulo: 'Atividades abertas' }, painel.demandas.abertas]}
       />
       <div className="grid gap-5 lg:grid-cols-2">
         <Painel titulo="Contratos">
-          <ListaBarras itens={barras(painel.contratos)} />
+          <Composicao
+            total={{ ...contratos.emVigor, rotulo: 'contratos em vigor' }}
+            partes={contagens([contratos.vigentes, contratos.proximos, contratos.vencidos])}
+            complemento={contratos.suspensos}
+          />
         </Painel>
         <Painel titulo="Atividades">
-          <ListaBarras itens={barras(painel.atividades)} />
+          <Composicao
+            total={{ ...atividades.abertas, rotulo: 'atividades abertas' }}
+            partes={contagens([atividades.noPrazo, atividades.proximas, atividades.atrasadas])}
+            complemento={atividades.concluidas}
+          />
         </Painel>
       </div>
       <div className="grid gap-5 lg:grid-cols-2">
@@ -51,24 +61,24 @@ export async function ConteudoInicio() {
           <div className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2">
               <Grupo titulo="Por status">
-                <ListaBarras itens={barras(painel.escopos.porStatus)} />
+                <ListaContagens itens={contagens(painel.escopos.porStatus)} />
               </Grupo>
               <Grupo titulo="Por criticidade">
-                <ListaBarras itens={barras(painel.escopos.porCriticidade)} />
+                <ListaContagens itens={contagens(painel.escopos.porCriticidade)} />
               </Grupo>
             </div>
             <Grupo titulo="Etapa atual dos escopos abertos">
-              <ListaBarras itens={barras(painel.escopos.porEtapa)} duasColunas />
+              <ListaContagens itens={contagens(painel.escopos.porEtapa)} />
             </Grupo>
           </div>
         </Painel>
         <Painel titulo="Central ELO">
           <div className="grid gap-6 sm:grid-cols-2">
             <Grupo titulo="Por status">
-              <ListaBarras itens={barras(painel.demandas.porStatus)} />
+              <ListaContagens itens={contagens(painel.demandas.porStatus)} />
             </Grupo>
             <Grupo titulo="Por criticidade">
-              <ListaBarras itens={barras(painel.demandas.porCriticidade)} />
+              <ListaContagens itens={contagens(painel.demandas.porCriticidade)} />
             </Grupo>
           </div>
         </Painel>

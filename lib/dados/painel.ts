@@ -21,12 +21,15 @@ export type Indicador = { rotulo: string; valor: number; href: string; tom?: 'at
 
 export type Painel = {
   clientesAtivos: Indicador
-  /** Vigentes, Próximos do vencimento, Vencidos e Suspensos (DF-25, DF-34, DF-54). */
-  contratos: Indicador[]
+  /**
+   * Vigentes, Próximos do vencimento e Vencidos são as partes dos contratos em vigor (Ativos e Suspensos); os
+   * Suspensos são contados à parte, porque também estão nessas três (DF-25, DF-34, DF-54).
+   */
+  contratos: { emVigor: Indicador; vigentes: Indicador; proximos: Indicador; vencidos: Indicador; suspensos: Indicador }
   /** A etapa atual conta só os escopos abertos: o fechado já terminou a Jornada (CA-06.4, PRD v1.20). */
   escopos: { total: Indicador; porStatus: Indicador[]; porCriticidade: Indicador[]; porEtapa: Indicador[] }
-  /** Abertas, Concluídas, Atrasadas e Próximas do prazo (RN-09, RN-10). */
-  atividades: Indicador[]
+  /** As abertas e as partes delas pelo prazo (no prazo, próximas, atrasadas), e as concluídas (RN-09, RN-10). */
+  atividades: { abertas: Indicador; concluidas: Indicador; noPrazo: Indicador; proximas: Indicador; atrasadas: Indicador }
   demandas: { abertas: Indicador; porStatus: Indicador[]; porCriticidade: Indicador[] }
 }
 
@@ -70,12 +73,13 @@ export async function indicadoresDoPainel(): Promise<Painel> {
   return {
     // O cadastro da ELO fica fora (DF-40, CA-13.4).
     clientesAtivos: indicador('Clientes ativos', endereco('/clientes', { status: 'Ativo', carteira: 'sim' })),
-    contratos: [
-      indicador('Vigentes', endereco('/contratos', { vigencia: 'Vigente' })),
-      indicador('Próximos do vencimento', endereco('/contratos', { vigencia: 'Próximo do vencimento' }), 'atencao'),
-      indicador('Vencidos', endereco('/contratos', { vigencia: 'Vencido' }), 'problema'),
-      indicador('Suspensos', endereco('/contratos', { status: 'Suspenso' }), 'atencao'),
-    ],
+    contratos: {
+      emVigor: indicador('Contratos em vigor', endereco('/contratos', { vigencia: 'Vigente,Próximo do vencimento,Vencido' })),
+      vigentes: indicador('Vigentes', endereco('/contratos', { vigencia: 'Vigente' })),
+      proximos: indicador('Próximos do vencimento', endereco('/contratos', { vigencia: 'Próximo do vencimento' }), 'atencao'),
+      vencidos: indicador('Vencidos', endereco('/contratos', { vigencia: 'Vencido' }), 'problema'),
+      suspensos: indicador('Suspensos', endereco('/contratos', { status: 'Suspenso' }), 'atencao'),
+    },
     escopos: {
       total: indicador('Escopos', '/escopos'),
       porStatus: STATUS_ESCOPO.map((s) => indicador(s, endereco('/escopos', { status: s }))),
@@ -84,12 +88,13 @@ export async function indicadoresDoPainel(): Promise<Painel> {
         indicador(et, endereco('/escopos', { status: STATUS_ESCOPO_ABERTOS.join(','), etapa: et })),
       ),
     },
-    atividades: [
-      indicador('Abertas', atividadesCom({ status: 'Não iniciada,Em andamento' })),
-      indicador('Concluídas', atividadesCom({ status: 'Concluída' }), 'concluido'),
-      indicador('Atrasadas', atividadesCom({ prazo: 'Atrasada' }), 'problema'),
-      indicador('Próximas do prazo', atividadesCom({ prazo: 'Próxima do prazo' }), 'atencao'),
-    ],
+    atividades: {
+      abertas: indicador('Abertas', atividadesCom({ status: 'Não iniciada,Em andamento' })),
+      concluidas: indicador('Concluídas', atividadesCom({ status: 'Concluída' }), 'concluido'),
+      noPrazo: indicador('No prazo', atividadesCom({ prazo: 'No prazo' })),
+      proximas: indicador('Próximas do prazo', atividadesCom({ prazo: 'Próxima do prazo' }), 'atencao'),
+      atrasadas: indicador('Atrasadas', atividadesCom({ prazo: 'Atrasada' }), 'problema'),
+    },
     demandas: {
       abertas: indicador('Demandas abertas', endereco('/central', { status: abertas })),
       porStatus: STATUS_DEMANDA_ABERTOS.map((s) => indicador(s, endereco('/central', { status: s }))),

@@ -44,6 +44,18 @@ describe('Lateral', () => {
     expect(container.firstElementChild).toHaveAttribute('data-sidebar')
   })
 
+  it('fica fixa na janela, e não sticky: não treme ao rolar a página; um espaçador segura o lugar dela', () => {
+    const { container } = render(<Lateral usuario={helena} />)
+    const lateral = container.querySelector('aside')!
+    expect(lateral.className.split(' ')).toEqual(expect.arrayContaining(['fixed', 'top-3', 'bottom-3', 'left-3']))
+    expect(lateral.className).not.toContain('sticky')
+    const espaco = container.querySelector('[data-espaco-lateral]')!
+    expect(espaco).toHaveAttribute('aria-hidden', 'true')
+    expect(espaco.className.split(' ')).toEqual(expect.arrayContaining(['w-lateral', 'shrink-0']))
+    // A rolagem do menu não puxa a página quando chega ao fim.
+    expect(screen.getByRole('navigation', { name: 'Menu principal' }).className).toContain('overscroll-contain')
+  })
+
   it('tem a navegação "Menu principal"', () => {
     render(<Lateral usuario={helena} />)
     expect(screen.getByRole('navigation', { name: 'Menu principal' })).toBeInTheDocument()

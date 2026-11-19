@@ -21,12 +21,12 @@ const todos = async (usuarioId: string) => {
   const p = await indicadoresDoPainel()
   return [
     p.clientesAtivos,
-    ...p.contratos,
+    ...Object.values(p.contratos),
     p.escopos.total,
     ...p.escopos.porStatus,
     ...p.escopos.porCriticidade,
     ...p.escopos.porEtapa,
-    ...p.atividades,
+    ...Object.values(p.atividades),
     p.demandas.abertas,
     ...p.demandas.porStatus,
     ...p.demandas.porCriticidade,
@@ -86,13 +86,17 @@ describe('indicadores do painel (F13)', () => {
   it('os blocos e os destaques de F13', async () => {
     entrarComo('usr-helena')
     const p = await indicadoresDoPainel()
-    expect(p.contratos.map((i) => [i.rotulo, i.tom ?? null])).toEqual([
+    const { vigentes, proximos, vencidos, suspensos } = p.contratos
+    expect([vigentes, proximos, vencidos, suspensos].map((i) => [i.rotulo, i.tom ?? null])).toEqual([
       ['Vigentes', null],
       ['Próximos do vencimento', 'atencao'],
       ['Vencidos', 'problema'],
       ['Suspensos', 'atencao'],
     ])
-    expect(p.contratos[1].href).toBe('/contratos?vigencia=Pr%C3%B3ximo+do+vencimento')
+    expect(proximos.href).toBe('/contratos?vigencia=Pr%C3%B3ximo+do+vencimento')
+    // Os contratos em vigor são o todo do gráfico: as três vigências somam ele.
+    expect(p.contratos.emVigor.href).toBe('/contratos?vigencia=Vigente,Pr%C3%B3ximo+do+vencimento,Vencido')
+    expect(vigentes.valor + proximos.valor + vencidos.valor).toBe(p.contratos.emVigor.valor)
     expect(p.escopos.porStatus.map((i) => i.rotulo)).toEqual(['Planejado', 'Em andamento', 'Em espera', 'Concluído', 'Cancelado'])
     expect(p.escopos.porCriticidade.map((i) => i.rotulo)).toEqual(['Crítica', 'Alta', 'Moderada', 'Baixa'])
     // A etapa atual conta os escopos abertos: o fechado já terminou a Jornada (CA-06.4).
@@ -100,8 +104,19 @@ describe('indicadores do painel (F13)', () => {
     expect(p.escopos.porEtapa[3].href).toBe('/escopos?status=Planejado,Em+andamento,Em+espera&etapa=Implementar')
     const abertos = p.escopos.porStatus.slice(0, 3).reduce((soma, i) => soma + i.valor, 0)
     expect(p.escopos.porEtapa.reduce((soma, i) => soma + i.valor, 0)).toBe(abertos)
-    expect(p.atividades.map((i) => i.rotulo)).toEqual(['Abertas', 'Concluídas', 'Atrasadas', 'Próximas do prazo'])
-    expect(p.atividades[0].href).toBe('/minhas-atividades?responsavel=todos&status=N%C3%A3o+iniciada,Em+andamento')
+    const { abertas, concluidas, noPrazo, proximas, atrasadas } = p.atividades
+    expect([abertas, concluidas, noPrazo, proximas, atrasadas].map((i) => i.rotulo)).toEqual([
+      'Abertas',
+      'Concluídas',
+      'No prazo',
+      'Próximas do prazo',
+      'Atrasadas',
+    ])
+    expect(abertas.href).toBe('/minhas-atividades?responsavel=todos&status=N%C3%A3o+iniciada,Em+andamento')
+    expect(noPrazo.href).toBe('/minhas-atividades?responsavel=todos&prazo=No+prazo')
+    // As partes fecham o todo: é o que o gráfico do Início mostra (revisão do Jonathan).
+    expect(noPrazo.valor + proximas.valor + atrasadas.valor).toBe(abertas.valor)
+    expect(atrasadas.valor).toBeGreaterThan(0)
     expect(p.demandas.porStatus.map((i) => i.rotulo)).toEqual(['Nova', 'Em triagem', 'Em atendimento', 'Aguardando retorno', 'Resolvida'])
     expect(p.demandas.abertas.valor).toBe(p.demandas.porStatus.reduce((soma, i) => soma + i.valor, 0))
   })

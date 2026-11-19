@@ -60,18 +60,19 @@ describe('Início (parte 7, 4.2 e 4.3; F13, F15)', () => {
     }
   })
 
-  it('Contratos e Atividades são gráficos de barras, cada barra levando à lista filtrada', async () => {
+  it('Contratos e Atividades mostram um todo e as partes dele, numa barra só (revisão do Jonathan)', async () => {
     entrarComo('usr-helena')
     render(await ConteudoInicio())
-    for (const [painel, nomes] of [
-      ['Contratos', [/Vigentes/, /Próximos do vencimento/, /Vencidos/, /Suspensos/]],
-      ['Atividades', [/Abertas/, /Concluídas/, /Atrasadas/, /Próximas do prazo/]],
-    ] as const) {
-      for (const nome of nomes) {
-        expect(regiao(painel).getByRole('link', { name: nome }).querySelector('[data-barra]'), `${painel} ${nome}`).not.toBeNull()
-      }
-    }
-    expect(regiao('Atividades').getByRole('link', { name: /Concluídas/ })).toHaveAttribute('data-tom', 'concluido')
+    const contratos = regiao('Contratos')
+    expect(contratos.getByRole('link', { name: /contratos em vigor/ })).toHaveAttribute(
+      'href',
+      '/contratos?vigencia=Vigente,Pr%C3%B3ximo+do+vencimento,Vencido',
+    )
+    expect(contratos.getByRole('img', { name: /contratos em vigor: Vigentes \d+, Próximos do vencimento \d+, Vencidos \d+$/ })).toBeInTheDocument()
+    expect(contratos.getByRole('link', { name: /^Suspensos: \d+$/ })).toBeInTheDocument()
+    const atividades = regiao('Atividades')
+    expect(atividades.getByRole('img', { name: /atividades abertas: No prazo \d+, Próximas do prazo \d+, Atrasadas \d+$/ })).toBeInTheDocument()
+    expect(atividades.getByRole('link', { name: /^Concluídas: \d+$/ })).toHaveAttribute('data-tom', 'concluido')
   })
 
   it('Escopos e Central ELO separam os grupos com título (por status, por criticidade, etapa atual)', async () => {
