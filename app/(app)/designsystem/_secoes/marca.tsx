@@ -9,18 +9,18 @@ export function Marca() {
   return (
     <Secao
       titulo="Marca"
-      descricao="O logo nas duas versões e as cores do padrão, com nome, valor e uso. As cores provisórias aguardam os códigos oficiais."
+      descricao="O logo nas duas versões, vetorizado do arquivo da ELO, e as cores do padrão, com nome, valor e uso. A paleta do branding vale só para o logo; a interface usa a do padrão."
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <figure className="space-y-2">
           <div className="flex h-32 items-center justify-center rounded-xl border border-border bg-background">
-            <Image src="/marca/logo-elo.png" alt="Logo da ELO, versão original" width={814} height={627} className="h-16 w-auto" />
+            <Image src="/marca/logo-elo.svg" alt="Logo da ELO, versão original" width={1199} height={447} className="h-16 w-auto" />
           </div>
           <figcaption className="text-xs text-muted-foreground">Original, sobre papel ou branco</figcaption>
         </figure>
         <figure className="space-y-2">
           <div className="flex h-32 items-center justify-center rounded-xl border border-border bg-primary">
-            <Image src="/marca/logo-elo-claro.png" alt="Logo da ELO, versão clara" width={814} height={627} className="h-16 w-auto" />
+            <Image src="/marca/logo-elo-claro.svg" alt="Logo da ELO, versão clara" width={1199} height={447} className="h-16 w-auto" />
           </div>
           <figcaption className="text-xs text-muted-foreground">Clara, sobre azul-marinho</figcaption>
         </figure>

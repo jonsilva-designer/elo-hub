@@ -12,7 +12,7 @@ export default async function PaginaEspecialista() {
   return (
     <MolduraPublica>
       <div className="mb-6 space-y-1">
-        <h1 className="text-titulo-pagina font-semibold tracking-titulo text-primary">Seja um especialista</h1>
+        <h1 className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">Seja um especialista</h1>
         <p className="text-sm text-muted-foreground">
           Cadastre-se no banco de especialistas da ELO. O currículo vai por link, sem envio de arquivo.
         </p>

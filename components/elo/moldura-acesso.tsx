@@ -1,12 +1,12 @@
 import Image from 'next/image'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
-import elos from './imagens/elos-login.webp'
+import simbolo from './imagens/simbolo-login.webp'
 
 /**
  * Moldura das telas de acesso (entrar, recuperar e definir a senha), fora do menu.
  * Em tela larga e deitada (1024px ou mais), dois blocos de mesma largura: o formulário direto sobre o papel,
- * sem cartão, e a imagem dos elos. No celular e no tablet em pé, só o formulário com o logo.
+ * sem cartão, e a imagem do símbolo da marca. No celular e no tablet em pé, só o formulário com o logo.
  * `className` ajusta a moldura de fora, por exemplo `min-h-0` para caber num quadro reduzido.
  */
 export function MolduraAcesso({
@@ -28,10 +28,10 @@ export function MolduraAcesso({
         <div className="mx-auto flex w-full max-w-sm justify-center lg:landscape:justify-start">
           {/* Sempre visível e no alto da tela: carrega já (o priority foi descontinuado no Next 16). */}
           <Image
-            src="/marca/logo-elo.png"
+            src="/marca/logo-elo.svg"
             alt="ELO HUB"
-            width={814}
-            height={627}
+            width={1199}
+            height={447}
             loading="eager"
             className="h-14 w-auto"
           />
@@ -39,7 +39,7 @@ export function MolduraAcesso({
         <div className="flex flex-1 items-center justify-center py-10">
           <div className="w-full max-w-sm space-y-6">
             <div className="space-y-1.5">
-              <h1 className="text-titulo-pagina font-semibold tracking-titulo text-primary">{titulo}</h1>
+              <h1 className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">{titulo}</h1>
               {descricao ? <p className="text-sm text-muted-foreground">{descricao}</p> : null}
             </div>
             {children}
@@ -53,7 +53,7 @@ export function MolduraAcesso({
             quando ela aparece. */}
         <div className="relative h-full overflow-hidden rounded-xl bg-primary">
           <Image
-            src={elos}
+            src={simbolo}
             alt=""
             fill
             sizes="50vw"

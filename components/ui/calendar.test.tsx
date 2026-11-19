@@ -17,7 +17,7 @@ describe('Calendar, dia escolhido', () => {
 })
 
 describe('Calendar, título do mês', () => {
-  it('o ano fica em JetBrains Mono e o nome do mês em Inter', () => {
+  it('o ano fica em JetBrains Mono e o nome do mês em Montserrat', () => {
     const dia = new Date(2026, 10, 9)
     render(<Calendar mode="single" locale={ptBR} selected={dia} defaultMonth={dia} />)
     const titulo = screen.getByRole('status')

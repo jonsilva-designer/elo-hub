@@ -28,7 +28,7 @@ export function Painel({
       className={cn('min-w-0 rounded-xl border border-border bg-card', semRespiro && 'overflow-hidden')}
     >
       <div className="flex items-center gap-3 border-b border-divisoria px-5 py-3">
-        <h2 id={id} className="text-sm font-bold text-primary">
+        <h2 id={id} className="font-heading text-sm font-bold text-primary">
           {titulo}
         </h2>
         {temContagem || acao ? (

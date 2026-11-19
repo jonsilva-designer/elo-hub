@@ -27,7 +27,7 @@ describe('MolduraAcesso', () => {
     expect(screen.getByText('Conteúdo do formulário')).toBeInTheDocument()
   })
 
-  it('a imagem dos elos é decorativa e só aparece em tela larga e deitada', () => {
+  it('a imagem do símbolo é decorativa e só aparece em tela larga e deitada', () => {
     const { container } = renderizar()
     const involucro = container.querySelector('[data-imagem-acesso]') as HTMLElement
     expect(classes(involucro)).toEqual(expect.arrayContaining(['hidden', 'lg:landscape:block']))

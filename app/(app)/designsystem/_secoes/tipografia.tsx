@@ -33,25 +33,25 @@ export function Tipografia() {
   return (
     <Secao
       titulo="Tipografia"
-      descricao="Inter nos textos e JetBrains Mono em todos os números. Nenhuma fonte serifada."
+      descricao="Playfair Display nos títulos, Montserrat nos textos e JetBrains Mono em todos os números."
     >
       <Linhas>
-        <Exemplo rotulo="Título da página" nota={<Legenda fonte="Inter" tamanho="26px" classe="text-titulo-pagina" peso="600" nota={<>Azul-marinho, espaçamento <Num>-0,02em</Num></>} />}>
-          <p className="text-titulo-pagina font-semibold tracking-titulo text-primary">Contratos ativos</p>
+        <Exemplo rotulo="Título da página" nota={<Legenda fonte="Playfair Display" tamanho="26px" classe="text-titulo-pagina" peso="600" nota={<>Azul-marinho, espaçamento <Num>-0,02em</Num></>} />}>
+          <p className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">Contratos ativos</p>
         </Exemplo>
-        <Exemplo rotulo="Título de seção ou painel" nota={<Legenda fonte="Inter" tamanho="15px" classe="text-titulo-painel" peso="700" nota="Azul-marinho" />}>
-          <p className="text-titulo-painel font-bold text-primary">Atividades da semana</p>
+        <Exemplo rotulo="Título de seção ou painel" nota={<Legenda fonte="Playfair Display" tamanho="15px" classe="text-titulo-painel" peso="700" nota="Azul-marinho" />}>
+          <p className="font-heading text-titulo-painel font-bold text-primary">Atividades da semana</p>
         </Exemplo>
-        <Exemplo rotulo="Texto" nota={<Legenda fonte="Inter" tamanho="14px" classe="text-sm" peso="400" />}>
+        <Exemplo rotulo="Texto" nota={<Legenda fonte="Montserrat" tamanho="14px" classe="text-sm" peso="400" />}>
           <p className="text-sm">O escopo foi enviado para revisão do cliente.</p>
         </Exemplo>
-        <Exemplo rotulo="Texto secundário" nota={<Legenda fonte="Inter" tamanho="13px" classe="text-secundario" peso="400" />}>
+        <Exemplo rotulo="Texto secundário" nota={<Legenda fonte="Montserrat" tamanho="13px" classe="text-secundario" peso="400" />}>
           <p className="text-secundario text-muted-foreground">Atualizado pela equipe de governança.</p>
         </Exemplo>
-        <Exemplo rotulo="Rótulo de indicador" nota={<Legenda fonte="Inter" tamanho="11px" classe="text-rotulo" peso="600" nota={<>Caixa alta, espaçamento <Num>0,09em</Num></>} />}>
+        <Exemplo rotulo="Rótulo de indicador" nota={<Legenda fonte="Montserrat" tamanho="11px" classe="text-rotulo" peso="600" nota={<>Caixa alta, espaçamento <Num>0,09em</Num></>} />}>
           <p className="text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground">Atividades atrasadas</p>
         </Exemplo>
-        <Exemplo rotulo="Nome de grupo da lateral" nota={<Legenda fonte="Inter" tamanho="10,5px" classe="text-grupo" peso="600" nota={<>Caixa alta, espaçamento <Num>0,12em</Num>, dourado sobre azul-marinho</>} />}>
+        <Exemplo rotulo="Nome de grupo da lateral" nota={<Legenda fonte="Montserrat" tamanho="10,5px" classe="text-grupo" peso="600" nota={<>Caixa alta, espaçamento <Num>0,12em</Num>, dourado sobre azul-marinho</>} />}>
           <div className="inline-block rounded-lg bg-primary px-4 py-3">
             <p className="text-grupo font-semibold uppercase tracking-grupo text-sidebar-primary">Operação</p>
           </div>

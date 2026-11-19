@@ -144,7 +144,7 @@ function Calendar({
             />
           )
         },
-        // ELO: números sempre em JetBrains Mono. No título "novembro de 2026", o ano vai em mono e o resto em Inter.
+        // ELO: números sempre em JetBrains Mono. No título "novembro de 2026", o ano vai em mono e o resto em Montserrat.
         CaptionLabel: ({ children, ...props }) => (
           <span {...props}>{typeof children === "string" ? comNumerosEmMono(children) : children}</span>
         ),

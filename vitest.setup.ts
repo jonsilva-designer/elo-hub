@@ -4,8 +4,8 @@ import { afterEach, vi } from 'vitest'
 
 // O import estático da imagem gera o blurDataURL na build do Next, e não no Vitest. Sem ele,
 // o next/image com placeholder="blur" acusa erro. Vale para todo teste que mostre uma tela de acesso.
-vi.mock('@/components/elo/imagens/elos-login.webp', () => ({
-  default: { src: '/elos-login.webp', width: 1800, height: 2000, blurDataURL: 'data:image/webp;base64,AA' },
+vi.mock('@/components/elo/imagens/simbolo-login.webp', () => ({
+  default: { src: '/simbolo-login.webp', width: 1800, height: 2000, blurDataURL: 'data:image/webp;base64,AA' },
 }))
 
 // connection() só existe dentro de uma requisição do Next e lança fora dela. Nos testes, ele não espera nada;

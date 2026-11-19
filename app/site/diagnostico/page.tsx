@@ -12,7 +12,7 @@ export default async function PaginaDiagnostico() {
   return (
     <MolduraPublica>
       <div className="mb-6 space-y-1">
-        <h1 className="text-titulo-pagina font-semibold tracking-titulo text-primary">Solicitar diagnóstico</h1>
+        <h1 className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">Solicitar diagnóstico</h1>
         <p className="text-sm text-muted-foreground">
           Conte um pouco sobre a sua empresa. A equipe da ELO entra em contato para combinar o diagnóstico.
         </p>

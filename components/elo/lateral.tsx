@@ -31,12 +31,12 @@ function CorpoLateral({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: strin
         {/* Sem preload nem loading="eager": no celular a lateral fica escondida e o logo não deve baixar.
             O carregamento preguiçoso pula imagem escondida; a prioridade alta adianta a visível. */}
         <Image
-          src="/marca/logo-elo-claro.png"
+          src="/marca/logo-elo-claro.svg"
           alt="ELO HUB"
-          width={814}
-          height={627}
+          width={1199}
+          height={447}
           fetchPriority="high"
-          className="h-14 w-auto"
+          className="h-12 w-auto"
         />
       </div>
       <Menu usuario={usuario} rotaAtual={rotaAtual} />

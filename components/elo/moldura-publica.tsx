@@ -16,12 +16,12 @@ export function MolduraPublica({ children, className }: { children: ReactNode; c
     >
       {/* Sempre visível e no alto da tela: carrega já (o priority foi descontinuado no Next 16). */}
       <Image
-        src="/marca/logo-elo.png"
+        src="/marca/logo-elo.svg"
         alt="ELO HUB"
-        width={814}
-        height={627}
+        width={1199}
+        height={447}
         loading="eager"
-        className="h-16 w-auto"
+        className="h-14 w-auto"
       />
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 sm:p-8">
         {children}

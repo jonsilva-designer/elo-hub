@@ -34,10 +34,10 @@ function CorpoBarraTopo({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: str
     // data-sidebar: o foco do teclado sobre o azul-marinho é dourado, como na lateral.
     <header data-sidebar className="sticky top-0 z-40 flex items-center justify-between bg-sidebar px-4 py-2 lg:hidden">
       <Image
-        src="/marca/logo-elo-claro.png"
+        src="/marca/logo-elo-claro.svg"
         alt="ELO HUB"
-        width={814}
-        height={627}
+        width={1199}
+        height={447}
         className="h-9 w-auto"
       />
       <Sheet open={aberta} onOpenChange={setAberta}>
@@ -71,10 +71,10 @@ function CorpoBarraTopo({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: str
           </SheetClose>
           <div className="flex justify-center px-4 pt-5 pb-3">
             <Image
-              src="/marca/logo-elo-claro.png"
+              src="/marca/logo-elo-claro.svg"
               alt="ELO HUB"
-              width={814}
-              height={627}
+              width={1199}
+              height={447}
               className="h-14 w-auto"
             />
           </div>

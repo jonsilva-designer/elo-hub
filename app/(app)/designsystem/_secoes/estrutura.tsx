@@ -24,7 +24,7 @@ function DesenhoBarraDoCelular() {
       className="w-full max-w-97.5 overflow-hidden rounded-xl border border-border bg-background"
     >
       <div className="flex items-center justify-between bg-sidebar px-4 py-2">
-        <Image src="/marca/logo-elo-claro.png" alt="" width={814} height={627} className="h-9 w-auto" />
+        <Image src="/marca/logo-elo-claro.svg" alt="" width={1199} height={447} className="h-9 w-auto" />
         <span className="flex size-8 items-center justify-center text-sidebar-accent-foreground">
           <IconeMenu className="size-4" />
         </span>
@@ -140,7 +140,7 @@ export function Estrutura() {
             <MolduraPublica className="min-h-0">
               {/* Só demonstração: não há formulário nem envio, e o botão não é de envio. */}
               <div className="space-y-5">
-                <p className="text-titulo-pagina font-semibold text-primary">Formulário de diagnóstico</p>
+                <p className="font-heading text-titulo-pagina font-semibold text-primary">Formulário de diagnóstico</p>
                 <Campo rotulo="Nome">{(p) => <Input {...p} autoComplete="off" />}</Campo>
                 <Campo rotulo="E-mail">
                   {(p) => <Input {...p} type="email" autoComplete="off" placeholder="nome@empresa.com.br" />}

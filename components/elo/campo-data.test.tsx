@@ -58,7 +58,7 @@ describe('CampoData', () => {
     const dialogo = await screen.findByRole('dialog')
     const titulo = within(dialogo).getByRole('status')
     expect(titulo).toHaveTextContent('novembro de 2026')
-    // Números sempre em JetBrains Mono: o ano em mono, "novembro de" em Inter.
+    // Números sempre em JetBrains Mono: o ano em mono, "novembro de" em Montserrat.
     expect(within(titulo).getByText('2026')).toHaveClass('font-mono')
     expect(within(titulo).getByText(/novembro de/)).not.toHaveClass('font-mono')
   })
