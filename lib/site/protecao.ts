@@ -7,7 +7,7 @@ export const CAMPO_ARMADILHA = 'site'
 
 export const LIMITE_DE_ENVIOS = 5
 
-export const JANELA_DO_LIMITE_EM_MS = 10 * 60 * 1000
+const JANELA_DO_LIMITE_EM_MS = 10 * 60 * 1000
 
 export const MENSAGEM_LIMITE = 'Muitos envios em pouco tempo. Tente de novo em alguns minutos.'
 

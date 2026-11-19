@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { VAZIO } from '@/lib/formato'
+import { Apagado, CLASSE_ROTULO } from './textos'
 
 /** Sem valor: null, undefined, texto vazio ou só com espaços. Zero é valor. */
 function semValor(valor: ReactNode) {
@@ -15,9 +16,9 @@ export function ListaCampos({ itens }: { itens: { rotulo: string; valor: ReactNo
     <dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
       {itens.map(({ rotulo, valor }) => (
         <div key={rotulo} className="min-w-0">
-          <dt className="text-rotulo font-semibold tracking-rotulo text-muted-foreground uppercase">{rotulo}</dt>
+          <dt className={CLASSE_ROTULO}>{rotulo}</dt>
           <dd className="mt-1 text-sm font-medium text-foreground">
-            {semValor(valor) ? <span className="font-normal text-muted-foreground">{VAZIO}</span> : valor}
+            {semValor(valor) ? <Apagado>{VAZIO}</Apagado> : valor}
           </dd>
         </div>
       ))}

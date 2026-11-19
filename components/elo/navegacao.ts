@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import type { Perfil } from '@/lib/dados/tipos'
 
-export type ItemMenu = {
+type ItemMenu = {
   rotulo: string
   href: string
   icone: LucideIcon

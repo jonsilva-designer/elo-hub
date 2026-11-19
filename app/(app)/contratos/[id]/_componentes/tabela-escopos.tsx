@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { EtiquetaCriticidade, EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import type { EscopoDetalhado } from '@/lib/dados/tipos'
 
 const COLUNAS: Coluna<EscopoDetalhado>[] = [
@@ -13,7 +14,7 @@ const COLUNAS: Coluna<EscopoDetalhado>[] = [
     titulo: 'Escopo',
     largura: 'w-1/4',
     ordenarPor: (e) => e.nome,
-    celula: (e) => <span className="font-medium text-foreground">{e.nome}</span>,
+    celula: (e) => <TextoComDetalhe texto={e.nome} />,
   },
   { id: 'status', titulo: 'Status', ordenarPor: (e) => e.status, celula: (e) => <EtiquetaStatus status={e.status} /> },
   {

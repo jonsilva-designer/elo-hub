@@ -11,6 +11,7 @@ import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
+import { Apagado, LinkTexto, TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { opcoesDeContrato } from '@/lib/contratos/filtros'
 import { contratoFechado } from '@/lib/contratos/regras'
@@ -36,9 +37,8 @@ import { AtualizarEtapa } from './atualizar-etapa'
 import { ReclassificarCriticidade } from './reclassificar-criticidade'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 
-const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
-const naoInformado = <span className="font-normal text-muted-foreground">Não informado</span>
+const naoInformado = <Apagado>Não informado</Apagado>
 
 const ou = (valor: string) => (valor.trim() ? valor : naoInformado)
 
@@ -46,9 +46,9 @@ const data = (valor: string | null) => (valor ? <Num>{formatarData(valor)}</Num>
 
 /** O link para outro ciclo do contrato recorrente (DF-46). */
 const linkDoCiclo = (ciclo: { id: string; nome: string }) => (
-  <Link href={`/escopos/${ciclo.id}`} className={CLASSE_LINK}>
+  <LinkTexto href={`/escopos/${ciclo.id}`}>
     {ciclo.nome}
-  </Link>
+  </LinkTexto>
 )
 
 /** Os campos do painel Dados do escopo. A conclusão efetiva só no Concluído; os ciclos, só quando existem. */
@@ -184,13 +184,13 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
         titulo={escopo.nome}
         contexto={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            <Link href={`/clientes/${escopo.clienteId}`} className={CLASSE_LINK}>
+            <LinkTexto href={`/clientes/${escopo.clienteId}`}>
               {escopo.nomeCliente}
-            </Link>
+            </LinkTexto>
             <span aria-hidden="true">·</span>
-            <Link href={`/contratos/${escopo.contratoId}`} className={CLASSE_LINK}>
+            <LinkTexto href={`/contratos/${escopo.contratoId}`}>
               <Num>{escopo.codigoContrato}</Num>
-            </Link>
+            </LinkTexto>
             <span aria-hidden="true">·</span>
             <EtiquetaStatus status={escopo.status} />
             {escopo.planejamento ? <EtiquetaPlanejamento /> : null}
@@ -242,12 +242,11 @@ export async function ConteudoEscopo({ params }: { params: Promise<{ id: string 
             <ul className="divide-y divide-divisoria">
               {escopo.especialistas.map((e) => (
                 <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 first:pt-0 last:pb-0">
-                  <span className="flex min-w-0 flex-col gap-0.5">
-                    <Link href={`/especialistas/${e.id}`} className={CLASSE_LINK}>
-                      {e.nome}
-                    </Link>
-                    <span className="text-xs text-muted-foreground">{e.especialidade}</span>
-                  </span>
+                  <TextoComDetalhe
+                    texto={<LinkTexto href={`/especialistas/${e.id}`}>{e.nome}</LinkTexto>}
+                    destaque={false}
+                    detalhes={[e.especialidade]}
+                  />
                   <span className="flex flex-wrap items-center gap-1.5">
                     <EtiquetaStatus status={e.status} />
                     {e.status === 'Ativo' ? null : <EtiquetaSinal texto="Trocar especialista" tom="problema" />}

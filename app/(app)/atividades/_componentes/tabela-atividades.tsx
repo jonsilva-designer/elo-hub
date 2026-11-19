@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import { ordenarAtividades } from '@/lib/atividades/filtros'
 import { atividadeFechada } from '@/lib/atividades/regras'
 import type { AtividadeDetalhada, Perfil } from '@/lib/dados/tipos'
@@ -12,7 +13,7 @@ import { formatarData } from '@/lib/formato'
 import { PRIORIDADES } from '@/lib/escopos/regras'
 
 /** Quem pode abrir a atividade (parte 4, 5.1): o Administrador sempre; a Equipe, só a aberta (RN-17). */
-export const podeAbrirAtividade = (atividade: AtividadeDetalhada, perfil: Perfil) =>
+const podeAbrirAtividade = (atividade: AtividadeDetalhada, perfil: Perfil) =>
   perfil === 'Administrador' || !atividadeFechada(atividade.status)
 
 function colunas(comCliente: boolean, comPlano: boolean): Coluna<AtividadeDetalhada>[] {
@@ -23,13 +24,7 @@ function colunas(comCliente: boolean, comPlano: boolean): Coluna<AtividadeDetalh
       largura: 'w-1/3',
       ordenarPor: (a) => a.nome,
       celula: (a) => (
-        <span className="flex min-w-0 flex-col items-start gap-0.5">
-          <span data-slot="nome-atividade" className="font-medium text-foreground">
-            {a.nome}
-          </span>
-          {comPlano ? <span className="text-xs text-muted-foreground">{a.nomePlano}</span> : null}
-          {a.executor ? <span className="text-xs text-muted-foreground">Executor: {a.executor}</span> : null}
-        </span>
+        <TextoComDetalhe texto={a.nome} detalhes={[comPlano && a.nomePlano, a.executor && `Executor: ${a.executor}`]} />
       ),
     },
     ...(comCliente
@@ -41,14 +36,17 @@ function colunas(comCliente: boolean, comPlano: boolean): Coluna<AtividadeDetalh
       titulo: 'Prazo',
       ordenarPor: (a) => a.prazo,
       celula: (a) => (
-        <span className="flex flex-col gap-0.5">
-          <Num>{formatarData(a.prazo)}</Num>
-          {a.status === 'Concluída' && a.conclusao ? (
-            <span className="text-xs text-muted-foreground">
-              Concluída em <Num>{formatarData(a.conclusao)}</Num>
-            </span>
-          ) : null}
-        </span>
+        <TextoComDetalhe
+          texto={<Num>{formatarData(a.prazo)}</Num>}
+          destaque={false}
+          detalhes={[
+            a.status === 'Concluída' && a.conclusao ? (
+              <>
+                Concluída em <Num>{formatarData(a.conclusao)}</Num>
+              </>
+            ) : null,
+          ]}
+        />
       ),
     },
     {

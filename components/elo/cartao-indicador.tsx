@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { formatarNumero } from '@/lib/formato'
 import { cn } from '@/lib/utils'
+import { CLASSE_ROTULO } from './textos'
 
 const CAIXA = 'block min-w-0 rounded-xl border border-border bg-card p-4.5'
 
@@ -35,7 +36,7 @@ export function CartaoIndicador({
 }) {
   const conteudo = (
     <>
-      <span className="block text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground">
+      <span className={cn('block', CLASSE_ROTULO)}>
         {rotulo}
       </span>
       <span className="mt-2 block font-mono text-indicador font-medium tabular-nums text-primary">

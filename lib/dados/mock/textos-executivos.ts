@@ -3,7 +3,7 @@ import type { CampoTexto } from '../tipos'
 // Os textos da Visão Executiva (DF-73, DF-82): "Principais resultados", "Observações executivas" e "Próximos passos",
 // um de cada por cliente, sempre a versão atual. As versões anteriores ficariam no histórico (DF-16) e não aparecem.
 
-export type TextoFicticio = {
+type TextoFicticio = {
   clienteId: string
   campo: CampoTexto
   texto: string

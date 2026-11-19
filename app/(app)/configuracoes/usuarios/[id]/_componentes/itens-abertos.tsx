@@ -1,10 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import { useId, useState, useTransition } from 'react'
 import { Campo } from '@/components/elo/campo'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { LinkTexto, TextoComDetalhe } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -14,7 +14,6 @@ import type { ItemAberto } from '@/lib/dados/usuarios-configuracao'
 import { redistribuirItens } from '@/lib/usuarios/acoes'
 import { TextoComNumeros } from '../../../../documentos/_componentes/texto-com-numeros'
 
-const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
 /**
  * Os itens abertos sob a responsabilidade do usuário, com a redistribuição ali mesmo (DF-36, CA-01.9): o Administrador
@@ -72,17 +71,20 @@ export function ItensAbertos({
               onCheckedChange={(v) => alternar(i.chave, v === true)}
             />
             <Label htmlFor={`${prefixo}-${i.chave}`} className="min-w-0 flex-1 font-normal">
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="text-foreground">
-                  {i.tipo}: <TextoComNumeros texto={i.descricao} />
-                </span>
-                <span className="text-xs text-muted-foreground">{i.cliente}</span>
-              </span>
+              <TextoComDetalhe
+                texto={
+                  <>
+                    {i.tipo}: <TextoComNumeros texto={i.descricao} />
+                  </>
+                }
+                destaque={false}
+                detalhes={[i.cliente]}
+              />
             </Label>
             <EtiquetaStatus status={i.status} />
-            <Link href={i.href} className={CLASSE_LINK}>
+            <LinkTexto href={i.href}>
               Abrir
-            </Link>
+            </LinkTexto>
           </li>
         ))}
       </ul>

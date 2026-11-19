@@ -4,7 +4,7 @@ import { CRITICIDADES } from '@/lib/escopos/regras'
 // Alertas internos (F15). Calculados a cada leitura, nunca gravados: somem sozinhos quando a condição deixa de existir
 // (CA-15.2, arquitetura 3.3). No MVP, aparecem no painel e nas listas; avisos externos ficam para evolução.
 
-export type TipoAlerta =
+type TipoAlerta =
   | 'Contrato próximo do vencimento'
   | 'Contrato vencido'
   | 'Atividade atrasada'

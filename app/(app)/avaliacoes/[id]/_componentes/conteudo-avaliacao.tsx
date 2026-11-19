@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
@@ -9,6 +8,7 @@ import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
+import { Apagado, LinkTexto } from '@/components/elo/textos'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { obterCliente } from '@/lib/dados/clientes'
@@ -26,7 +26,7 @@ import { AcoesAvaliacao } from './acoes-avaliacao'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
-const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
+const apagado = (texto: string) => <Apagado>{texto}</Apagado>
 
 /** O texto informado, ou o traço apagado. */
 const ouTraco = (texto: string) => (texto.trim() ? texto : apagado(VAZIO))
@@ -64,9 +64,9 @@ function ContratoDeReferencia({ contrato }: { contrato: ContratoDetalhado | null
   if (!contrato) return apagado('Sem contrato de referência')
   return (
     <span>
-      <Link href={`/contratos/${contrato.id}`} className="rounded-sm text-primary underline-offset-4 hover:underline">
+      <LinkTexto href={`/contratos/${contrato.id}`}>
         <Num>{contrato.codigo}</Num>
-      </Link>
+      </LinkTexto>
       {` · ${contrato.contratante} · ${contrato.servicos.join(', ')}`}
     </span>
   )
@@ -100,12 +100,11 @@ export async function ConteudoAvaliacao({ params }: { params: Promise<{ id: stri
         titulo="Avaliação de maturidade"
         contexto={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            <Link
+            <LinkTexto
               href={`/clientes/${cliente.id}`}
-              className="rounded-sm text-primary underline-offset-4 hover:underline"
             >
               {nome}
-            </Link>
+            </LinkTexto>
             <span aria-hidden="true">·</span>
             <Num>{formatarData(avaliacao.data)}</Num>
             <span aria-hidden="true">·</span>

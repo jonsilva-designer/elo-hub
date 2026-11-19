@@ -6,12 +6,10 @@
     --font-heading: var(--font-titulo);
     --font-sans: var(--font-sans);
     --font-mono: var(--font-mono);
-    --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-accent: var(--sidebar-accent);
     --color-sidebar-accent-active: var(--sidebar-accent-active);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar: var(--sidebar);
@@ -23,8 +21,6 @@
     --color-accent: var(--accent);
     --color-muted-foreground: var(--muted-foreground);
     --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
     --color-primary-foreground: var(--primary-foreground);
     --color-primary: var(--primary);
     --color-primary-hover: var(--primary-hover);
@@ -117,8 +113,6 @@
     --popover-foreground: var(--elo-tinta);
     --primary: var(--elo-azul-marinho);
     --primary-foreground: var(--elo-branco);
-    --secondary: var(--elo-secundario);
-    --secondary-foreground: var(--elo-azul-marinho);
     --muted: var(--elo-suave);
     --muted-foreground: var(--elo-texto-secundario);
     --accent: var(--elo-secundario);
@@ -130,7 +124,6 @@
     --sidebar: var(--elo-azul-marinho);
     --sidebar-foreground: var(--elo-lateral-texto);
     --sidebar-primary: var(--elo-dourado);
-    --sidebar-primary-foreground: var(--elo-azul-marinho);
     --sidebar-accent: color-mix(in srgb, var(--elo-dourado) 16%, transparent);
     /* Item da lateral pressionado: um passo mais forte que o passar o mouse e que o item atual */
     --sidebar-accent-active: color-mix(in srgb, var(--elo-dourado) 26%, transparent);

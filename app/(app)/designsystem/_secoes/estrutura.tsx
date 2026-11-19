@@ -7,6 +7,7 @@ import { MolduraAcesso } from '@/components/elo/moldura-acesso'
 import { QuadroPrototipo } from '@/components/elo/quadro-prototipo'
 import { MolduraPublica } from '@/components/elo/moldura-publica'
 import { Num } from '@/components/elo/num'
+import { CLASSE_TITULO_PAGINA } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Exemplo, Linhas, Secao } from './secao'
@@ -140,7 +141,7 @@ export function Estrutura() {
             <MolduraPublica className="min-h-0">
               {/* Só demonstração: não há formulário nem envio, e o botão não é de envio. */}
               <div className="space-y-5">
-                <p className="font-heading text-titulo-pagina font-semibold text-primary">Formulário de diagnóstico</p>
+                <p className={CLASSE_TITULO_PAGINA}>Formulário de diagnóstico</p>
                 <Campo rotulo="Nome">{(p) => <Input {...p} autoComplete="off" />}</Campo>
                 <Campo rotulo="E-mail">
                   {(p) => <Input {...p} type="email" autoComplete="off" placeholder="nome@empresa.com.br" />}

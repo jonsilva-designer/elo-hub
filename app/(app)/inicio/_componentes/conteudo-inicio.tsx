@@ -4,6 +4,7 @@ import { Composicao, type Contagem } from '@/components/elo/composicao'
 import { ListaContagens } from '@/components/elo/lista-contagens'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
+import { CLASSE_ROTULO } from '@/components/elo/textos'
 import { listarAlertas } from '@/lib/dados/alertas'
 import { indicadoresDoPainel, type Indicador } from '@/lib/dados/painel'
 import { ListaAlertas } from './lista-alertas'
@@ -13,7 +14,7 @@ function Grupo({ titulo, children }: { titulo: string; children: ReactNode }) {
   const id = useId()
   return (
     <section aria-labelledby={id} className="min-w-0 space-y-2">
-      <h3 id={id} className="text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground">
+      <h3 id={id} className={CLASSE_ROTULO}>
         {titulo}
       </h3>
       {children}

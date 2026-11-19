@@ -64,7 +64,7 @@ export function lerDadosNovaDemanda(formData: FormData): DadosNovaDemanda {
 }
 
 /** O erro da origem, ou nada: obrigatória, e a Institucional só no cadastro da ELO (CA-09.15, DF-40). */
-export function erroDaOrigem(origem: string, ehCadastroElo: boolean): string | undefined {
+function erroDaOrigem(origem: string, ehCadastroElo: boolean): string | undefined {
   if (!(ORIGENS_DEMANDA as string[]).includes(origem)) return MENSAGENS_DEMANDA.origem
   if (origemPermitida(origem, ehCadastroElo)) return undefined
   return ehCadastroElo ? MENSAGENS_DEMANDA.eloSoInstitucional : MENSAGENS_DEMANDA.institucionalForaDaElo

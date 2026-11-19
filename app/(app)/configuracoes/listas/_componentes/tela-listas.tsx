@@ -11,6 +11,7 @@ import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -61,7 +62,7 @@ export function TelaListas({ lista, itens }: { lista: ChaveLista; itens: ItemDaL
   }
 
   const colunas: Coluna<ItemDaLista>[] = [
-    { id: 'nome', titulo: 'Nome', largura: 'w-1/2', ordenarPor: (i) => i.nome, celula: (i) => <span className="text-foreground">{i.nome}</span> },
+    { id: 'nome', titulo: 'Nome', largura: 'w-1/2', ordenarPor: (i) => i.nome, celula: (i) => <TextoComDetalhe texto={i.nome} destaque={false} /> },
     {
       id: 'uso',
       titulo: 'Uso',

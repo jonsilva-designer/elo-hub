@@ -9,10 +9,10 @@ import { CampoData } from '@/components/elo/campo-data'
 import { ConfirmarAcao, ListaImpedimentos } from '@/components/elo/confirmacao'
 import { Num } from '@/components/elo/num'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { OpcaoRadio } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import { contratoFechado } from '@/lib/contratos/regras'
@@ -217,12 +217,7 @@ export function AcoesEscopo({
                 {(p) => (
                   <RadioGroup {...p} value={statusDeVolta} onValueChange={(v) => setStatusDeVolta(v as StatusEscopo)}>
                     {STATUS_ESCOPO_ABERTOS.map((s) => (
-                      <div key={s} className="flex items-center gap-2">
-                        <RadioGroupItem id={`reabrir-escopo-${s}`} value={s} />
-                        <Label htmlFor={`reabrir-escopo-${s}`} className="font-normal">
-                          {s}
-                        </Label>
-                      </div>
+                      <OpcaoRadio key={s} id={`reabrir-escopo-${s}`} valor={s}>{s}</OpcaoRadio>
                     ))}
                   </RadioGroup>
                 )}

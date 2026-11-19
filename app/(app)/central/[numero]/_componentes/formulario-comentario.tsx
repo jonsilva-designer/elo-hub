@@ -4,10 +4,10 @@ import { useActionState, useEffect, useState } from 'react'
 import { Campo } from '@/components/elo/campo'
 import { CampoData } from '@/components/elo/campo-data'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { OpcaoRadio } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import { comentarDemanda } from '@/lib/demandas/acoes'
@@ -65,12 +65,7 @@ export function FormularioComentario({
           {(p) => (
             <RadioGroup {...p} value={tipo} onValueChange={(v) => setTipo(v as Tipo)} className="flex flex-wrap gap-4">
               {(['Comentário', 'Contato com especialista'] as const).map((t) => (
-                <div key={t} className="flex items-center gap-2">
-                  <RadioGroupItem id={`tipo-comentario-${t}`} value={t} />
-                  <Label htmlFor={`tipo-comentario-${t}`} className="font-normal">
-                    {t}
-                  </Label>
-                </div>
+                <OpcaoRadio key={t} id={`tipo-comentario-${t}`} valor={t}>{t}</OpcaoRadio>
               ))}
             </RadioGroup>
           )}

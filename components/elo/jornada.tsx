@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { CLASSE_ROTULO } from './textos'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
@@ -11,7 +12,7 @@ import { cn } from '@/lib/utils'
 function DataDaEtapa({ rotulo, valor }: { rotulo: string; valor: string | null }) {
   return (
     <div className="min-w-0">
-      <dt className="text-rotulo font-semibold tracking-rotulo text-muted-foreground uppercase">{rotulo}</dt>
+      <dt className={CLASSE_ROTULO}>{rotulo}</dt>
       <dd className="mt-0.5 text-sm text-foreground">
         {valor ? <Num>{formatarData(valor)}</Num> : <span className="text-muted-foreground">{VAZIO}</span>}
       </dd>

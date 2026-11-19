@@ -10,6 +10,7 @@ import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
+import { ValorFixo } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -100,7 +101,7 @@ export function FormularioContrato({
         <div className="space-y-4">
           {contrato ? (
             <Campo rotulo="Cliente" grupo>
-              {() => <p className="text-sm font-medium text-foreground">{contrato.nomeCliente}</p>}
+              {() => <ValorFixo>{contrato.nomeCliente}</ValorFixo>}
             </Campo>
           ) : (
             <Campo rotulo="Cliente" obrigatorio erro={erros.clienteId}>

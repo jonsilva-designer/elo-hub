@@ -6,6 +6,7 @@ import { EtiquetaPlanejamento, EtiquetaStatus } from '@/components/elo/etiquetas
 import { Num } from '@/components/elo/num'
 import { ResumoAtividades } from '@/components/elo/resumo-atividades'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado, TextoComDetalhe } from '@/components/elo/textos'
 import type { PlanoDetalhado } from '@/lib/dados/tipos'
 import { formatarData } from '@/lib/formato'
 import { compararPlanos } from '@/lib/planos/regras'
@@ -16,10 +17,7 @@ const PLANO: Coluna<PlanoDetalhado> = {
   largura: 'w-1/3',
   ordenarPor: (p) => p.nome,
   celula: (p) => (
-    <span className="flex min-w-0 flex-col items-start gap-1">
-      <span className="font-medium text-foreground">{p.nome}</span>
-      {p.planejamento ? <EtiquetaPlanejamento /> : null}
-    </span>
+    <TextoComDetalhe texto={p.nome}>{p.planejamento ? <EtiquetaPlanejamento /> : null}</TextoComDetalhe>
   ),
 }
 
@@ -46,7 +44,7 @@ const COLUNAS: Record<'escopo' | 'avaliacao', Coluna<PlanoDetalhado>[]> = {
       id: 'prazo',
       titulo: 'Prazo',
       ordenarPor: (p) => p.prazo ?? '',
-      celula: (p) => (p.prazo ? <Num>{formatarData(p.prazo)}</Num> : <span className="text-muted-foreground">Sem prazo</span>),
+      celula: (p) => (p.prazo ? <Num>{formatarData(p.prazo)}</Num> : <Apagado>Sem prazo</Apagado>),
     },
     STATUS,
     ATIVIDADES,

@@ -62,6 +62,17 @@ describe('Painel', () => {
     expect(screen.getByText('conteúdo').parentElement).toHaveClass('p-5')
   })
 
+  it('a faixa fica entre o cabeçalho e o corpo, separada por uma divisória (o resumo em cima da tabela)', () => {
+    render(
+      <Painel titulo="Atividades" faixa={<p>5 atividades</p>} semRespiro>
+        <table />
+      </Painel>,
+    )
+    const faixa = screen.getByText('5 atividades').parentElement!
+    expect(faixa.className.split(' ')).toEqual(expect.arrayContaining(['border-b', 'border-divisoria', 'px-5', 'py-4']))
+    expect(faixa.nextElementSibling!.querySelector('table')).not.toBeNull()
+  })
+
   it('semRespiro tira o respiro do corpo, para tabela ou lista de borda a borda', () => {
     render(
       <Painel titulo="Contratos" semRespiro>

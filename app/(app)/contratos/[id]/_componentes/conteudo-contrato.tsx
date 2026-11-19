@@ -10,6 +10,7 @@ import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
+import { Apagado, LinkTexto } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { contratoFechado, ehPlanejamento } from '@/lib/contratos/regras'
 import { contratoTemItensLigados, obterContrato } from '@/lib/dados/contratos'
@@ -26,7 +27,7 @@ import { TabelaEscopos } from './tabela-escopos'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 import { documentoPrincipalDoContrato, listarDocumentosLigados } from '@/lib/dados/documentos'
 
-const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
+const apagado = (texto: string) => <Apagado>{texto}</Apagado>
 
 const naoInformado = apagado('Não informado')
 
@@ -85,12 +86,11 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
         titulo={<Num>{contrato.codigo}</Num>}
         contexto={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            <Link
+            <LinkTexto
               href={`/clientes/${contrato.clienteId}`}
-              className="rounded-sm text-primary underline-offset-4 hover:underline"
             >
               {contrato.nomeCliente}
-            </Link>
+            </LinkTexto>
             <span aria-hidden="true">·</span>
             <span>{contrato.contratante}</span>
             <span aria-hidden="true">·</span>
@@ -127,9 +127,9 @@ export async function ConteudoContrato({ params }: { params: Promise<{ id: strin
               {
                 rotulo: 'Documento principal',
                 valor: principal ? (
-                  <Link href={`/documentos/${principal.id}`} className="rounded-sm text-primary underline-offset-4 hover:underline">
+                  <LinkTexto href={`/documentos/${principal.id}`}>
                     {principal.nome}
-                  </Link>
+                  </LinkTexto>
                 ) : (
                   apagado('Nenhum documento')
                 ),

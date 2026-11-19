@@ -8,11 +8,11 @@ import { CampoData } from '@/components/elo/campo-data'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
+import { OpcaoRadio, ValorFixo } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import type { DemandaDetalhada } from '@/lib/dados/tipos'
@@ -95,7 +95,7 @@ export function FormularioDemanda({
       <Painel titulo="Dados">
         <div className="space-y-4">
           <Campo rotulo="Cliente" grupo>
-            {() => <p className="text-sm font-medium text-foreground">{demanda.nomeCliente}</p>}
+            {() => <ValorFixo>{demanda.nomeCliente}</ValorFixo>}
           </Campo>
           {ehCadastroElo ? null : (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -232,12 +232,7 @@ export function FormularioDemanda({
               {(p) => (
                 <RadioGroup {...p} value={principal} onValueChange={setPrincipal}>
                   {escolhidos.map((id) => (
-                    <div key={id} className="flex items-center gap-2">
-                      <RadioGroupItem id={`principal-${id}`} value={id} />
-                      <Label htmlFor={`principal-${id}`} className="font-normal">
-                        {rotuloDe(id)}
-                      </Label>
-                    </div>
+                    <OpcaoRadio key={id} id={`principal-${id}`} valor={id}>{rotuloDe(id)}</OpcaoRadio>
                   ))}
                 </RadioGroup>
               )}

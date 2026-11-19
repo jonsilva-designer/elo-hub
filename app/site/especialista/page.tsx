@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { MolduraPublica } from '@/components/elo/moldura-publica'
+import { CLASSE_TITULO_PAGINA } from '@/components/elo/textos'
 import { listarEspecialidades } from '@/lib/dados/listas'
 import { FormularioEspecialista } from '../_componentes/formulario-especialista'
 
@@ -12,7 +13,7 @@ export default async function PaginaEspecialista() {
   return (
     <MolduraPublica>
       <div className="mb-6 space-y-1">
-        <h1 className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">Seja um especialista</h1>
+        <h1 className={CLASSE_TITULO_PAGINA}>Seja um especialista</h1>
         <p className="text-sm text-muted-foreground">
           Cadastre-se no banco de especialistas da ELO. O currículo vai por link, sem envio de arquivo.
         </p>

@@ -6,10 +6,10 @@ import { useState, useTransition } from 'react'
 import { BotaoIcone } from '@/components/elo/botao-icone'
 import { Campo } from '@/components/elo/campo'
 import { ConfirmarAcao, ListaImpedimentos } from '@/components/elo/confirmacao'
+import { OpcaoRadio } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import { cancelarContrato, encerrarContrato, excluirContrato, reabrirContrato } from '@/lib/contratos/acoes'
@@ -170,12 +170,7 @@ export function AcoesContrato({
               {(p) => (
                 <RadioGroup {...p} value={statusDestino} onValueChange={(v) => setStatusDestino(v as StatusContrato)}>
                   {STATUS_ABERTOS.map((s) => (
-                    <div key={s} className="flex items-center gap-2">
-                      <RadioGroupItem id={`reabrir-${s}`} value={s} />
-                      <Label htmlFor={`reabrir-${s}`} className="font-normal">
-                        {s}
-                      </Label>
-                    </div>
+                    <OpcaoRadio key={s} id={`reabrir-${s}`} valor={s}>{s}</OpcaoRadio>
                   ))}
                 </RadioGroup>
               )}

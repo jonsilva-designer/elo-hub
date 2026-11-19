@@ -6,6 +6,7 @@ import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
 import { Num } from '@/components/elo/num'
 import { ResumoAtividades } from '@/components/elo/resumo-atividades'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado, TextoComDetalhe } from '@/components/elo/textos'
 import type {
   AtividadePendente,
   DemandaDaVisao,
@@ -24,13 +25,10 @@ import { TextoComNumeros } from '../../../../documentos/_componentes/texto-com-n
 // As tabelas dos blocos da Visão Executiva (parte 7, 4.4; F14). Só leitura: a página é para a reunião e a projeção, e
 // os dados chegam da leitura da visão, que já deixou de fora o que não pode ir para o cliente (CA-14.5).
 
-const semValor = (texto: string) => <span className="text-muted-foreground">{texto}</span>
+const semValor = (texto: string) => <Apagado>{texto}</Apagado>
 
 const comDetalhe = (principal: React.ReactNode, detalhe: React.ReactNode) => (
-  <span className="flex min-w-0 flex-col gap-0.5">
-    <span className="text-foreground">{principal}</span>
-    <span className="text-xs text-muted-foreground">{detalhe}</span>
-  </span>
+  <TextoComDetalhe texto={principal} destaque={false} detalhes={[detalhe]} />
 )
 
 const COLUNAS_ESCOPOS: Coluna<EscopoDaVisao>[] = [
@@ -106,7 +104,7 @@ const COLUNAS_PENDENTES: Coluna<Pendente>[] = [
 ]
 
 const COLUNAS_DEMANDAS: Coluna<DemandaDaVisao>[] = [
-  { id: 'numero', titulo: 'Número', ordenarPor: (d) => d.numero, celula: (d) => <Num className="font-medium text-foreground">{d.numero}</Num> },
+  { id: 'numero', titulo: 'Número', ordenarPor: (d) => d.numero, celula: (d) => <TextoComDetalhe texto={<Num>{d.numero}</Num>} /> },
   { id: 'assunto', titulo: 'Assunto', largura: 'w-1/3', ordenarPor: (d) => d.assunto, celula: (d) => d.assunto },
   { id: 'status', titulo: 'Status', ordenarPor: (d) => d.status, celula: (d) => <EtiquetaStatus status={d.status} /> },
   {

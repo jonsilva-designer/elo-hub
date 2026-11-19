@@ -11,6 +11,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado, LinkTexto, TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { DocumentoDetalhado } from '@/lib/dados/tipos'
@@ -38,7 +39,6 @@ function guardar(texto: string) {
   }
 }
 
-const CLASSE_LINK = 'font-medium text-primary underline-offset-4 hover:underline'
 
 const COLUNAS: Coluna<DocumentoDetalhado>[] = [
   {
@@ -52,7 +52,7 @@ const COLUNAS: Coluna<DocumentoDetalhado>[] = [
     id: 'cliente',
     titulo: 'Cliente',
     ordenarPor: (d) => d.nomeCliente ?? '',
-    celula: (d) => d.nomeCliente ?? <span className="text-muted-foreground">Sem cliente</span>,
+    celula: (d) => d.nomeCliente ?? <Apagado>Sem cliente</Apagado>,
   },
   {
     id: 'vinculo',
@@ -61,14 +61,17 @@ const COLUNAS: Coluna<DocumentoDetalhado>[] = [
     ordenarPor: (d) => d.vinculo?.rotulo ?? '',
     celula: (d) =>
       d.vinculo ? (
-        <span className="flex min-w-0 flex-col items-start gap-0.5">
-          <Link href={d.vinculo.href} className={CLASSE_LINK}>
-            <TextoComNumeros texto={d.vinculo.rotulo} />
-          </Link>
-          <span className="text-xs text-muted-foreground">{d.vinculo.tipo}</span>
-        </span>
+        <TextoComDetalhe
+          texto={
+            <LinkTexto href={d.vinculo.href} className="font-medium">
+              <TextoComNumeros texto={d.vinculo.rotulo} />
+            </LinkTexto>
+          }
+          destaque={false}
+          detalhes={[d.vinculo.tipo]}
+        />
       ) : (
-        <span className="text-muted-foreground">Só o cliente</span>
+        <Apagado>Só o cliente</Apagado>
       ),
   },
   { id: 'data', titulo: 'Data', ordenarPor: (d) => d.data, celula: (d) => <Num>{formatarData(d.data)}</Num> },

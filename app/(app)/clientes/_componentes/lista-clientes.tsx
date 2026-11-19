@@ -12,6 +12,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -38,13 +39,10 @@ const COLUNAS: Coluna<Cliente>[] = [
     largura: 'w-3/10',
     ordenarPor: nomeDoCliente,
     celula: (c) => (
-      <span className="flex min-w-0 flex-col">
-        <span data-slot="nome-cliente" className="font-medium text-foreground">
-          {nomeDoCliente(c)}
-        </span>
-        {c.nomeFantasia?.trim() ? <span className="text-xs text-muted-foreground">{c.razaoSocial}</span> : null}
-        {c.ehCadastroElo ? <span className="text-xs text-muted-foreground">Cadastro da ELO</span> : null}
-      </span>
+      <TextoComDetalhe
+        texto={nomeDoCliente(c)}
+        detalhes={[c.nomeFantasia?.trim() ? c.razaoSocial : null, c.ehCadastroElo && 'Cadastro da ELO']}
+      />
     ),
   },
   { id: 'cnpj', titulo: 'CNPJ', largura: 'w-1/6', ordenarPor: (c) => c.cnpj, celula: (c) => <Num className="whitespace-nowrap">{c.cnpj}</Num> },

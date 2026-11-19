@@ -12,6 +12,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
 import { ResumoAtividades } from '@/components/elo/resumo-atividades'
+import { Apagado, LinkTexto } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { listarAtividadesDoPlano } from '@/lib/dados/atividades'
 import { listarDocumentosLigados, temDocumentoLigado } from '@/lib/dados/documentos'
@@ -26,9 +27,8 @@ import { TabelaAtividades } from '../../../atividades/_componentes/tabela-ativid
 import { AcoesPlano } from './acoes-plano'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 
-const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
-const naoInformado = <span className="font-normal text-muted-foreground">Não informado</span>
+const naoInformado = <Apagado>Não informado</Apagado>
 
 const ou = (valor: string) => (valor.trim() ? valor : naoInformado)
 
@@ -44,11 +44,11 @@ function camposDoPlano(plano: PlanoDetalhado): { rotulo: string; valor: ReactNod
     {
       rotulo: 'Avaliação de origem',
       valor: plano.avaliacao ? (
-        <Link href={`/avaliacoes/${plano.avaliacao.id}`} className={CLASSE_LINK}>
+        <LinkTexto href={`/avaliacoes/${plano.avaliacao.id}`}>
           Avaliação de <Num>{formatarData(plano.avaliacao.data)}</Num>
-        </Link>
+        </LinkTexto>
       ) : (
-        <span className="font-normal text-muted-foreground">Sem avaliação</span>
+        <Apagado>Sem avaliação</Apagado>
       ),
     },
     { rotulo: 'Observações', valor: ou(plano.observacoes) },
@@ -102,13 +102,13 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
         titulo={plano.nome}
         contexto={
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
-            <Link href={`/clientes/${plano.clienteId}`} className={CLASSE_LINK}>
+            <LinkTexto href={`/clientes/${plano.clienteId}`}>
               {plano.nomeCliente}
-            </Link>
+            </LinkTexto>
             <span aria-hidden="true">·</span>
-            <Link href={`/escopos/${plano.escopoId}`} className={CLASSE_LINK}>
+            <LinkTexto href={`/escopos/${plano.escopoId}`}>
               {plano.nomeEscopo}
-            </Link>
+            </LinkTexto>
             <span aria-hidden="true">·</span>
             <EtiquetaStatus status={plano.status} />
             {plano.planejamento ? <EtiquetaPlanejamento /> : null}
@@ -138,10 +138,12 @@ export async function ConteudoPlano({ params }: { params: Promise<{ id: string }
         <Painel titulo="Dados do plano">
           <ListaCampos itens={camposDoPlano(plano)} />
         </Painel>
-        <Painel titulo="Atividades" acao={<NovaAtividade plano={plano} />} semRespiro>
-          <div className="border-b border-divisoria px-5 py-3">
-            <ResumoAtividades resumo={plano.resumo} />
-          </div>
+        <Painel
+          titulo="Atividades"
+          acao={<NovaAtividade plano={plano} />}
+          faixa={<ResumoAtividades resumo={plano.resumo} />}
+          semRespiro
+        >
           <TabelaAtividades
             atividades={atividades}
             perfil={usuario.perfil}

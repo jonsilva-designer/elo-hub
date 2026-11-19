@@ -12,6 +12,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado, TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { EspecialistaDetalhado, OrigemEspecialista, StatusEspecialista } from '@/lib/dados/tipos'
@@ -33,10 +34,9 @@ const COLUNAS: Coluna<EspecialistaDetalhado>[] = [
     largura: 'w-1/4',
     ordenarPor: (e) => e.nome,
     celula: (e) => (
-      <span className="flex min-w-0 flex-col items-start gap-1">
-        <span className="font-medium text-foreground">{e.nome}</span>
+      <TextoComDetalhe texto={e.nome}>
         {e.emailRepetido ? <EtiquetaSinal texto="E-mail já cadastrado" tom="atencao" /> : null}
-      </span>
+      </TextoComDetalhe>
     ),
   },
   {
@@ -45,10 +45,7 @@ const COLUNAS: Coluna<EspecialistaDetalhado>[] = [
     largura: 'w-1/3',
     ordenarPor: (e) => e.especialidade,
     celula: (e) => (
-      <span className="flex min-w-0 flex-col gap-0.5">
-        <span>{e.especialidade}</span>
-        {e.subespecialidade ? <span className="text-xs text-muted-foreground">{e.subespecialidade}</span> : null}
-      </span>
+      <TextoComDetalhe texto={e.especialidade} destaque={false} detalhes={[e.subespecialidade]} />
     ),
   },
   {
@@ -56,7 +53,7 @@ const COLUNAS: Coluna<EspecialistaDetalhado>[] = [
     titulo: 'Cidade/UF',
     ordenarPor: (e) => e.cidade,
     celula: (e) =>
-      e.cidade ? `${e.cidade}${e.uf ? `/${e.uf}` : ''}` : <span className="text-muted-foreground">Não informada</span>,
+      e.cidade ? `${e.cidade}${e.uf ? `/${e.uf}` : ''}` : <Apagado>Não informada</Apagado>,
   },
   { id: 'origem', titulo: 'Origem', ordenarPor: (e) => e.origem, celula: (e) => e.origem },
   { id: 'status', titulo: 'Status', ordenarPor: (e) => e.status, celula: (e) => <EtiquetaStatus status={e.status} /> },

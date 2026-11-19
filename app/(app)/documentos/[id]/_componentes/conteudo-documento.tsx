@@ -9,6 +9,7 @@ import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
+import { Apagado, LinkTexto } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { documentoTemLigacao, obterDocumento, substitutosPossiveis, usuarioAlteraDocumento } from '@/lib/dados/documentos'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -20,14 +21,13 @@ import { VoltarParaDocumentos } from '../../_componentes/voltar-para-documentos'
 import { AcoesDocumento } from './acoes-documento'
 import { TextoComNumeros } from '../../_componentes/texto-com-numeros'
 
-const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
-const naoInformado = <span className="font-normal text-muted-foreground">Não informado</span>
+const naoInformado = <Apagado>Não informado</Apagado>
 
 const link = (href: string, texto: string) => (
-  <Link href={href} className={CLASSE_LINK}>
+  <LinkTexto href={href}>
     <TextoComNumeros texto={texto} />
-  </Link>
+  </LinkTexto>
 )
 
 /** Os campos do painel Dados (F12): as datas, quem incluiu, o arquivo e as observações. */
@@ -57,7 +57,7 @@ function vinculosDoDocumento(d: DocumentoDetalhado): { rotulo: string; valor: Re
       valor: d.clienteId && d.nomeCliente ? link(`/clientes/${d.clienteId}`, d.nomeCliente) : naoInformado,
     },
   ]
-  if (!d.clienteId) itens[0].valor = <span className="font-normal text-muted-foreground">Sem cliente</span>
+  if (!d.clienteId) itens[0].valor = <Apagado>Sem cliente</Apagado>
   if (d.especialistaId && d.nomeEspecialista) {
     itens.push({ rotulo: 'Especialista', valor: link(`/especialistas/${d.especialistaId}`, d.nomeEspecialista) })
   }

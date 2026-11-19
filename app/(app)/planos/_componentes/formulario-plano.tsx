@@ -9,6 +9,7 @@ import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { ValorFixo } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -74,18 +75,18 @@ export function FormularioPlano({
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo rotulo="Escopo" grupo>
-              {() => <p className="text-sm font-medium text-foreground">{escopo.nome}</p>}
+              {() => <ValorFixo>{escopo.nome}</ValorFixo>}
             </Campo>
             <Campo rotulo="Cliente" grupo>
-              {() => <p className="text-sm font-medium text-foreground">{escopo.nomeCliente}</p>}
+              {() => <ValorFixo>{escopo.nomeCliente}</ValorFixo>}
             </Campo>
           </div>
           {plano ? (
             <Campo rotulo="Criado em" grupo>
               {() => (
-                <p className="text-sm font-medium text-foreground">
+                <ValorFixo>
                   <Num>{formatarData(plano.criadoEm)}</Num>
-                </p>
+                </ValorFixo>
               )}
             </Campo>
           ) : null}

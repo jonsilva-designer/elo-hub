@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import type { VisaoExecutiva } from '@/lib/dados/tipos'
 import { formatarData, formatarDataHora } from '@/lib/formato'
 import { ETAPAS } from '@/lib/jornada/regras'
+import { PALETA } from '@/lib/design/paleta'
 
 // O PDF da Visão Executiva (F14, DF-74; arquitetura 3.5, DA-04): os mesmos blocos e a mesma leitura da tela, em A4
 // retrato. O PDF não lê CSS: as cores são as da marca, iguais aos tokens --elo-azul-marinho, --elo-dourado e
@@ -28,12 +29,13 @@ const TITULO = { fontFamily: 'Playfair Display', fontWeight: 700 } as const
 const NUMERO = { fontFamily: 'JetBrains Mono', fontWeight: 500 } as const
 
 const COR = {
-  azul: '#182F4F',
-  dourado: '#BD903F',
-  douradoSuave: '#E9DBC0',
-  texto: '#1F2937',
-  apagado: '#6B7280',
-  linha: '#E5E7EB',
+  azul: PALETA['azul-marinho'],
+  dourado: PALETA.dourado,
+  douradoSuave: PALETA['dourado-suave'],
+  texto: PALETA.tinta,
+  apagado: PALETA['texto-secundario'],
+  linha: PALETA.divisoria,
+  branco: PALETA.branco,
 }
 
 const e = StyleSheet.create({
@@ -41,9 +43,9 @@ const e = StyleSheet.create({
   faixa: { backgroundColor: COR.azul, marginHorizontal: -32, marginTop: -28, paddingHorizontal: 32, paddingVertical: 18, marginBottom: 14 },
   faixaLinha: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   logo: { width: 118, height: 44, objectFit: 'contain' },
-  titulo: { ...TITULO, color: '#FFFFFF', fontSize: 18, marginTop: 10 },
+  titulo: { ...TITULO, color: COR.branco, fontSize: 18, marginTop: 10 },
   cliente: { color: COR.douradoSuave, fontSize: 12, marginTop: 2 },
-  datas: { color: '#FFFFFF', fontSize: 8, marginTop: 8 },
+  datas: { color: COR.branco, fontSize: 8, marginTop: 8 },
   secao: { marginBottom: 12 },
   secaoTitulo: {
     ...TITULO,

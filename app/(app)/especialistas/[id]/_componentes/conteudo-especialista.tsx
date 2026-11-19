@@ -8,6 +8,7 @@ import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
+import { Apagado, LinkTexto } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import {
   candidaturasComOMesmoEmail,
@@ -26,9 +27,8 @@ import { TabelaCandidaturas, TabelaLigacoes } from './tabelas-especialista'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
-const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
-const naoInformado = <span className="font-normal text-muted-foreground">Não informado</span>
+const naoInformado = <Apagado>Não informado</Apagado>
 
 const ou = (valor: string) => (valor.trim() ? valor : naoInformado)
 
@@ -44,9 +44,9 @@ function camposDoEspecialista(e: EspecialistaDetalhado): { rotulo: string; valor
     {
       rotulo: 'Currículo ou LinkedIn',
       valor: e.curriculo ? (
-        <a href={e.curriculo} target="_blank" rel="noreferrer" className={CLASSE_LINK}>
+        <LinkTexto href={e.curriculo} target="_blank" rel="noreferrer">
           Abrir o link
-        </a>
+        </LinkTexto>
       ) : (
         naoInformado
       ),

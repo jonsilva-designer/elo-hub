@@ -5,6 +5,7 @@ import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import type { OrigemEspecialista, StatusEspecialista } from '@/lib/dados/tipos'
 import { formatarData } from '@/lib/formato'
 
@@ -17,7 +18,7 @@ const COLUNAS_LIGACOES: Coluna<Ligacao>[] = [
     titulo: 'Escopo ou demanda',
     largura: 'w-2/5',
     ordenarPor: (l) => l.nome,
-    celula: (l) => <span className="font-medium text-foreground">{l.nome}</span>,
+    celula: (l) => <TextoComDetalhe texto={l.nome} />,
   },
   { id: 'cliente', titulo: 'Cliente', ordenarPor: (l) => l.cliente, celula: (l) => l.cliente },
   { id: 'status', titulo: 'Status', ordenarPor: (l) => l.status, celula: (l) => <EtiquetaStatus status={l.status} /> },
@@ -40,7 +41,7 @@ export function TabelaLigacoes({ ligacoes }: { ligacoes: Ligacao[] }) {
 type Candidatura = { id: string; nome: string; cadastradoEm: string; status: StatusEspecialista; origem: OrigemEspecialista }
 
 const COLUNAS_CANDIDATURAS: Coluna<Candidatura>[] = [
-  { id: 'nome', titulo: 'Nome', celula: (c) => <span className="font-medium text-foreground">{c.nome}</span> },
+  { id: 'nome', titulo: 'Nome', celula: (c) => <TextoComDetalhe texto={c.nome} /> },
   { id: 'data', titulo: 'Data', celula: (c) => <Num>{formatarData(c.cadastradoEm)}</Num> },
   { id: 'origem', titulo: 'Origem', celula: (c) => c.origem },
   { id: 'status', titulo: 'Status', celula: (c) => <EtiquetaStatus status={c.status} /> },

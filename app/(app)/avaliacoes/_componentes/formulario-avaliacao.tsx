@@ -9,6 +9,7 @@ import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { ValorFixo } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -86,7 +87,7 @@ export function FormularioAvaliacao({
       <Painel titulo="Dados da avaliação">
         <div className="grid gap-4 sm:grid-cols-2">
           <Campo rotulo="Cliente" grupo>
-            {() => <p className="text-sm font-medium text-foreground">{cliente.nome}</p>}
+            {() => <ValorFixo>{cliente.nome}</ValorFixo>}
           </Campo>
           <Campo rotulo="Contrato de referência">
             {(p) => (

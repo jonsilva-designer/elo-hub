@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import * as React from 'react'
 import {
   AlertDialog,
@@ -16,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { ComNumeros } from '@/components/elo/num'
+import { LinkTexto } from './textos'
 import type { ItemQueImpede } from '@/lib/dados/tipos'
 
 /**
@@ -94,9 +94,9 @@ export function ListaImpedimentos({ itens }: { itens: ItemQueImpede[] }) {
       {itens.map((item) => (
         <li key={item.href} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
           <span className="text-xs text-muted-foreground">{item.tipo}</span>
-          <Link href={item.href} className="rounded-sm font-medium text-primary underline-offset-4 hover:underline">
+          <LinkTexto href={item.href} className="font-medium">
             <ComNumeros texto={item.descricao} />
-          </Link>
+          </LinkTexto>
           <EtiquetaStatus status={item.status} />
           <span className="text-secundario text-muted-foreground">{item.responsavel}</span>
         </li>

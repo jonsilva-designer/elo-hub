@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ComNumeros, Num } from '@/components/elo/num'
+import { CLASSE_TITULO_PAGINA } from '@/components/elo/textos'
 import { Exemplo, Linhas, Secao } from './secao'
 
 // A classe é o token de tamanho (padrão 4.2): é ela que as telas usam, e nunca o tamanho escrito à mão.
@@ -37,7 +38,7 @@ export function Tipografia() {
     >
       <Linhas>
         <Exemplo rotulo="Título da página" nota={<Legenda fonte="Playfair Display" tamanho="26px" classe="text-titulo-pagina" peso="600" nota={<>Azul-marinho, espaçamento <Num>-0,02em</Num></>} />}>
-          <p className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">Contratos ativos</p>
+          <p className={CLASSE_TITULO_PAGINA}>Contratos ativos</p>
         </Exemplo>
         <Exemplo rotulo="Título de seção ou painel" nota={<Legenda fonte="Playfair Display" tamanho="15px" classe="text-titulo-painel" peso="700" nota="Azul-marinho" />}>
           <p className="font-heading text-titulo-painel font-bold text-primary">Atividades da semana</p>

@@ -6,10 +6,10 @@ import { useState, useTransition } from 'react'
 import { BotaoIcone } from '@/components/elo/botao-icone'
 import { Campo } from '@/components/elo/campo'
 import { ConfirmarAcao } from '@/components/elo/confirmacao'
+import { OpcaoRadio } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import type { StatusDocumento } from '@/lib/dados/tipos'
@@ -191,12 +191,7 @@ export function AcoesDocumento({
                 {(p) => (
                   <RadioGroup {...p} value={substituto} onValueChange={setSubstituto}>
                     {substitutos.map((s) => (
-                      <div key={s.id} className="flex items-center gap-2">
-                        <RadioGroupItem id={`substituto-${s.id}`} value={s.id} />
-                        <Label htmlFor={`substituto-${s.id}`} className="font-normal">
-                          {s.nome}
-                        </Label>
-                      </div>
+                      <OpcaoRadio key={s.id} id={`substituto-${s.id}`} valor={s.id}>{s.nome}</OpcaoRadio>
                     ))}
                   </RadioGroup>
                 )}

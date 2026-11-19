@@ -5,12 +5,13 @@ import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaCriticidade, EtiquetaSinal } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado, TextoComDetalhe } from '@/components/elo/textos'
 import type { Alerta } from '@/lib/alertas/regras'
 import { CRITICIDADES } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
 import { TextoComNumeros } from '../../documentos/_componentes/texto-com-numeros'
 
-const semValor = (texto: string) => <span className="text-muted-foreground">{texto}</span>
+const semValor = (texto: string) => <Apagado>{texto}</Apagado>
 
 const COLUNAS: Coluna<Alerta>[] = [
   { id: 'tipo', titulo: 'Alerta', ordenarPor: (a) => a.tipo, celula: (a) => <EtiquetaSinal texto={a.tipo} tom={a.tom} /> },
@@ -20,12 +21,7 @@ const COLUNAS: Coluna<Alerta>[] = [
     largura: 'w-1/3',
     ordenarPor: (a) => a.registro,
     celula: (a) => (
-      <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-foreground">
-          <TextoComNumeros texto={a.registro} />
-        </span>
-        <span className="text-xs text-muted-foreground">{a.cliente}</span>
-      </span>
+      <TextoComDetalhe texto={<TextoComNumeros texto={a.registro} />} destaque={false} detalhes={[a.cliente]} />
     ),
   },
   {

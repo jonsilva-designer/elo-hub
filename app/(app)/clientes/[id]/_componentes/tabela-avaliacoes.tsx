@@ -6,6 +6,7 @@ import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado } from '@/components/elo/textos'
 import type { AvaliacaoDetalhada } from '@/lib/dados/tipos'
 import { formatarData, VAZIO } from '@/lib/formato'
 
@@ -17,7 +18,7 @@ const COLUNAS: Coluna<AvaliacaoDetalhada>[] = [
   {
     id: 'prontidao',
     titulo: 'Prontidão',
-    celula: (a) => (a.prontidao ? <EtiquetaStatus status={a.prontidao} /> : <span className="text-muted-foreground">{VAZIO}</span>),
+    celula: (a) => (a.prontidao ? <EtiquetaStatus status={a.prontidao} /> : <Apagado>{VAZIO}</Apagado>),
   },
 ]
 

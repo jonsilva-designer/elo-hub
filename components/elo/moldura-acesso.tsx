@@ -2,6 +2,7 @@ import Image from 'next/image'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import simbolo from './imagens/simbolo-login.webp'
+import { CLASSE_TITULO_PAGINA } from './textos'
 
 /**
  * Moldura das telas de acesso (entrar, recuperar e definir a senha), fora do menu.
@@ -39,7 +40,7 @@ export function MolduraAcesso({
         <div className="flex flex-1 items-center justify-center py-10">
           <div className="w-full max-w-sm space-y-6">
             <div className="space-y-1.5">
-              <h1 className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">{titulo}</h1>
+              <h1 className={CLASSE_TITULO_PAGINA}>{titulo}</h1>
               {descricao ? <p className="text-sm text-muted-foreground">{descricao}</p> : null}
             </div>
             {children}

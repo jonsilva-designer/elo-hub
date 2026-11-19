@@ -5,12 +5,13 @@ import { NivelMaturidade } from '@/components/elo/nivel-maturidade'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria } from '@/components/elo/painel-historico'
+import { Apagado } from '@/components/elo/textos'
 import { buttonVariants } from '@/components/ui/button'
 import type { AvaliacaoMaturidade, Cliente, EntradaHistorico } from '@/lib/dados/tipos'
 import { formatarData } from '@/lib/formato'
 import { cn } from '@/lib/utils'
 
-const naoInformado = <span className="font-normal text-muted-foreground">Não informado</span>
+const naoInformado = <Apagado>Não informado</Apagado>
 
 const ou = (valor: string | undefined) => (valor?.trim() ? valor : naoInformado)
 

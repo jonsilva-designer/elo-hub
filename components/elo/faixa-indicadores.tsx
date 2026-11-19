@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { useId } from 'react'
 import { formatarNumero } from '@/lib/formato'
+import { CLASSE_ROTULO } from './textos'
+import { cn } from '@/lib/utils'
 
 /**
  * Os números principais num card só (revisão do Início, 19/11/2026), separados por linhas finas: quatro colunas no
@@ -24,7 +26,7 @@ export function FaixaIndicadores({
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border lg:grid-cols-4">
         {itens.map((i) => (
           <Link key={i.href} href={i.href} className="block min-w-0 bg-card p-4.5 transition-colors hover:bg-papel">
-            <span className="block text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground">{i.rotulo}</span>
+            <span className={cn('block', CLASSE_ROTULO)}>{i.rotulo}</span>
             <span className="mt-2 block font-mono text-indicador font-medium tabular-nums text-primary">
               {formatarNumero(i.valor)}
             </span>

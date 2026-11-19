@@ -6,10 +6,10 @@ import { useState, useTransition } from 'react'
 import { BotaoIcone } from '@/components/elo/botao-icone'
 import { Campo } from '@/components/elo/campo'
 import { ConfirmarAcao, ListaImpedimentos } from '@/components/elo/confirmacao'
+import { OpcaoRadio } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import { excluirCliente, inativarCliente, reativarCliente } from '@/lib/clientes/acoes'
@@ -150,12 +150,7 @@ export function AcoesCliente({
                   onValueChange={(v) => setStatusDestino(v as 'Prospect' | 'Ativo')}
                 >
                   {(['Prospect', 'Ativo'] as const).map((s) => (
-                    <div key={s} className="flex items-center gap-2">
-                      <RadioGroupItem id={`reativar-${s}`} value={s} />
-                      <Label htmlFor={`reativar-${s}`} className="font-normal">
-                        {s}
-                      </Label>
-                    </div>
+                    <OpcaoRadio key={s} id={`reativar-${s}`} valor={s}>{s}</OpcaoRadio>
                   ))}
                 </RadioGroup>
               )}

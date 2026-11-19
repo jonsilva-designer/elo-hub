@@ -1,15 +1,14 @@
 'use client'
 
 import { ChevronDown } from 'lucide-react'
-import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { Campo } from '@/components/elo/campo'
 import { ConfirmarAcao } from '@/components/elo/confirmacao'
+import { LinkTexto, OpcaoRadio } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import type { StatusDemanda } from '@/lib/dados/tipos'
@@ -173,9 +172,9 @@ export function AcoesDemanda({
               bloqueado
               onConfirmar={() => {}}
               conteudo={
-                <Link href={`/central/${numero}/editar`} className="text-sm text-primary underline-offset-4 hover:underline">
+                <LinkTexto href={`/central/${numero}/editar`} className="text-sm">
                   Editar a triagem
-                </Link>
+                </LinkTexto>
               }
               aberto={janela === a}
               aoMudarAberto={aoMudarAberto}
@@ -197,12 +196,9 @@ export function AcoesDemanda({
                       {(p) => (
                         <RadioGroup {...p} value={statusDeVolta} onValueChange={(v) => setStatusDeVolta(v as StatusDemanda)}>
                           {(a === 'reabrir' ? STATUS_DEMANDA_ABERTOS : correcoes).map((s) => (
-                            <div key={s} className="flex items-center gap-2">
-                              <RadioGroupItem id={`${a}-demanda-${s}`} value={s} />
-                              <Label htmlFor={`${a}-demanda-${s}`} className="font-normal">
-                                {s}
-                              </Label>
-                            </div>
+                            <OpcaoRadio key={s} id={`${a}-demanda-${s}`} valor={s}>
+                              {s}
+                            </OpcaoRadio>
                           ))}
                         </RadioGroup>
                       )}

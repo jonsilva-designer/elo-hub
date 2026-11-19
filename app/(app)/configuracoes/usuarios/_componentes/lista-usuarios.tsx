@@ -11,6 +11,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import type { StatusUsuario } from '@/lib/dados/tipos'
 import type { UsuarioDetalhado } from '@/lib/dados/usuarios-configuracao'
@@ -23,10 +24,7 @@ const COLUNAS: Coluna<UsuarioDetalhado>[] = [
     largura: 'w-1/3',
     ordenarPor: (u) => u.nome,
     celula: (u) => (
-      <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="font-medium text-foreground">{u.nome}</span>
-        <span className="text-xs text-muted-foreground">{u.email}</span>
-      </span>
+      <TextoComDetalhe texto={u.nome} detalhes={[u.email]} />
     ),
   },
   { id: 'perfil', titulo: 'Perfil', ordenarPor: (u) => u.perfil, celula: (u) => u.perfil },

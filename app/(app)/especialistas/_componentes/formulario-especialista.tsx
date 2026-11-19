@@ -7,6 +7,7 @@ import { Campo } from '@/components/elo/campo'
 import { CampoData } from '@/components/elo/campo-data'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { ValorFixo } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -92,7 +93,7 @@ export function FormularioEspecialista({
           </Campo>
           {especialista ? (
             <Campo rotulo="Origem" grupo>
-              {() => <p className="text-sm font-medium text-foreground">{especialista.origem}</p>}
+              {() => <ValorFixo>{especialista.origem}</ValorFixo>}
             </Campo>
           ) : null}
           <Campo rotulo="Status" obrigatorio erro={erros.status}>

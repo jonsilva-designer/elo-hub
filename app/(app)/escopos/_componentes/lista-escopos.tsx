@@ -10,6 +10,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { EscopoDetalhado, StatusEscopo } from '@/lib/dados/tipos'
@@ -47,15 +48,9 @@ const COLUNAS: Coluna<EscopoDetalhado>[] = [
     largura: 'w-1/4',
     ordenarPor: (e) => e.nome,
     celula: (e) => (
-      <span className="flex min-w-0 flex-col items-start gap-1">
-        <span data-slot="nome-escopo" className="font-medium text-foreground">
-          {e.nome}
-        </span>
-        <span className="flex flex-wrap items-center gap-2">
-          <Num className="text-xs text-muted-foreground">{e.codigoContrato}</Num>
-          {e.planejamento ? <EtiquetaPlanejamento /> : null}
-        </span>
-      </span>
+      <TextoComDetalhe texto={e.nome} detalhes={[<Num key="contrato">{e.codigoContrato}</Num>]}>
+        {e.planejamento ? <EtiquetaPlanejamento /> : null}
+      </TextoComDetalhe>
     ),
   },
   { id: 'cliente', titulo: 'Cliente', largura: 'w-1/8', ordenarPor: (e) => e.nomeCliente, celula: (e) => e.nomeCliente },

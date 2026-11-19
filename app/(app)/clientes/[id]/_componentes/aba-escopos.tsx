@@ -6,6 +6,7 @@ import { EtiquetaCriticidade, EtiquetaPlanejamento, EtiquetaStatus } from '@/com
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import type { EscopoDetalhado } from '@/lib/dados/tipos'
 import { ordenarEscopos } from '@/lib/escopos/filtros'
 import { CRITICIDADES } from '@/lib/escopos/regras'
@@ -18,10 +19,7 @@ const COLUNAS: Coluna<EscopoDetalhado>[] = [
     largura: 'w-1/3',
     ordenarPor: (e) => e.nome,
     celula: (e) => (
-      <span className="flex min-w-0 flex-col items-start gap-1">
-        <span className="font-medium text-foreground">{e.nome}</span>
-        {e.planejamento ? <EtiquetaPlanejamento /> : null}
-      </span>
+      <TextoComDetalhe texto={e.nome}>{e.planejamento ? <EtiquetaPlanejamento /> : null}</TextoComDetalhe>
     ),
   },
   { id: 'contrato', titulo: 'Contrato', ordenarPor: (e) => e.codigoContrato, celula: (e) => <Num>{e.codigoContrato}</Num> },

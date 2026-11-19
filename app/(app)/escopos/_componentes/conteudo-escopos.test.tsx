@@ -28,7 +28,7 @@ const linhas = () => within(screen.getAllByRole('rowgroup')[1]).getAllByRole('ro
 const linhaDo = (nome: string) => screen.getByText(nome).closest('tr')!
 
 /** O nome do escopo em cada linha, na ordem da tabela. */
-const nomes = () => linhas().map((l) => l.querySelector('[data-slot="nome-escopo"]')?.textContent)
+const nomes = () => linhas().map((l) => l.querySelector('[data-slot="texto"]')?.textContent)
 
 describe('lista de escopos (parte 3, 5.7)', () => {
   it('tem o título da aba', () => {

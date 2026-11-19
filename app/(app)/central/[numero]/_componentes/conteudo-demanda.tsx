@@ -10,6 +10,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { Button } from '@/components/ui/button'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
+import { Apagado, LinkTexto } from '@/components/elo/textos'
 import { listarComentarios, obterDemanda } from '@/lib/dados/demandas'
 import { listarHistorico } from '@/lib/dados/historico'
 import { ehAdmin } from '@/lib/dados/regras'
@@ -23,9 +24,8 @@ import { FormularioComentario } from './formulario-comentario'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 import { listarDocumentosLigados } from '@/lib/dados/documentos'
 
-const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
 
-const apagado = (texto: string) => <span className="font-normal text-muted-foreground">{texto}</span>
+const apagado = (texto: string) => <Apagado>{texto}</Apagado>
 
 const ou = (valor: string, vazio: string) => (valor.trim() ? valor : apagado(vazio))
 
@@ -38,9 +38,9 @@ function camposDosDados(d: DemandaDetalhada): { rotulo: string; valor: ReactNode
     {
       rotulo: 'Contrato',
       valor: d.contratoId ? (
-        <Link href={`/contratos/${d.contratoId}`} className={CLASSE_LINK}>
+        <LinkTexto href={`/contratos/${d.contratoId}`}>
           <Num>{d.codigoContrato}</Num>
-        </Link>
+        </LinkTexto>
       ) : (
         apagado('Sem contrato')
       ),
@@ -48,9 +48,9 @@ function camposDosDados(d: DemandaDetalhada): { rotulo: string; valor: ReactNode
     {
       rotulo: 'Escopo',
       valor: d.escopoId ? (
-        <Link href={`/escopos/${d.escopoId}`} className={CLASSE_LINK}>
+        <LinkTexto href={`/escopos/${d.escopoId}`}>
           {d.nomeEscopo}
-        </Link>
+        </LinkTexto>
       ) : (
         apagado('Sem escopo')
       ),
@@ -67,9 +67,9 @@ function Especialistas({ demanda }: { demanda: DemandaDetalhada }) {
     <ul className="space-y-1.5">
       {demanda.especialistasLigados.map((e) => (
         <li key={e.id} className="flex flex-wrap items-center gap-1.5">
-          <Link href={`/especialistas/${e.id}`} className={CLASSE_LINK}>
+          <LinkTexto href={`/especialistas/${e.id}`}>
             {e.nome}
-          </Link>
+          </LinkTexto>
           {e.principal && demanda.especialistasLigados.length > 1 ? (
             <span className="text-xs text-muted-foreground">Principal</span>
           ) : null}
@@ -131,9 +131,9 @@ export async function ConteudoDemanda({ params }: { params: Promise<{ numero: st
           <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <Num>{demanda.numero}</Num>
             <span aria-hidden="true">·</span>
-            <Link href={`/clientes/${demanda.clienteId}`} className={CLASSE_LINK}>
+            <LinkTexto href={`/clientes/${demanda.clienteId}`}>
               {demanda.nomeCliente}
-            </Link>
+            </LinkTexto>
             <span aria-hidden="true">·</span>
             <EtiquetaStatus status={demanda.status} />
             {demanda.criticidade ? <EtiquetaCriticidade criticidade={demanda.criticidade} /> : null}

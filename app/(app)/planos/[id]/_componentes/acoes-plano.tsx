@@ -6,10 +6,10 @@ import { useState, useTransition } from 'react'
 import { BotaoIcone } from '@/components/elo/botao-icone'
 import { Campo } from '@/components/elo/campo'
 import { ConfirmarAcao, ListaImpedimentos } from '@/components/elo/confirmacao'
+import { OpcaoRadio } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import type { ItemQueImpede, Perfil, PlanoDetalhado, StatusPlano } from '@/lib/dados/tipos'
@@ -196,12 +196,7 @@ export function AcoesPlano({
                 {(p) => (
                   <RadioGroup {...p} value={statusDeVolta} onValueChange={(v) => setStatusDeVolta(v as StatusPlano)}>
                     {STATUS_PLANO_ABERTOS.map((s) => (
-                      <div key={s} className="flex items-center gap-2">
-                        <RadioGroupItem id={`reabrir-plano-${s}`} value={s} />
-                        <Label htmlFor={`reabrir-plano-${s}`} className="font-normal">
-                          {s}
-                        </Label>
-                      </div>
+                      <OpcaoRadio key={s} id={`reabrir-plano-${s}`} valor={s}>{s}</OpcaoRadio>
                     ))}
                   </RadioGroup>
                 )}

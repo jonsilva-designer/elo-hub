@@ -4,17 +4,20 @@ import { cn } from '@/lib/utils'
 /**
  * Painel do produto: título à esquerda; contagem e ação à direita; divisória e conteúdo. Só borda, sem sombra.
  * `semRespiro` tira o respiro do corpo, para uma tabela ou lista ir de borda a borda.
+ * `faixa` fica entre o cabeçalho e o corpo, com a divisória embaixo: o resumo em cima da tabela.
  */
 export function Painel({
   titulo,
   contagem,
   acao,
+  faixa,
   semRespiro = false,
   children,
 }: {
   titulo: string
   contagem?: ReactNode
   acao?: ReactNode
+  faixa?: ReactNode
   semRespiro?: boolean
   children: ReactNode
 }) {
@@ -39,6 +42,7 @@ export function Painel({
           </div>
         ) : null}
       </div>
+      {faixa ? <div className="border-b border-divisoria px-5 py-4">{faixa}</div> : null}
       <div className={cn(!semRespiro && 'p-5')}>{children}</div>
     </section>
   )

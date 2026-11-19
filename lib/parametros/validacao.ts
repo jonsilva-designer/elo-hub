@@ -11,7 +11,7 @@ export const MENSAGENS_PARAMETROS = {
   data: 'Informe uma data válida.',
 }
 
-export const CAMPOS_PARAMETROS = [
+const CAMPOS_PARAMETROS = [
   'diasProximoDoPrazo',
   'diasDoAlerta',
   'remetenteDemanda',

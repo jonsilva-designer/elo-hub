@@ -5,12 +5,13 @@ import type { ReactNode } from 'react'
 import { EtiquetaCriticidade, EtiquetaSinal, EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado, TextoComDetalhe } from '@/components/elo/textos'
 import type { DemandaDetalhada } from '@/lib/dados/tipos'
 import { ordenarDemandas } from '@/lib/demandas/filtros'
 import { CRITICIDADES } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
 
-const semValor = (texto: string) => <span className="text-muted-foreground">{texto}</span>
+const semValor = (texto: string) => <Apagado>{texto}</Apagado>
 
 function colunas(daFila: boolean): Coluna<DemandaDetalhada>[] {
   return [
@@ -18,7 +19,7 @@ function colunas(daFila: boolean): Coluna<DemandaDetalhada>[] {
       id: 'numero',
       titulo: 'Número',
       ordenarPor: (d) => d.numero,
-      celula: (d) => <Num className="font-medium text-foreground">{d.numero}</Num>,
+      celula: (d) => <TextoComDetalhe texto={<Num>{d.numero}</Num>} />,
     },
     {
       id: 'assunto',
@@ -26,10 +27,7 @@ function colunas(daFila: boolean): Coluna<DemandaDetalhada>[] {
       largura: 'w-1/3',
       ordenarPor: (d) => d.assunto,
       celula: (d) => (
-        <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-foreground">{d.assunto}</span>
-          {daFila ? <span className="text-xs text-muted-foreground">{d.nomeCliente}</span> : null}
-        </span>
+        <TextoComDetalhe texto={d.assunto} destaque={false} detalhes={[daFila && d.nomeCliente]} />
       ),
     },
     { id: 'status', titulo: 'Status', ordenarPor: (d) => d.status, celula: (d) => <EtiquetaStatus status={d.status} /> },

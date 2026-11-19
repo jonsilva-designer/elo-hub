@@ -16,7 +16,7 @@ import type { Atividade, AtividadeDetalhada } from './tipos'
 // calculada a cada leitura, com a data de hoje em Brasília (RN-09, RN-10, RN-20).
 
 /** A atividade como a plataforma a guarda: o prazo relativo do exemplo vira data. Uma cópia. */
-export function resolverAtividade(a: AtividadeFicticia, hoje: string): Atividade {
+function resolverAtividade(a: AtividadeFicticia, hoje: string): Atividade {
   const { prazoEmDias, ...atividade } = a
   return { ...atividade, prazo: prazoEmDias === undefined ? a.prazo : somarDias(hoje, prazoEmDias) }
 }

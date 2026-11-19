@@ -20,7 +20,7 @@ async function renderizar(busca: Record<string, string> = {}) {
 const nomesNaTabela = () =>
   within(screen.getAllByRole('rowgroup')[1])
     .getAllByRole('row')
-    .map((linha) => linha.querySelector('[data-slot="nome-cliente"]')?.textContent)
+    .map((linha) => linha.querySelector('[data-slot="texto"]')?.textContent)
 
 describe('lista de clientes (F16)', () => {
   it('tem o título da aba', () => {

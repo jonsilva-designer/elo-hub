@@ -5,16 +5,14 @@ import type { ReactNode } from 'react'
 import { EtiquetaStatus } from '@/components/elo/etiquetas'
 import { Num } from '@/components/elo/num'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { Apagado, TextoComDetalhe } from '@/components/elo/textos'
 import type { DocumentoDetalhado } from '@/lib/dados/tipos'
 import { formatarData } from '@/lib/formato'
 
 /** O nome e, embaixo, a categoria: as duas coisas que dizem o que é o documento. */
 export function NomeDoDocumento({ documento }: { documento: DocumentoDetalhado }) {
   return (
-    <span className="flex min-w-0 flex-col gap-0.5">
-      <span className="font-medium text-foreground">{documento.nome}</span>
-      <span className="text-xs text-muted-foreground">{documento.categoria}</span>
-    </span>
+    <TextoComDetalhe texto={documento.nome} detalhes={[documento.categoria]} />
   )
 }
 
@@ -43,7 +41,7 @@ function colunas(comEtapa: boolean): Coluna<DocumentoDetalhado>[] {
             id: 'etapa',
             titulo: 'Etapa',
             ordenarPor: (d: DocumentoDetalhado) => d.etapa,
-            celula: (d: DocumentoDetalhado) => d.etapa ?? <span className="text-muted-foreground">Sem etapa</span>,
+            celula: (d: DocumentoDetalhado) => d.etapa ?? <Apagado>Sem etapa</Apagado>,
           },
         ]
       : []),

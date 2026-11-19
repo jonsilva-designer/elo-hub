@@ -70,7 +70,7 @@ describe('página do plano (parte 4, 5.5)', () => {
     await abrir('pla-vertice-licencas')
     const atividades = painel('Atividades')
     expect(atividades.getByText(/atividades$/).closest('p')).toHaveTextContent('5 atividades · 1 atrasada')
-    const nomes = atividades.getAllByRole('row').slice(1).map((r) => r.querySelector('[data-slot="nome-atividade"]')?.textContent)
+    const nomes = atividades.getAllByRole('row').slice(1).map((r) => r.querySelector('[data-slot="texto"]')?.textContent)
     expect(nomes).toEqual([
       'Protocolar a renovação da licença de operação',
       'Agendar a vistoria do órgão ambiental',

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { MolduraPublica } from '@/components/elo/moldura-publica'
+import { CLASSE_TITULO_PAGINA } from '@/components/elo/textos'
 import { listarSegmentos } from '@/lib/dados/listas'
 import { FormularioDiagnostico } from '../_componentes/formulario-diagnostico'
 
@@ -12,7 +13,7 @@ export default async function PaginaDiagnostico() {
   return (
     <MolduraPublica>
       <div className="mb-6 space-y-1">
-        <h1 className="font-heading text-titulo-pagina font-semibold tracking-titulo text-primary">Solicitar diagnóstico</h1>
+        <h1 className={CLASSE_TITULO_PAGINA}>Solicitar diagnóstico</h1>
         <p className="text-sm text-muted-foreground">
           Conte um pouco sobre a sua empresa. A equipe da ELO entra em contato para combinar o diagnóstico.
         </p>

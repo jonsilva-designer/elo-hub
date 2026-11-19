@@ -13,6 +13,7 @@ import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -41,11 +42,9 @@ const COLUNAS: Coluna<ContratoDetalhado>[] = [
     largura: 'w-1/4',
     ordenarPor: (c) => c.codigo,
     celula: (c) => (
-      <span className="flex min-w-0 flex-col items-start gap-1">
-        <Num className="font-medium text-foreground">{c.codigo}</Num>
-        <span className="text-xs text-muted-foreground">{c.objeto}</span>
+      <TextoComDetalhe texto={<Num>{c.codigo}</Num>} detalhes={[c.objeto]}>
         {ehPlanejamento(c.status) ? <EtiquetaPlanejamento /> : null}
-      </span>
+      </TextoComDetalhe>
     ),
   },
   { id: 'cliente', titulo: 'Cliente', largura: 'w-1/6', ordenarPor: (c) => c.nomeCliente, celula: (c) => c.nomeCliente },

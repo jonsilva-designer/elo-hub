@@ -9,6 +9,7 @@ import { IndicadorVigencia } from '@/components/elo/indicador-vigencia'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { TabelaDados, type Coluna } from '@/components/elo/tabela-dados'
+import { TextoComDetalhe } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import { ordenarContratos } from '@/lib/contratos/filtros'
 import { ehPlanejamento } from '@/lib/contratos/regras'
@@ -23,10 +24,7 @@ const COLUNAS: Coluna<ContratoDetalhado>[] = [
     largura: 'w-1/4',
     ordenarPor: (c) => c.codigo,
     celula: (c) => (
-      <span className="flex min-w-0 flex-col items-start gap-1">
-        <Num className="font-medium text-foreground">{c.codigo}</Num>
-        {ehPlanejamento(c.status) ? <EtiquetaPlanejamento /> : null}
-      </span>
+      <TextoComDetalhe texto={<Num>{c.codigo}</Num>}>{ehPlanejamento(c.status) ? <EtiquetaPlanejamento /> : null}</TextoComDetalhe>
     ),
   },
   { id: 'contratante', titulo: 'Contratante', largura: 'w-1/4', ordenarPor: (c) => c.contratante, celula: (c) => c.contratante },

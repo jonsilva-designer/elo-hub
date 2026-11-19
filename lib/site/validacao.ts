@@ -52,8 +52,8 @@ const CAMPOS_CANDIDATURA = [
   'consentimento',
 ] as const
 
-export type DadosDiagnostico = Record<(typeof CAMPOS_DIAGNOSTICO)[number], string>
-export type DadosCandidatura = Record<(typeof CAMPOS_CANDIDATURA)[number], string>
+type DadosDiagnostico = Record<(typeof CAMPOS_DIAGNOSTICO)[number], string>
+type DadosCandidatura = Record<(typeof CAMPOS_CANDIDATURA)[number], string>
 export type ErrosSite = Partial<Record<string, string>>
 
 function ler<C extends string>(formData: FormData, campos: readonly C[]): Record<C, string> {

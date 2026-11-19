@@ -9,6 +9,7 @@ import { AvisoConfirmacao } from '@/components/elo/confirmacao'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoDoFormulario } from '@/components/elo/selecao-do-formulario'
+import { ValorFixo } from '@/components/elo/textos'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -101,18 +102,18 @@ export function FormularioAtividade({
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo rotulo="Plano" grupo>
-              {() => <p className="text-sm font-medium text-foreground">{plano.nome}</p>}
+              {() => <ValorFixo>{plano.nome}</ValorFixo>}
             </Campo>
             <Campo rotulo="Cliente" grupo>
-              {() => <p className="text-sm font-medium text-foreground">{plano.nomeCliente}</p>}
+              {() => <ValorFixo>{plano.nomeCliente}</ValorFixo>}
             </Campo>
           </div>
           {atividade ? (
             <Campo rotulo="Criada em" grupo>
               {() => (
-                <p className="text-sm font-medium text-foreground">
+                <ValorFixo>
                   <Num>{formatarData(atividade.criadaEm)}</Num>
-                </p>
+                </ValorFixo>
               )}
             </Campo>
           ) : null}

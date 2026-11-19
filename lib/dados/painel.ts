@@ -19,7 +19,7 @@ import { obterUsuarioAtual } from './sessao'
 
 export type Indicador = { rotulo: string; valor: number; href: string; tom?: 'atencao' | 'problema' | 'concluido' }
 
-export type Painel = {
+type Painel = {
   clientesAtivos: Indicador
   /**
    * Vigentes, Próximos do vencimento e Vencidos são as partes dos contratos em vigor (Ativos e Suspensos); os

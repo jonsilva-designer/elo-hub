@@ -123,12 +123,15 @@ export async function ConteudoVisaoExecutiva({
         <Painel titulo="Atividades pendentes" semRespiro>
           <TabelaPendentesDaVisao planos={visao.planos} />
         </Painel>
-        <Painel titulo="Demandas" semRespiro>
-          {porStatus.length > 0 ? (
-            <div className="border-b border-divisoria px-5 py-4">
+        <Painel
+          titulo="Demandas"
+          faixa={
+            porStatus.length > 0 ? (
               <ListaCampos itens={porStatus.map((s) => ({ rotulo: s.status, valor: <Num>{s.total}</Num> }))} />
-            </div>
-          ) : null}
+            ) : null
+          }
+          semRespiro
+        >
           <TabelaDemandasDaVisao demandas={visao.demandas.abertas} />
         </Painel>
         <div className="grid gap-5 lg:grid-cols-3">

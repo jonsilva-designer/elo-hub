@@ -1,4 +1,4 @@
-export type Cor = { token: string; nome: string; uso: string; provisoria: boolean }
+type Cor = { token: string; nome: string; uso: string; provisoria: boolean }
 
 export const CORES: Cor[] = [
   { token: '--elo-azul-marinho', nome: 'Azul-marinho', uso: 'Lateral, títulos de página, botão principal, números dos indicadores', provisoria: true },
@@ -17,7 +17,7 @@ export const CORES: Cor[] = [
   { token: '--elo-alerta', nome: 'Alerta', uso: 'Erros, ações destrutivas e mensagens de validação', provisoria: false },
 ]
 
-export type ParDeContraste = { frente: string; fundo: string; minimo: number; descricao: string }
+type ParDeContraste = { frente: string; fundo: string; minimo: number; descricao: string }
 
 const par = (frente: string, fundo: string, minimo: number, descricao: string): ParDeContraste => ({
   frente: `--elo-${frente}`,
