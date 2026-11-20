@@ -13,9 +13,20 @@ export const CLASSE_TITULO_PAGINA = 'font-heading text-titulo-pagina font-semibo
 /** O rótulo de indicador do padrão 4.2: pequeno, em caixa alta, espaçado e cinza. */
 export const CLASSE_ROTULO = 'text-rotulo font-semibold uppercase tracking-rotulo text-muted-foreground'
 
+const CLASSE_LINK = 'rounded-sm text-primary underline-offset-4 hover:underline'
+
 /** O link de dentro do texto (o cliente, o contrato, o escopo de um registro): azul-marinho, sublinhado ao passar o mouse. */
 export function LinkTexto({ className, ...props }: ComponentProps<typeof Link>) {
-  return <Link className={cn('rounded-sm text-primary underline-offset-4 hover:underline', className)} {...props} />
+  return <Link className={cn(CLASSE_LINK, className)} {...props} />
+}
+
+/** O link para um endereço de fora da plataforma (o currículo, o LinkedIn): o mesmo visual, num `<a>` que abre numa aba nova. */
+export function LinkExterno({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a href={href} target="_blank" rel="noreferrer" className={CLASSE_LINK}>
+      {children}
+    </a>
+  )
 }
 
 /** O texto no lugar de um valor que falta ("Não informado", "Sem contrato"): cinza e sem negrito, para não parecer um valor. */

@@ -48,9 +48,16 @@ const COLUNAS: Coluna<EscopoDetalhado>[] = [
     largura: 'w-1/4',
     ordenarPor: (e) => e.nome,
     celula: (e) => (
-      <TextoComDetalhe texto={e.nome} detalhes={[<Num key="contrato">{e.codigoContrato}</Num>]}>
-        {e.planejamento ? <EtiquetaPlanejamento /> : null}
-      </TextoComDetalhe>
+      <TextoComDetalhe
+        texto={e.nome}
+        detalhes={[
+          // O código do contrato e a etiqueta de planejamento na mesma linha, como antes da troca pelo componente.
+          <span key="contrato" className="flex flex-wrap items-center gap-2">
+            <Num>{e.codigoContrato}</Num>
+            {e.planejamento ? <EtiquetaPlanejamento /> : null}
+          </span>,
+        ]}
+      />
     ),
   },
   { id: 'cliente', titulo: 'Cliente', largura: 'w-1/8', ordenarPor: (e) => e.nomeCliente, celula: (e) => e.nomeCliente },

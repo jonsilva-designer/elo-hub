@@ -7,13 +7,6 @@ import { PALETA } from './paleta'
 
 const css = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8')
 
-describe('paleta para fora do CSS', () => {
-  it('cada cor do PDF é igual à variável --elo-* de mesmo nome', () => {
-    for (const [nome, hex] of Object.entries(PALETA)) {
-      expect(css.toLowerCase(), nome).toContain(`--elo-${nome}: ${hex.toLowerCase()};`)
-    }
-  })
-})
 const raiz = css.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
 const variaveis = new Map<string, string>()
 for (const m of raiz.matchAll(/(--elo-[a-z-]+):\s*(#[0-9A-Fa-f]{6})\s*;/g)) {
@@ -73,4 +66,12 @@ describe('PARES_DE_CONTRASTE', () => {
       expect(razaoDeContraste(valor(par.frente), valor(par.fundo))).toBeGreaterThanOrEqual(par.minimo)
     })
   }
+})
+
+describe('paleta para fora do CSS', () => {
+  it('cada cor do PDF é igual à variável --elo-* de mesmo nome no :root', () => {
+    for (const [nome, hex] of Object.entries(PALETA)) {
+      expect(variaveis.get(`--elo-${nome}`)?.toLowerCase(), nome).toBe(hex.toLowerCase())
+    }
+  })
 })

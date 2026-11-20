@@ -8,7 +8,7 @@ import { ListaCampos } from '@/components/elo/lista-campos'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { LinhaAutoria, PainelHistorico } from '@/components/elo/painel-historico'
-import { Apagado, LinkTexto } from '@/components/elo/textos'
+import { Apagado, LinkExterno } from '@/components/elo/textos'
 import { Button } from '@/components/ui/button'
 import {
   candidaturasComOMesmoEmail,
@@ -44,9 +44,7 @@ function camposDoEspecialista(e: EspecialistaDetalhado): { rotulo: string; valor
     {
       rotulo: 'Currículo ou LinkedIn',
       valor: e.curriculo ? (
-        <LinkTexto href={e.curriculo} target="_blank" rel="noreferrer">
-          Abrir o link
-        </LinkTexto>
+        <LinkExterno href={e.curriculo}>Abrir o link</LinkExterno>
       ) : (
         naoInformado
       ),

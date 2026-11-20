@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { RadioGroup } from '@/components/ui/radio-group'
-import { Apagado, CLASSE_ROTULO, CLASSE_TITULO_PAGINA, LinkTexto, OpcaoRadio, TextoComDetalhe, ValorFixo } from './textos'
+import { Apagado, CLASSE_ROTULO, CLASSE_TITULO_PAGINA, LinkExterno, LinkTexto, OpcaoRadio, TextoComDetalhe, ValorFixo } from './textos'
 
 // Os papéis de texto que se repetiam escritos à mão nas telas (cobertura do design system, 19/11/2026).
 describe('LinkTexto', () => {
@@ -12,14 +12,6 @@ describe('LinkTexto', () => {
     expect(link.className.split(' ')).toEqual(expect.arrayContaining(['text-primary', 'underline-offset-4', 'hover:underline']))
   })
 
-  it('aceita os atributos do link de fora (abrir em nova aba)', () => {
-    render(
-      <LinkTexto href="https://exemplo.com/cv.pdf" target="_blank" rel="noreferrer">
-        Currículo
-      </LinkTexto>,
-    )
-    expect(screen.getByRole('link', { name: 'Currículo' })).toHaveAttribute('target', '_blank')
-  })
 })
 
 describe('Apagado', () => {
@@ -85,5 +77,16 @@ describe('CLASSE_ROTULO', () => {
     expect(CLASSE_ROTULO.split(' ')).toEqual(
       expect.arrayContaining(['text-rotulo', 'font-semibold', 'uppercase', 'tracking-rotulo', 'text-muted-foreground']),
     )
+  })
+})
+
+describe('LinkExterno', () => {
+  it('o endereço de fora abre numa aba nova, sem passar pelo roteador, com o mesmo visual do link de texto', () => {
+    render(<LinkExterno href="https://www.linkedin.com/in/x">Abrir o link</LinkExterno>)
+    const link = screen.getByRole('link', { name: 'Abrir o link' })
+    expect(link).toHaveAttribute('href', 'https://www.linkedin.com/in/x')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noreferrer')
+    expect(link.className.split(' ')).toEqual(expect.arrayContaining(['text-primary', 'underline-offset-4', 'hover:underline']))
   })
 })

@@ -7,8 +7,8 @@ import { ETAPAS } from '@/lib/jornada/regras'
 import { PALETA } from '@/lib/design/paleta'
 
 // O PDF da Visão Executiva (F14, DF-74; arquitetura 3.5, DA-04): os mesmos blocos e a mesma leitura da tela, em A4
-// retrato. O PDF não lê CSS: as cores são as da marca, iguais aos tokens --elo-azul-marinho, --elo-dourado e
-// --elo-dourado-suave de app/globals.css. As fontes são as da tela (padrão visual 4.2): Playfair Display nos títulos,
+// retrato. O PDF não lê CSS: todas as cores, inclusive a do texto, o cinza e a divisória, vêm de lib/design/paleta.ts,
+// que um teste confere contra os tokens --elo-* de app/globals.css (desde 19/11/2026; antes o texto usava cinzas soltos). As fontes são as da tela (padrão visual 4.2): Playfair Display nos títulos,
 // Montserrat no texto e JetBrains Mono nos números, em arquivos de peso fixo (public/fontes/pdf), porque o PDF não lê
 // fonte variável. O layout é a proposta da parte 7 (4.5), para a Cleo aprovar (DT-04).
 
