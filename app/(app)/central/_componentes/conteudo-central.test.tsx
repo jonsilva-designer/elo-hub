@@ -74,6 +74,16 @@ describe('fila de demandas (parte 5, 5.8)', () => {
     expect(filtros.queryByText('Até', { selector: 'label' })).not.toBeInTheDocument()
   })
 
+  it('Limpar filtros apaga também a data digitada pela metade (revisão do código)', async () => {
+    entrarComo('usr-helena')
+    render(await ConteudoCentral({ searchParams: Promise.resolve({}) }))
+    const de = within(screen.getByRole('group', { name: 'Filtros' })).getByRole('textbox', { name: 'Aberta de' })
+    await userEvent.type(de, '10/05')
+    await userEvent.type(screen.getByRole('textbox', { name: 'Buscar' }), 'nada com esse texto')
+    await userEvent.click(screen.getByRole('button', { name: 'Limpar filtros' }))
+    expect(within(screen.getByRole('group', { name: 'Filtros' })).getByRole('textbox', { name: 'Aberta de' })).toHaveValue('')
+  })
+
   it('a volta para a Central leva os filtros guardados', () => {
     sessionStorage.setItem(CHAVE_FILTROS_DAS_DEMANDAS, 'status=Nova')
     render(<VoltarParaCentral />)

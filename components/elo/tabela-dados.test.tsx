@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
@@ -321,5 +322,49 @@ describe('TabelaDados', () => {
   it('sem larguras, a tabela continua automática', () => {
     render(<TabelaDados colunas={COLUNAS} linhas={CONTRATOS} chave={(l) => l.id} vazio={VAZIO} />)
     expect(screen.getByRole('table')).not.toHaveClass('table-fixed')
+  })
+})
+
+describe('TabelaDados, revisão do código', () => {
+  it('o clique num controle fora da linha (menu ou janela abertos por ela) não abre a linha', async () => {
+    const aoClicar = vi.fn()
+    const colunas: Coluna<Contrato>[] = [
+      { id: 'cliente', titulo: 'Cliente', celula: (l) => l.cliente },
+      {
+        id: 'acoes',
+        titulo: 'Ações',
+        celula: (l) => createPortal(<span data-testid={`fora-${l.id}`}>Renomear</span>, document.body),
+      },
+    ]
+    render(<TabelaDados colunas={colunas} linhas={CONTRATOS} chave={(l) => l.id} aoClicarLinha={aoClicar} vazio={VAZIO} />)
+    await userEvent.click(screen.getByTestId('fora-a'))
+    expect(aoClicar).not.toHaveBeenCalled()
+  })
+
+  it('o rótulo e o item de menu dentro da célula também não abrem a linha', async () => {
+    const aoClicar = vi.fn()
+    const colunas: Coluna<Contrato>[] = [
+      { id: 'cliente', titulo: 'Cliente', celula: (l) => <label>{l.cliente}</label> },
+      { id: 'menu', titulo: 'Menu', celula: () => <span role="menuitem">Abrir</span> },
+    ]
+    render(<TabelaDados colunas={colunas} linhas={CONTRATOS} chave={(l) => l.id} aoClicarLinha={aoClicar} vazio={VAZIO} />)
+    await userEvent.click(screen.getByText('Zélia Transportes'))
+    await userEvent.click(screen.getAllByRole('menuitem')[0])
+    expect(aoClicar).not.toHaveBeenCalled()
+  })
+
+  it('o texto com número ordena pelo valor do número: "Item 9" vem antes de "Item 10"', async () => {
+    const itens = [{ id: '1', nome: 'Item 10' }, { id: '2', nome: 'Item 9' }]
+    render(
+      <TabelaDados
+        colunas={[{ id: 'nome', titulo: 'Nome', celula: (l) => l.nome, ordenarPor: (l) => l.nome }]}
+        linhas={itens}
+        chave={(l) => l.id}
+        vazio={VAZIO}
+      />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: /Nome/ }))
+    const celulas = screen.getAllByRole('row').slice(1).map((r) => r.textContent)
+    expect(celulas).toEqual(['Item 9', 'Item 10'])
   })
 })

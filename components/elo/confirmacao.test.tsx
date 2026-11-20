@@ -99,6 +99,12 @@ describe('ConfirmarAcao com conteúdo (parte 2, 5.10)', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   })
 
+  it('carregando, o Esc não fecha a janela no meio da ação (revisão do código)', async () => {
+    render(<Controlada onConfirmar={vi.fn()} carregando />)
+    await userEvent.keyboard('{Escape}')
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+  })
+
   it('carregando, o botão de confirmar fica ocupado e não envia de novo', async () => {
     const onConfirmar = vi.fn()
     render(<Controlada onConfirmar={onConfirmar} carregando />)

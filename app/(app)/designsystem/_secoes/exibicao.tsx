@@ -42,7 +42,7 @@ function Numero({ legenda, children }: { legenda: string; children: string }) {
   )
 }
 
-const ALERTA = 'font-semibold text-[var(--elo-alerta)]'
+const ALERTA = 'font-semibold text-destructive'
 
 export function Exibicao() {
   const n = NUMEROS_EXEMPLO

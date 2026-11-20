@@ -27,8 +27,11 @@ export function BarraTopoEstatica({ usuario }: PropsEstatica) {
 }
 
 function CorpoBarraTopo({ usuario, rotaAtual }: PropsEstatica & { rotaAtual: string | null }) {
-  const [aberta, setAberta] = useState(false)
-  const fechar = () => setAberta(false)
+  // A gaveta guarda a página em que foi aberta: se a página muda por fora do menu (o voltar do navegador), ela fecha.
+  const [abertaEm, setAbertaEm] = useState<{ rota: string | null } | null>(null)
+  const aberta = abertaEm !== null && abertaEm.rota === rotaAtual
+  const setAberta = (abrir: boolean) => setAbertaEm(abrir ? { rota: rotaAtual } : null)
+  const fechar = () => setAbertaEm(null)
 
   return (
     // data-sidebar: o foco do teclado sobre o azul-marinho é dourado, como na lateral.

@@ -3,7 +3,7 @@ import { Progresso } from '@/components/elo/progresso'
 import type { ResumoAtividades as Resumo } from '@/lib/dados/tipos'
 
 /** Contagem de problema em vermelho e negrito (padrão visual 4.6, texto de alerta). */
-const ALERTA = 'font-semibold text-[var(--elo-alerta)]'
+const ALERTA = 'font-semibold text-destructive'
 
 function Atrasadas({ n }: { n: number }) {
   if (n <= 0) return null

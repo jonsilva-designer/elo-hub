@@ -46,5 +46,7 @@ describe('contorno de foco só na navegação por teclado (padrão 4.8)', () => 
   it('a aba tem o contorno por dentro, porque a lista de abas rola e cortaria o de fora', () => {
     const regra = css.match(/:is\(([^)]*\[role="option"\][^{]*)\):focus-visible\s*\{([^}]*)\}/)
     expect(regra![1]).toContain('[role="tab"]')
+    // As abas que são links entre páginas (Configurações) ficam na mesma lista que rola (revisão do código).
+    expect(regra![1]).toContain('[data-aba]')
   })
 })

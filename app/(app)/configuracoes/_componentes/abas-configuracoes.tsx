@@ -27,6 +27,7 @@ export function AbasConfiguracoes() {
             href={a.href}
             aria-current={atual ? 'page' : undefined}
             data-active={atual ? '' : undefined}
+            data-aba
             className={CLASSE_ABA}
           >
             {a.rotulo}

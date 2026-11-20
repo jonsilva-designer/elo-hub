@@ -28,7 +28,7 @@ export const CLASSE_LISTA_ABAS =
   "inline-flex w-full items-center gap-5 overflow-x-auto overflow-y-hidden text-muted-foreground shadow-[inset_0_-1px_0_var(--color-divisoria)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 
 export const CLASSE_ABA =
-  "relative inline-flex items-center justify-center gap-1.5 rounded-sm border-b-2 border-transparent px-0.5 pt-1 pb-2.5 text-secundario font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground not-disabled:active:text-foreground not-disabled:not-data-active:active:border-input disabled:pointer-events-none disabled:opacity-50 data-active:border-primary data-active:font-semibold data-active:text-primary [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+  "relative inline-flex items-center justify-center gap-1.5 rounded-sm border-b-2 border-transparent px-0.5 pt-1 pb-2.5 text-secundario font-medium whitespace-nowrap text-muted-foreground transition-colors not-data-active:hover:text-foreground not-disabled:not-data-active:active:text-foreground not-disabled:not-data-active:active:border-input disabled:pointer-events-none disabled:opacity-50 data-active:border-primary data-active:font-semibold data-active:text-primary [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
 
 function TabsList({
   className,

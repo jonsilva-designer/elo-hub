@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
+import { CLASSE_ABA, Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
 
 // Achado do Jonathan em 14/11/2026: a lista de abas mostrava setas de rolagem. A aba descia 1px (-mb-px)
 // para o sublinhado cobrir a borda da lista, e esse 1px fazia a lista rolar na vertical.
@@ -43,9 +43,19 @@ describe('Abas, passar o mouse e pressionado (padrão 7)', () => {
       </Tabs>,
     )
     const classes = screen.getByRole('tab', { name: 'Contratos' }).className.split(' ')
-    expect(classes).toContain('hover:text-foreground')
+    expect(classes).toContain('not-data-active:hover:text-foreground')
     // Na aba ativa o sublinhado já é azul-marinho; no desabilitado não há pressionado.
     expect(classes).toContain('not-disabled:not-data-active:active:border-input')
-    expect(classes).toContain('not-disabled:active:text-foreground')
+    expect(classes).toContain('not-disabled:not-data-active:active:text-foreground')
+  })
+})
+
+describe('aba, revisão do código', () => {
+  it('passar o mouse ou pressionar a aba ativa não troca o azul-marinho pelo texto comum', () => {
+    const classes = CLASSE_ABA.split(' ')
+    expect(classes).toContain('not-data-active:hover:text-foreground')
+    expect(classes).toContain('not-disabled:not-data-active:active:text-foreground')
+    expect(classes).not.toContain('hover:text-foreground')
+    expect(classes).not.toContain('not-disabled:active:text-foreground')
   })
 })

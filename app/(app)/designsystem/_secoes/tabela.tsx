@@ -51,7 +51,8 @@ export function Tabela() {
     const termo = normalizarBusca(busca.trim())
     return CONTRATOS_EXEMPLO.filter(
       (c) =>
-        normalizarBusca(c.cliente).includes(termo) && (vigencia === SEM_VALOR_FILTRO || c.vigencia === vigencia),
+        (normalizarBusca(c.cliente).includes(termo) || normalizarBusca(c.numero).includes(termo)) &&
+        (vigencia === SEM_VALOR_FILTRO || c.vigencia === vigencia),
     )
   }, [busca, vigencia])
 

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 // Mesmo sentido, um só token (padrão 4.1): onde há classe do tema (bg-card, text-primary, border-divisoria...),
 // o componente usa a classe, e não var(--elo-...) solto. Ficam soltos só os tons de status, de criticidade
 // e de alerta, que não têm classe própria.
-const PERMITIDOS = /^--elo-(status-|crit-|alerta$)/
+const PERMITIDOS = /^--elo-(status-|crit-)/
 
 function arquivos(pasta: string): string[] {
   return readdirSync(pasta).flatMap((nome) => {

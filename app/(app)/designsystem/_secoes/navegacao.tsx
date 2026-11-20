@@ -13,6 +13,7 @@ export function Navegacao() {
         <Exemplo rotulo="Cabeçalho de página" largo>
           <Quadro data-demo className="pb-1 sm:pb-1">
             <CabecalhoPagina
+              nivel="h3"
               titulo="Contratos"
               contexto={
                 <>

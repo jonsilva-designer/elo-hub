@@ -21,7 +21,8 @@ const COR: Record<Tom | 'neutro', string> = {
   concluido: 'bg-[var(--elo-status-concluido)]',
 }
 
-const porcento = (valor: number, total: number) => (total > 0 ? Math.round((Math.max(valor, 0) / total) * 100) : 0)
+// Sem arredondar: a parte de 0,3% arredondada viraria zero e sumiria da barra, ainda que esteja na legenda.
+const porcento = (valor: number, total: number) => (total > 0 ? (Math.max(valor, 0) / total) * 100 : 0)
 
 /**
  * Um todo e as partes dele (revisão do Início, 19/11/2026): o total em destaque, uma barra só, dividida na proporção de
@@ -46,7 +47,7 @@ export function Composicao({ total, partes, complemento }: { total: Contagem; pa
               .filter((p) => p.valor > 0)
               .map((p) => (
                 // A largura vem do dado (a fatia do total), e não do layout.
-                <span key={p.href} data-parte className={COR[p.tom ?? 'neutro']} style={{ width: `${porcento(p.valor, total.valor)}%` }} />
+                <span key={p.href} data-parte className={cn('min-w-1', COR[p.tom ?? 'neutro'])} style={{ width: `${porcento(p.valor, total.valor)}%` }} />
               ))
           : null}
       </div>

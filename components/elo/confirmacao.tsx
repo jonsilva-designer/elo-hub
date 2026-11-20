@@ -55,7 +55,13 @@ export function ConfirmarAcao({
   return (
     <AlertDialog {...(controlada ? { open: aberto, onOpenChange: aoMudarAberto } : {})}>
       {children ? <AlertDialogTrigger asChild>{children}</AlertDialogTrigger> : null}
-      <AlertDialogContent {...(descricao ? {} : { 'aria-describedby': undefined })}>
+      <AlertDialogContent
+        {...(descricao ? {} : { 'aria-describedby': undefined })}
+        // Com a ação em curso, o Esc não fecha: quem fechasse pensaria ter cancelado.
+        onEscapeKeyDown={(evento) => {
+          if (carregando) evento.preventDefault()
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>{titulo}</AlertDialogTitle>
           {descricao ? <AlertDialogDescription>{descricao}</AlertDialogDescription> : null}

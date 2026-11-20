@@ -239,7 +239,8 @@ describe('seção Estrutura da tela', () => {
   it('mostra a moldura de acesso com um login de exemplo que não envia nada', () => {
     renderizar()
     const e = exemplo('Moldura de acesso')
-    const demo = e.getByRole('heading', { level: 1, name: 'Entrar' }).closest('[data-demo]')
+    // Na demonstração o título não é h1: a página tem um h1 só (revisão do código).
+    const demo = e.getByRole('heading', { level: 3, name: 'Entrar' }).closest('[data-demo]')
     expect(demo).not.toBeNull()
     expect(e.getByLabelText('E-mail')).toHaveAttribute('type', 'email')
     expect(e.getByLabelText('Senha')).toHaveAttribute('type', 'password')
@@ -261,5 +262,12 @@ describe('seção Estrutura da tela', () => {
   it('a lateral e a barra do celular saíram de Navegação', () => {
     renderizar()
     expect(screen.queryByText('Lateral e barra do celular')).not.toBeInTheDocument()
+  })
+})
+
+describe('padrão visual, revisão do código', () => {
+  it('a página tem um h1 só: os títulos das demonstrações descem de nível', () => {
+    renderizar()
+    expect(screen.getAllByRole('heading', { level: 1 }).map((h) => h.textContent)).toEqual(['Padrão visual'])
   })
 })

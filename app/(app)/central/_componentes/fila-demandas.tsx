@@ -105,6 +105,8 @@ export function FilaDemandas({
   semVinculo: boolean
 }) {
   const [filtros, setFiltros] = useState(filtrosIniciais)
+  // A cada limpeza, os campos de data voltam vazios, mesmo com uma data digitada pela metade (o valor já era null).
+  const [limpezas, setLimpezas] = useState(0)
   const linhas = useMemo(() => filtrarDemandas(demandas, filtros), [demandas, filtros])
   const texto = escreverFiltrosDemandas(filtros)
 
@@ -148,7 +150,14 @@ export function FilaDemandas({
     <EstadoVazio
       titulo="Nenhuma demanda com esses filtros."
       acao={
-        <Button type="button" variant="outline" onClick={() => mudar(SEM_FILTRO)}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            mudar(SEM_FILTRO)
+            setLimpezas((n) => n + 1)
+          }}
+        >
           Limpar filtros
         </Button>
       }
@@ -216,10 +225,10 @@ export function FilaDemandas({
               </div>
               {/* O período, com o rótulo dentro do campo: fica na altura dos outros filtros. */}
               <div className="w-full sm:w-56">
-                <CampoData prefixo="Aberta de" aria-label="Aberta de" valor={filtros.de} onChange={(de) => mudar({ ...filtros, de })} />
+                <CampoData key={`de-${limpezas}`} prefixo="Aberta de" aria-label="Aberta de" valor={filtros.de} onChange={(de) => mudar({ ...filtros, de })} />
               </div>
               <div className="w-full sm:w-48">
-                <CampoData prefixo="até" aria-label="Aberta até" valor={filtros.ate} onChange={(ate) => mudar({ ...filtros, ate })} />
+                <CampoData key={`ate-${limpezas}`} prefixo="até" aria-label="Aberta até" valor={filtros.ate} onChange={(ate) => mudar({ ...filtros, ate })} />
               </div>
             </>
           }

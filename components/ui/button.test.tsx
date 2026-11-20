@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { createEvent, fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Button } from './button'
 
@@ -8,8 +8,27 @@ describe('Button carregando', () => {
     const botao = screen.getByRole('button', { name: /Salvar/ })
     expect(botao).toBeDisabled()
     expect(botao).toHaveAttribute('aria-busy', 'true')
-    expect(screen.getByRole('status')).toBeInTheDocument()
+    expect(botao.querySelector('[data-slot="spinner"]')).toHaveAttribute('aria-hidden', 'true')
     expect(botao).toHaveTextContent('Salvar')
+  })
+
+  it('carregando, o nome do botão continua só o texto: o indicador não entra no nome (revisão do código)', () => {
+    render(<Button carregando>Salvar</Button>)
+    expect(screen.getByRole('button', { name: 'Salvar' })).toBeInTheDocument()
+  })
+
+  it('com asChild, carregando ou desabilitado bloqueia o link (revisão do código)', () => {
+    render(
+      <Button asChild carregando>
+        <a href="/x">Salvar</a>
+      </Button>,
+    )
+    const link = screen.getByRole('link', { name: 'Salvar' })
+    expect(link).toHaveAttribute('aria-disabled', 'true')
+    expect(link).toHaveAttribute('tabindex', '-1')
+    const clique = createEvent.click(link)
+    fireEvent(link, clique)
+    expect(clique.defaultPrevented).toBe(true)
   })
 })
 

@@ -11,11 +11,11 @@ vi.mock('@/lib/acesso/acoes', () => ({ sair: vi.fn() }))
 const render = (ui: ReactElement) => renderizar(ui, { wrapper: TooltipProvider })
 
 // Com `ligada`, ler o endereço falha: prova que a versão estática não chama o usePathname.
-const rotaQueFalha = vi.hoisted(() => ({ ligada: false }))
+const rotaQueFalha = vi.hoisted(() => ({ ligada: false, caminho: '/clientes' }))
 vi.mock('next/navigation', () => ({
   usePathname: () => {
     if (rotaQueFalha.ligada) throw new Error('usePathname chamado na versão estática')
-    return '/clientes'
+    return rotaQueFalha.caminho
   },
 }))
 
@@ -53,6 +53,20 @@ describe('BarraTopo', () => {
   it('o logo não é pré-carregado: no computador a barra fica escondida', () => {
     render(<BarraTopo usuario={helena} />)
     expect(screen.getByAltText('ELO HUB')).not.toHaveAttribute('loading', 'eager')
+  })
+
+  it('a gaveta fecha quando a página muda por fora do menu (voltar do navegador) (revisão do código)', async () => {
+    const u = userEvent.setup()
+    const { rerender } = render(<BarraTopo usuario={helena} />)
+    await u.click(screen.getByRole('button', { name: 'Abrir menu' }))
+    expect(screen.getByRole('dialog', { name: 'Menu' })).toBeInTheDocument()
+    rotaQueFalha.caminho = '/contratos'
+    try {
+      rerender(<BarraTopo usuario={helena} />)
+      expect(screen.queryByRole('dialog', { name: 'Menu' })).not.toBeInTheDocument()
+    } finally {
+      rotaQueFalha.caminho = '/clientes'
+    }
   })
 
   it('abre a gaveta com o mesmo menu', async () => {

@@ -99,6 +99,7 @@ function Portes({
 }
 
 export function Formulario() {
+  const [porteComErro, setPorteComErro] = useState('')
   const [responsaveis, setResponsaveis] = useState<string[]>(['bruno'])
   const [vazios, setVazios] = useState<string[]>([])
   const [inicio, setInicio] = useState<string | null>('2026-11-09')
@@ -297,7 +298,7 @@ export function Formulario() {
           </Celula>
           <Celula legenda="Com erro">
             <Campo rotulo="Porte da empresa" grupo erro="Escolha o porte">
-              {(p) => <Portes {...p} valor="" />}
+              {(p) => <Portes {...p} valor={porteComErro} onChange={setPorteComErro} />}
             </Campo>
           </Celula>
           <Celula legenda="Desabilitado">

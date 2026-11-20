@@ -45,3 +45,21 @@ describe('Composicao', () => {
     expect(screen.getByRole('img', { name: /atividades abertas/ })).not.toHaveAccessibleName(/Concluídas/)
   })
 })
+
+describe('Composicao, revisão do código', () => {
+  it('a parte pequena não some da barra: a largura não é arredondada e há uma largura mínima', () => {
+    render(
+      <Composicao
+        total={{ ...TOTAL, valor: 300 }}
+        partes={[
+          { rotulo: 'Vigentes', valor: 299, href: '/v' },
+          { rotulo: 'Vencidos', valor: 1, href: '/x', tom: 'problema' },
+        ]}
+      />,
+    )
+    const partes = [...screen.getByRole('img', { name: /atividades abertas/ }).querySelectorAll<HTMLElement>('[data-parte]')]
+    expect(partes).toHaveLength(2)
+    expect(parseFloat(partes[1].style.width)).toBeCloseTo(100 / 300, 3)
+    expect(partes[1]).toHaveClass('min-w-1')
+  })
+})

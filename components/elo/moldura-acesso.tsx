@@ -15,12 +15,16 @@ export function MolduraAcesso({
   descricao,
   children,
   className,
+  nivel = 'h1',
 }: {
   titulo: string
+  /** h1 na página; h3 quando é só a demonstração, na página do padrão visual (um h1 por página). */
+  nivel?: 'h1' | 'h3'
   descricao?: string
   children: ReactNode
   className?: string
 }) {
+  const Titulo = nivel
   return (
     <div className={cn('grid min-h-dvh bg-background lg:landscape:grid-cols-2', className)}>
       <div className="flex min-w-0 flex-col px-4 py-8 sm:px-8 lg:landscape:px-12 lg:landscape:py-10">
@@ -40,7 +44,7 @@ export function MolduraAcesso({
         <div className="flex flex-1 items-center justify-center py-10">
           <div className="w-full max-w-sm space-y-6">
             <div className="space-y-1.5">
-              <h1 className={CLASSE_TITULO_PAGINA}>{titulo}</h1>
+              <Titulo className={CLASSE_TITULO_PAGINA}>{titulo}</Titulo>
               {descricao ? <p className="text-sm text-muted-foreground">{descricao}</p> : null}
             </div>
             {children}

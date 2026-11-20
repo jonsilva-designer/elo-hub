@@ -39,3 +39,13 @@ describe('seção Formulário, campo de senha', () => {
     expect(screen.getAllByRole('button', { name: 'Mostrar senha' })).toHaveLength(senhas.length)
   })
 })
+
+describe('Formulario, revisão do código', () => {
+  it('a opção única com erro também marca ao clicar, como os outros campos com erro', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    render(<Formulario />)
+    const pequenos = screen.getAllByRole('radio', { name: 'Pequeno' })
+    await userEvent.click(pequenos[1])
+    expect(pequenos[1]).toBeChecked()
+  })
+})

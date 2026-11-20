@@ -40,6 +40,8 @@ describe('usuários (parte 8, 4.1; F01)', () => {
     expect(abas.getByRole('link', { name: 'Usuários' })).toHaveAttribute('aria-current', 'page')
     // As mesmas abas sublinhadas da página do cliente: a ativa ganha o sublinhado (data-active).
     expect(abas.getByRole('link', { name: 'Usuários' })).toHaveAttribute('data-active')
+    // O contorno do foco vai por dentro, como nas abas do cliente (revisão do código).
+    expect(abas.getByRole('link', { name: 'Usuários' })).toHaveAttribute('data-aba')
     expect(abas.getByRole('link', { name: 'Listas oficiais' })).not.toHaveAttribute('data-active')
     expect(abas.getByRole('link', { name: 'Usuários' }).className).toContain('border-b-2')
     expect(screen.getByRole('link', { name: 'Novo usuário' })).toHaveAttribute('href', '/configuracoes/usuarios/novo')

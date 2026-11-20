@@ -95,6 +95,7 @@ export function Estrutura() {
         >
           <div data-demo className="h-150 overflow-hidden rounded-xl border border-border">
             <MolduraAcesso
+              nivel="h3"
               className="h-full min-h-0"
               titulo="Entrar"
               descricao="Acesse a Plataforma ELO com seu e-mail e senha."

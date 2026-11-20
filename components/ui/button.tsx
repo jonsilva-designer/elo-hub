@@ -55,6 +55,15 @@ function Button({
     carregando?: boolean
   }) {
   const Comp = asChild ? Slot.Root : "button"
+  // Com asChild (um link), o disabled não vale: o bloqueio vai por aria-disabled, fora da ordem do Tab e sem o clique.
+  const linkBloqueado = asChild && (disabled || carregando)
+  const bloqueio = linkBloqueado
+    ? {
+        "aria-disabled": true,
+        tabIndex: -1,
+        onClick: (evento: React.MouseEvent<HTMLButtonElement>) => evento.preventDefault(),
+      }
+    : {}
 
   return (
     <Comp
@@ -62,15 +71,17 @@ function Button({
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
-      disabled={disabled || carregando}
+      disabled={asChild ? undefined : disabled || carregando}
       aria-busy={carregando || undefined}
       {...props}
+      {...bloqueio}
     >
       {asChild ? (
         children
       ) : (
         <>
-          {carregando ? <Spinner /> : null}
+          {/* Fora do nome do botão: o aria-busy já diz que está ocupado. */}
+          {carregando ? <Spinner aria-hidden="true" role={undefined} aria-label={undefined} /> : null}
           {children}
         </>
       )}

@@ -110,3 +110,19 @@ describe('LinhaAutoria (CA-17.1)', () => {
     expect(container).toBeEmptyDOMElement()
   })
 })
+
+describe('PainelHistorico, revisão do código', () => {
+  it('duas alterações no mesmo instante ficam na ordem em que foram registradas', () => {
+    const mesmoInstante = '2026-03-01T10:00:00-03:00'
+    render(
+      <PainelHistorico
+        entradas={[
+          { ...criacao, id: 'h-status', dataHora: mesmoInstante, descricao: 'Status' },
+          { ...criacao, id: 'h-resp', dataHora: mesmoInstante, descricao: 'Responsável' },
+        ]}
+      />,
+    )
+    const descricoes = screen.getAllByRole('listitem').map((li) => li.querySelector('[data-slot="descricao"]')?.textContent)
+    expect(descricoes).toEqual(['Status', 'Responsável'])
+  })
+})

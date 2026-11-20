@@ -104,3 +104,39 @@ describe('datas no fuso de Brasília', () => {
     expect(selecionado).toHaveTextContent(/^9$/)
   })
 })
+
+describe('CampoData, revisão do código', () => {
+  it('data completa que não existe ou fora de 1900 a 2100 mostra o erro, e não fica igual a campo vazio', async () => {
+    render(<CampoData id="d" valor={null} onChange={vi.fn()} />)
+    const campo = screen.getByRole('textbox')
+    await userEvent.type(campo, '31/02/2026')
+    expect(campo).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByText('Data inválida. Use dd/mm/aaaa, com ano de 1900 a 2100.')).toBeInTheDocument()
+    expect(campo).toHaveAccessibleDescription('Data inválida. Use dd/mm/aaaa, com ano de 1900 a 2100.')
+    await userEvent.clear(campo)
+    await userEvent.type(campo, '10/05/1800')
+    expect(campo).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('a data ainda incompleta não mostra erro', async () => {
+    render(<CampoData id="d" valor={null} onChange={vi.fn()} />)
+    await userEvent.type(screen.getByRole('textbox'), '10/05')
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid')
+    expect(screen.queryByText(/Data inválida/)).not.toBeInTheDocument()
+  })
+
+  it('colar d/m/aaaa sem zeros completa os zeros, em vez de embaralhar os algarismos', async () => {
+    const onChange = vi.fn()
+    render(<CampoData id="d" valor={null} onChange={onChange} />)
+    await userEvent.click(screen.getByRole('textbox'))
+    await userEvent.paste('10/5/2024')
+    expect(screen.getByRole('textbox')).toHaveValue('10/05/2024')
+    expect(onChange).toHaveBeenLastCalledWith('2024-05-10')
+  })
+
+  it('a barra digitada depois de um algarismo só completa o zero', async () => {
+    render(<CampoData id="d" valor={null} onChange={vi.fn()} />)
+    await userEvent.type(screen.getByRole('textbox'), '1/5/')
+    expect(screen.getByRole('textbox')).toHaveValue('01/05/')
+  })
+})

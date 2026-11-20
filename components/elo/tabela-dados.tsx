@@ -56,7 +56,8 @@ function ausente(v: Valor) {
 
 function comparar(a: string | number, b: string | number) {
   if (typeof a === 'number' && typeof b === 'number') return a - b
-  return String(a).localeCompare(String(b), 'pt-BR', { sensitivity: 'base' })
+  // numeric: "Item 9" vem antes de "Item 10".
+  return String(a).localeCompare(String(b), 'pt-BR', { sensitivity: 'base', numeric: true })
 }
 
 export function TabelaDados<T>({
@@ -121,8 +122,13 @@ export function TabelaDados<T>({
   }
 
   function aoClicar(e: MouseEvent<HTMLTableRowElement>, linha: T) {
-    // Cliques que vêm de botões, links e campos dentro da célula não abrem a linha.
-    const controle = (e.target as HTMLElement).closest('a,button,input,select,textarea,[role=button]')
+    // O clique que vem de fora da linha no DOM não a abre: um menu ou uma janela abertos por ela ficam num portal, e o
+    // evento do React sobe pelo portal até a linha.
+    if (!(e.target instanceof Node) || !e.currentTarget.contains(e.target)) return
+    // Cliques que vêm de botões, links, rótulos e campos dentro da célula também não abrem a linha.
+    const controle = (e.target as HTMLElement).closest(
+      'a,button,input,select,textarea,label,summary,[role=button],[role=menuitem],[role=checkbox],[role=radio]',
+    )
     if (controle && e.currentTarget.contains(controle)) return
     aoClicarLinha?.(linha)
   }
