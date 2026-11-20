@@ -14,6 +14,13 @@ describe('campoCsv', () => {
   })
 })
 
+describe('campoCsv, revisão do código', () => {
+  it('o que começa com tabulação ou retorno de carro também ganha o apóstrofo (OWASP)', () => {
+    expect(campoCsv('\t=HYPERLINK("x")')).toBe(`"'\t=HYPERLINK(""x"")"`)
+    expect(campoCsv('\r=1+1')).toBe(`"'\r=1+1"`)
+  })
+})
+
 describe('montarCsv', () => {
   it('começa com o BOM, separa por ponto e vírgula e as linhas por CRLF', () => {
     const csv = montarCsv(['A', 'B'], [['1', 'x;y'], ['2', '']])

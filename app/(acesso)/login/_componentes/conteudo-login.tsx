@@ -14,14 +14,14 @@ const primeiro = (valor: string | string[] | undefined) => (Array.isArray(valor)
 
 /**
  * A parte do login que lê a sessão e a busca. Fica dentro de um Suspense (cacheComponents).
- * Quem já tem sessão válida vai ao Início. É a página, e não o proxy, que decide isso: assim um
+ * Quem já tem sessão válida vai ao destino pedido, ou ao Início. É a página, e não o proxy, que decide isso: assim um
  * cookie inválido mostra o formulário, sem laço de redirecionamento.
  */
 export async function ConteudoLogin({ searchParams }: { searchParams: Promise<Busca> }) {
-  if (await obterSessao()) redirect('/inicio')
-
   const busca = await searchParams
   const destino = destinoSeguro(primeiro(busca.destino))
+  if (await obterSessao()) redirect(destino)
+
   const aviso = primeiro(busca.aviso) === 'senha-definida' ? AVISO_SENHA_DEFINIDA : undefined
   const exemplos = await obterExemplosDoPrototipo()
 

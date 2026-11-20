@@ -30,6 +30,7 @@ function detalhar(e: EscopoFicticio, hoje: string): EscopoDetalhado {
   const cliente = CLIENTES.find((c) => c.id === e.clienteId)
   return {
     ...escopo,
+    especialistaIds: [...e.especialistaIds],
     conclusaoPrevista: conclusaoPrevistaEmDias === undefined ? e.conclusaoPrevista : somarDias(hoje, conclusaoPrevistaEmDias),
     etapas: e.etapas.map((l) => ({ ...l, nomeResponsavel: nomeDoUsuario(l.responsavelId) })),
     nomeResponsavel: nomeDoUsuario(e.responsavelId),
@@ -108,6 +109,7 @@ export async function escopoTemItensLigados(id: string): Promise<boolean> {
   if (!escopo) return false
   return (
     jornadaMexida(escopo.etapas) ||
+    ESCOPOS.some((e) => e.cicloAnteriorId === id) ||
     PLANOS.some((p) => p.escopoId === id) ||
     (await temDemandaLigada({ escopoId: id })) ||
     (await temDocumentoLigado({ escopoId: id }))

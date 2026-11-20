@@ -1,12 +1,13 @@
 'use server'
 
+import { nomeDoCliente } from '@/lib/clientes/filtros'
 import { listarClientes } from '@/lib/dados/clientes'
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { itensAbertosDoUsuario, listarUsuarios, obterUsuario, responsaveisParaRedistribuir } from '@/lib/dados/usuarios-configuracao'
 import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
 import type { EstadoUsuario } from './estados'
-import { ehUltimoAdministradorAtivo } from './regras'
+import { clientesQueSaem, ehUltimoAdministradorAtivo } from './regras'
 import { lerDadosUsuario, MENSAGENS_USUARIO, validarUsuario } from './validacao'
 
 // Ações dos usuários (parte 8, 4.1; F01). Só o Administrador cria, edita, inativa e vincula (CA-01.4). Conferem tudo no
@@ -34,9 +35,10 @@ export async function salvarUsuario(_estado: EstadoUsuario, formData: FormData):
   })
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
 
-  // Os vínculos que saem, na Equipe que continua Equipe: nenhum pode ter item aberto da pessoa (DF-36).
-  if (atual && atual.perfil === 'Equipe' && dados.perfil === 'Equipe') {
-    for (const saindo of atual.clientes.filter((c) => !dados.clienteIds.includes(c.id))) {
+  // Os clientes que a pessoa deixa, também quando o Administrador passa para Equipe: nenhum pode ter item aberto dela (DF-36).
+  if (atual) {
+    const todos = clientes.map((c) => ({ id: c.id, nome: nomeDoCliente(c) }))
+    for (const saindo of clientesQueSaem(atual, dados, todos)) {
       const itens = await itensAbertosDoUsuario(atual.id, saindo.id)
       if (itens.length > 0) return recusa(MENSAGENS_USUARIO.vinculoComItens(saindo.nome), { impedimentos: itens })
     }

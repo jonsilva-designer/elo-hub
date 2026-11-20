@@ -11,6 +11,13 @@ describe('proxy', () => {
     expect(resposta.headers.get('location')).toBe('http://localhost/login?destino=%2Finicio')
   })
 
+  it('com o cookie, deixa seguir e passa adiante o endereço pedido, para o login poder voltar a ele', () => {
+    const resposta = proxy(
+      new NextRequest('http://localhost/clientes/cli-x?aba=contratos', { headers: { cookie: 'elo_sessao=usr-velho' } }),
+    )
+    expect(resposta.headers.get('x-middleware-request-x-elo-caminho')).toBe('/clientes/cli-x?aba=contratos')
+  })
+
   it('com o cookie, deixa seguir', () => {
     const resposta = proxy(
       new NextRequest('http://localhost/inicio', { headers: { cookie: 'elo_sessao=usr-helena' } }),

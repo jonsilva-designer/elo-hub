@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { cookiesFalsos, destinoDe, entrarComo, limparCookies } from '@/lib/testes/next-falso'
+import { cookiesFalsos, definirCaminhoPedido, destinoDe, entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { apagarSessao, gravarSessao, obterSessao, obterUsuarioAtual } from './sessao'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -21,6 +21,12 @@ describe('sessão', () => {
     cookiesFalsos.set('elo_sessao', valor)
     expect(await obterSessao()).toBeNull()
     expect(await destinoDe(obterUsuarioAtual())).toBe('/login')
+  })
+
+  it('cookie que não vale mais: vai ao login levando o endereço pedido, para voltar a ele (revisão do código)', async () => {
+    cookiesFalsos.set('elo_sessao', 'usr-inexistente')
+    definirCaminhoPedido('/clientes/cli-x?aba=contratos')
+    expect(await destinoDe(obterUsuarioAtual())).toBe('/login?destino=%2Fclientes%2Fcli-x%3Faba%3Dcontratos')
   })
 
   it('cookie de um usuário ativo devolve o usuário', async () => {

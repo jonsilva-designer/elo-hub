@@ -1,4 +1,4 @@
-import { NOME_DO_COOKIE } from '@/lib/acesso/cookie'
+import { CABECALHO_DO_CAMINHO, NOME_DO_COOKIE } from '@/lib/acesso/cookie'
 
 // Cookies e redirecionamento falsos para os testes que passam pela sessão. Uso:
 //   vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -28,6 +28,13 @@ export const cookiesFalsos = {
   },
 }
 
+const cabecalhos = new Map<string, string>()
+
+/** O endereço que a pessoa pediu, como o proxy passa adiante no cabeçalho da requisição. */
+export function definirCaminhoPedido(caminho: string): void {
+  cabecalhos.set(CABECALHO_DO_CAMINHO, caminho)
+}
+
 /** Grava o cookie da sessão com o id dado, como se a pessoa tivesse entrado. */
 export function entrarComo(usuarioId: string): void {
   valores.set(NOME_DO_COOKIE, usuarioId)
@@ -35,6 +42,7 @@ export function entrarComo(usuarioId: string): void {
 
 export function limparCookies(): void {
   valores.clear()
+  cabecalhos.clear()
   cookiesFalsos.ultimasOpcoes = undefined
 }
 
@@ -47,7 +55,7 @@ export class Redirecionou extends Error {
   }
 }
 
-export const moduloHeaders = { cookies: async () => cookiesFalsos }
+export const moduloHeaders = { cookies: async () => cookiesFalsos, headers: async () => new Headers([...cabecalhos]) }
 
 export const moduloNavigation = {
   redirect(url: string): never {

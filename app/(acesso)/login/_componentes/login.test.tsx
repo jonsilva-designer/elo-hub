@@ -35,6 +35,11 @@ describe('página de login', () => {
     expect(await destinoDe(ConteudoLogin({ searchParams: Promise.resolve({}) }))).toBe('/inicio')
   })
 
+  it('com sessão válida e um destino, vai ao destino, e não só ao Início (revisão do código)', async () => {
+    entrarComo('usr-helena')
+    expect(await destinoDe(ConteudoLogin({ searchParams: Promise.resolve({ destino: '/clientes/cli-x' }) }))).toBe('/clientes/cli-x')
+  })
+
   it('com cookie de usuário inativo, mostra o formulário, sem laço', async () => {
     entrarComo('usr-marcos')
     await renderizarConteudo()

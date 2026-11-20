@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
-import { NOME_DO_COOKIE, OPCOES_DO_COOKIE } from '@/lib/acesso/cookie'
+import { CABECALHO_DO_CAMINHO, NOME_DO_COOKIE, OPCOES_DO_COOKIE } from '@/lib/acesso/cookie'
 import { USUARIOS } from './mock/usuarios'
 import type { Usuario } from './tipos'
 
@@ -25,11 +25,15 @@ export async function obterSessao(): Promise<Usuario | null> {
 }
 
 /**
- * O usuário logado, para as telas internas e as funções de leitura. Sem sessão, vai ao login.
- * Memorizada por requisição: o layout e a página leem a sessão uma vez só.
+ * O usuário logado, para as telas internas e as funções de leitura. Sem sessão, vai ao login, levando o endereço que o
+ * proxy passou adiante, para voltar a ele depois de entrar. Memorizada por requisição: o layout e a página leem a
+ * sessão uma vez só.
  */
 export const obterUsuarioAtual = cache(async (): Promise<Usuario> => {
   const usuario = await obterSessao()
-  if (!usuario) redirect('/login')
+  if (!usuario) {
+    const caminho = (await headers()).get(CABECALHO_DO_CAMINHO)
+    redirect(caminho ? `/login?${new URLSearchParams({ destino: caminho })}` : '/login')
+  }
   return usuario
 })

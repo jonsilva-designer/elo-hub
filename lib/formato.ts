@@ -91,8 +91,11 @@ export function formatarDataHora(valor: EntradaData): string {
     const m = DATA_HORA_SEM_FUSO.exec(valor);
     if (m) {
       const [, ano, mes, dia, hora, minuto] = m;
-      return dataExiste(Number(ano), Number(mes), Number(dia)) ? `${dia}/${mes}/${ano} ${hora}:${minuto}` : VAZIO;
+      const horaExiste = Number(hora) < 24 && Number(minuto) < 60;
+      return horaExiste && dataExiste(Number(ano), Number(mes), Number(dia)) ? `${dia}/${mes}/${ano} ${hora}:${minuto}` : VAZIO;
     }
+    // Só a data: o dia como foi escrito, sem passar pelo fuso (lida como meia-noite UTC, viraria a véspera às 21:00).
+    if (/^\d{4}-\d{2}-\d{2}$/.test(valor)) return formatarData(valor);
   }
   const data = valor instanceof Date ? valor : new Date(valor);
   if (Number.isNaN(data.getTime())) return VAZIO;
@@ -123,8 +126,11 @@ export function formatarNumero(valor: number | null | undefined): string {
 
 /** O tamanho do arquivo: em bytes até 1 KB, em KB inteiros até 1 MB e em MB com uma casa ("2,4 MB", "10 MB"). */
 export function formatarTamanho(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) return VAZIO;
   if (bytes < 1024) return `${bytes} ${bytes === 1 ? "byte" : "bytes"}`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  // Compara já arredondado: 1.048.575 bytes daria "1024 KB".
+  const kb = Math.round(bytes / 1024);
+  if (kb < 1024) return `${kb} KB`;
   const mb = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(bytes / (1024 * 1024));
   return `${mb} MB`;
 }
@@ -138,16 +144,24 @@ export function formatarPercentual(fracao: number | null | undefined): string {
  * Texto de valor em reais digitado no formato brasileiro ("1.234,56") como número, já em centavos:
  * o arredondamento (meio para cima) é o mesmo que o campo mostra, então valor e texto nunca divergem.
  * Sem vírgula, um só ponto seguido de uma ou duas casas é a vírgula decimal ("1234.56");
- * ponto seguido de três algarismos é milhar ("1.234"). Vazio ou inválido vira null.
+ * ponto seguido de três algarismos é milhar ("1.234"). Ponto de milhar fora do lugar ("1.2345", "1,234.56") é
+ * recusado, e não lido errado. Vazio ou inválido vira null.
  */
 export function lerValorEmReais(texto: string): number | null {
   const limpo = texto.trim();
   if (!/^[\d.,]*\d[\d.,]*$/.test(limpo)) return null;
   const virgulas = (limpo.match(/,/g) ?? []).length;
   if (virgulas > 1) return null;
+  const pontoDecimal = virgulas === 0 && /^\d*\.\d{1,2}$/.test(limpo);
+  if (!pontoDecimal) {
+    // Com ponto de milhar, os grupos têm três algarismos, e nada de ponto depois da vírgula.
+    const [parteInteira, parteDecimal = ""] = limpo.split(",");
+    if (parteDecimal.includes(".")) return null;
+    if (parteInteira.includes(".") && !/^\d{1,3}(\.\d{3})+$/.test(parteInteira)) return null;
+  }
   let decimal: string;
   if (virgulas === 1) decimal = limpo.replace(/\./g, "").replace(",", ".");
-  else if (/^\d*\.\d{1,2}$/.test(limpo)) decimal = limpo;
+  else if (pontoDecimal) decimal = limpo;
   else decimal = limpo.replace(/\./g, "");
   // Arredonda pelos algarismos do texto, e não pela conta em ponto flutuante (12,345 vira 12,35).
   const [inteiro, fracao = ""] = decimal.split(".");
@@ -175,8 +189,14 @@ export function hojeEmBrasilia(agora: Date): string {
   return `${p.year}-${p.month}-${p.day}`;
 }
 
-/** A data `AAAA-MM-DD` mais `dias` dias de calendário (negativo volta). Sem Date local nem horário de verão. */
+/**
+ * A data `AAAA-MM-DD` mais `dias` dias de calendário (negativo volta). Sem Date local nem horário de verão. O que não é
+ * uma data volta como veio, sem quebrar a página; o ano abaixo de 100 não vira 19xx (setUTCFullYear, como em dataExiste).
+ */
 export function somarDias(data: string, dias: number): string {
-  const [ano, mes, dia] = data.split("-").map(Number);
-  return new Date(Date.UTC(ano, mes - 1, dia + dias)).toISOString().slice(0, 10);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(data ?? "");
+  if (!m || !Number.isFinite(dias)) return data;
+  const resultado = new Date(0);
+  resultado.setUTCFullYear(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + dias);
+  return resultado.toISOString().slice(0, 10);
 }

@@ -4,6 +4,7 @@ import { mesmoEmail } from '@/lib/especialistas/regras'
 import { demandasDoEspecialista, temDemandaLigada } from './demandas'
 import { temDocumentoLigado } from './documentos'
 import { CLIENTES } from './mock/clientes'
+import { COMENTARIOS, DEMANDAS } from './mock/demandas'
 import { ESCOPOS } from './mock/escopos'
 import { ESPECIALISTAS } from './mock/especialistas'
 import { VINCULOS } from './mock/usuarios'
@@ -97,12 +98,20 @@ export async function especialistaTemItensLigados(id: string): Promise<boolean> 
   return (
     ESCOPOS.some((e) => e.especialistaIds.includes(id)) ||
     (await temDemandaLigada({ especialistaId: id })) ||
+    // O contato registrado na demanda pode ser com quem não está ligado a ela (DF-30).
+    COMENTARIOS.some((c) => c.especialistaId === id) ||
     (await temDocumentoLigado({ especialistaId: id }))
   )
 }
 
-/** O especialista está ligado a algum escopo aberto, de qualquer cliente: ao inativá-lo, o vínculo fica para troca (DF-51). */
+/**
+ * O especialista está ligado a algum escopo aberto ou demanda não resolvida, de qualquer cliente: ao inativá-lo, o vínculo
+ * fica para troca (DF-51). A demanda conta como no alerta "Especialista inativo" (CA-15.6).
+ */
 export async function especialistaTemVinculoAberto(id: string): Promise<boolean> {
   await obterUsuarioAtual()
-  return ESCOPOS.some((e) => e.especialistaIds.includes(id) && !escopoFechado(e.status))
+  return (
+    ESCOPOS.some((e) => e.especialistaIds.includes(id) && !escopoFechado(e.status)) ||
+    DEMANDAS.some((d) => d.status !== 'Resolvida' && d.status !== 'Encerrada' && d.especialistas.some((x) => x.id === id))
+  )
 }

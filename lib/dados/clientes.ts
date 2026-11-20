@@ -1,3 +1,4 @@
+import { normalizarCnpj } from '@/lib/cnpj'
 import { demandasQueImpedem, temDemandaLigada } from './demandas'
 import { temDocumentoLigado } from './documentos'
 import { contratoFechado } from '@/lib/contratos/regras'
@@ -15,7 +16,8 @@ import type { Cliente, ItemQueImpede } from './tipos'
 /** Os clientes que o usuário atual pode ver, na ordem do cadastro. */
 export async function listarClientes(): Promise<Cliente[]> {
   const usuario = await obterUsuarioAtual()
-  return CLIENTES.filter((c) => podeVerCliente(usuario, c.id, VINCULOS))
+  // Cópias: quem altera o cliente lido não muda os dados de exemplo.
+  return CLIENTES.filter((c) => podeVerCliente(usuario, c.id, VINCULOS)).map((c) => ({ ...c }))
 }
 
 /**
@@ -25,21 +27,20 @@ export async function listarClientes(): Promise<Cliente[]> {
 export async function obterCliente(id: string): Promise<Cliente | null> {
   const usuario = await obterUsuarioAtual()
   const cliente = CLIENTES.find((c) => c.id === id)
-  return cliente && podeVerCliente(usuario, cliente.id, VINCULOS) ? cliente : null
+  return cliente && podeVerCliente(usuario, cliente.id, VINCULOS) ? { ...cliente } : null
 }
 
-const digitos = (cnpj: string) => cnpj.replace(/\D/g, '')
 
 /**
- * O cliente com o mesmo CNPJ, comparando só os dígitos (CA-02.1). Usada na validação do cadastro,
+ * O cliente com o mesmo CNPJ, comparando só letras e números (CA-02.1). Usada na validação do cadastro,
  * que é só do Administrador. A regra de vínculo vale aqui também.
  */
 export async function obterClientePorCnpj(cnpj: string): Promise<Cliente | null> {
-  const procurado = digitos(cnpj)
+  const procurado = normalizarCnpj(cnpj)
   if (!procurado) return null
   const usuario = await obterUsuarioAtual()
-  const cliente = CLIENTES.find((c) => digitos(c.cnpj) === procurado)
-  return cliente && podeVerCliente(usuario, cliente.id, VINCULOS) ? cliente : null
+  const cliente = CLIENTES.find((c) => normalizarCnpj(c.cnpj) === procurado)
+  return cliente && podeVerCliente(usuario, cliente.id, VINCULOS) ? { ...cliente } : null
 }
 
 const nomeDoUsuario = (id: string) => USUARIOS.find((u) => u.id === id)?.nome ?? ''

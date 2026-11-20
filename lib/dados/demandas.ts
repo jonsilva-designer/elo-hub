@@ -125,7 +125,11 @@ export async function numeroDaProximaDemanda(): Promise<string> {
 
 type Filtro = { clienteId?: string; contratoId?: string; escopoId?: string; especialistaId?: string }
 
+/** Os ids nunca são vazios: um filtro com "" não pode virar "qualquer um" e achar ligação em tudo. */
+const temIdVazio = (f: object) => Object.values(f).some((v) => v === '')
+
 const casa = (d: DemandaFicticia, f: Filtro) =>
+  !temIdVazio(f) &&
   (!f.clienteId || d.clienteId === f.clienteId) &&
   (!f.contratoId || d.contratoId === f.contratoId) &&
   (!f.escopoId || d.escopoId === f.escopoId) &&

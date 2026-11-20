@@ -46,7 +46,7 @@ function Formulario({ segmentos, aoEnviarOutro }: { segmentos: string[]; aoEnvia
         {(p) => <Input {...p} name="empresa" autoComplete="organization" />}
       </Campo>
       <Campo rotulo="CNPJ" obrigatorio erro={erros.cnpj}>
-        {(p) => <Input {...p} name="cnpj" inputMode="numeric" />}
+        {(p) => <Input {...p} name="cnpj" autoCapitalize="characters" />}
       </Campo>
       <Campo rotulo="Cargo">{(p) => <Input {...p} name="cargo" autoComplete="organization-title" />}</Campo>
       <Campo rotulo="E-mail" obrigatorio erro={erros.email}>

@@ -4,6 +4,7 @@ import { somarDias } from '@/lib/formato'
 import { temDemandaLigada } from './demandas'
 import { temDocumentoLigado } from './documentos'
 import { hojeDaRequisicao } from './hoje'
+import { AVALIACOES } from './mock/avaliacoes'
 import { CLIENTES } from './mock/clientes'
 import { CONTRATOS, type ContratoFicticio } from './mock/contratos'
 import { ESCOPOS } from './mock/escopos'
@@ -72,6 +73,7 @@ export async function contratoTemItensLigados(id: string): Promise<boolean> {
   if (!contrato || !podeVerCliente(usuario, contrato.clienteId, VINCULOS)) return false
   return (
     ESCOPOS.some((e) => e.contratoId === id) ||
+    AVALIACOES.some((a) => a.contratoId === id) ||
     (await temDemandaLigada({ contratoId: id })) ||
     (await temDocumentoLigado({ contratoId: id }))
   )

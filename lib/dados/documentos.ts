@@ -118,6 +118,8 @@ export async function listarDocumentosLigados(filtro: FiltroDocumentos): Promise
  */
 export async function temDocumentoLigado(filtro: FiltroDocumentos): Promise<boolean> {
   await obterUsuarioAtual()
+  // Os ids nunca são vazios: um filtro com "" não pode virar "qualquer um" e achar ligação em tudo.
+  if (Object.values(filtro).some((v) => v === '')) return false
   return DOCUMENTOS.some((d) => casa(d, filtro))
 }
 
@@ -178,10 +180,13 @@ export async function documentoPrincipalDoContrato(contratoId: string): Promise<
   return documento ? { id: documento.id, nome: documento.nome } : null
 }
 
-/** Os documentos que podem ser o principal do contrato (F03): Contrato ou Proposta Comercial ligados a ele, ativos. */
+/**
+ * Os documentos que podem ser o principal do contrato (F03): Contrato ou Proposta Comercial ligados a ele, ativos e
+ * vigentes. O Superado e o Encerrado ficam de fora: o principal é a versão que vale.
+ */
 export async function documentosPrincipaisPossiveis(contratoId: string): Promise<{ id: string; nome: string }[]> {
   const documentos = await lerDocumentos(
-    (d) => d.contratoId === contratoId && !d.inativo && CATEGORIAS_DO_PRINCIPAL.includes(d.categoria),
+    (d) => d.contratoId === contratoId && !d.inativo && d.status === 'Vigente' && CATEGORIAS_DO_PRINCIPAL.includes(d.categoria),
   )
   return documentos.map((d) => ({ id: d.id, nome: d.nome }))
 }

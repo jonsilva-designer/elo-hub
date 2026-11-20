@@ -221,3 +221,32 @@ describe("formatarTamanho", () => {
     expect(formatarTamanho(10 * 1024 * 1024)).toBe("10 MB");
   });
 });
+
+describe("revisão do código, 20/11/2026", () => {
+  it("formatarDataHora: data sem hora mostra só a data, e hora impossível vira o traço", () => {
+    expect(formatarDataHora("2026-09-20")).toBe("20/09/2026");
+    expect(formatarDataHora("2026-09-20T25:99")).toBe(VAZIO);
+    expect(formatarDataHora("2026-09-20T23:59")).toBe("20/09/2026 23:59");
+  });
+
+  it("lerValorEmReais: ponto de milhar fora do lugar é recusado, e não lido errado", () => {
+    expect(lerValorEmReais("1.2345")).toBeNull();
+    expect(lerValorEmReais("12.34.5")).toBeNull();
+    expect(lerValorEmReais("1,234.56")).toBeNull();
+    expect(lerValorEmReais("1.23,45")).toBeNull();
+    expect(lerValorEmReais("12.345,67")).toBe(12345.67);
+  });
+
+  it("formatarTamanho: perto de 1 MB já mostra em MB, e entrada inválida vira o traço", () => {
+    expect(formatarTamanho(1048575)).toBe("1 MB");
+    expect(formatarTamanho(1048000)).toBe("1023 KB");
+    expect(formatarTamanho(Number.NaN)).toBe(VAZIO);
+    expect(formatarTamanho(-5)).toBe(VAZIO);
+  });
+
+  it("somarDias: data inválida volta como veio, e ano abaixo de 100 não vira 19xx", () => {
+    expect(somarDias("", 30)).toBe("");
+    expect(somarDias("0050-01-01", 1)).toBe("0050-01-02");
+    expect(somarDias("2026-12-31", 1)).toBe("2027-01-01");
+  });
+});

@@ -13,9 +13,10 @@ export default function NaoEncontrada() {
     <MolduraPublica>
       <div className="space-y-4 text-center">
         <h1 className={CLASSE_TITULO_PAGINA}>Página não encontrada</h1>
-        <p className="text-sm text-muted-foreground">Algumas telas do protótipo ainda estão em construção.</p>
-        <Link href="/designsystem" className={buttonVariants()}>
-          Ver o padrão visual
+        <p className="text-sm text-muted-foreground">Confira o endereço ou volte ao início.</p>
+        {/* A raiz manda ao Início quem entrou e ao login quem não entrou, como o visitante dos formulários do site. */}
+        <Link href="/" className={buttonVariants()}>
+          Ir para o início
         </Link>
       </div>
     </MolduraPublica>

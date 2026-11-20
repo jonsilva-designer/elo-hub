@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cnpjValido, formatarCnpj } from './cnpj'
+import { cnpjValido, formatarCnpj, normalizarCnpj } from './cnpj'
 
 describe('cnpjValido', () => {
   it('aceita o CNPJ com e sem pontuação', () => {
@@ -30,5 +30,27 @@ describe('formatarCnpj', () => {
   it('devolve sem mudar o que não tem 14 dígitos', () => {
     expect(formatarCnpj('123')).toBe('123')
     expect(formatarCnpj('')).toBe('')
+  })
+})
+
+describe('CNPJ alfanumérico (Receita Federal, desde julho de 2026)', () => {
+  it('aceita letras nas 12 primeiras posições, com os dígitos verificadores pela tabela ASCII', () => {
+    expect(cnpjValido('12.ABC.345/01DE-35')).toBe(true)
+    expect(cnpjValido('12ABC34501DE35')).toBe(true)
+    expect(cnpjValido('12.abc.345/01de-35')).toBe(true)
+    expect(cnpjValido('12.ABC.345/01DE-36')).toBe(false)
+  })
+
+  it('espaço nas pontas não torna o CNPJ inválido', () => {
+    expect(cnpjValido(' 68.308.773/0001-73 ')).toBe(true)
+  })
+
+  it('a máscara mantém as letras, em maiúsculas', () => {
+    expect(formatarCnpj('12abc34501de35')).toBe('12.ABC.345/01DE-35')
+  })
+
+  it('normalizarCnpj deixa só letras e números, em maiúsculas, para comparar', () => {
+    expect(normalizarCnpj(' 12.abc.345/01de-35 ')).toBe('12ABC34501DE35')
+    expect(normalizarCnpj('68.308.773/0001-73')).toBe('68308773000173')
   })
 })

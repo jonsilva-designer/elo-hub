@@ -16,7 +16,10 @@ import type { ContratoDetalhado, EscopoDetalhado, ItemQueImpede, PlanoDetalhado 
 
 const nomeDoUsuario = (id: string) => USUARIOS.find((u) => u.id === id)?.nome ?? ''
 
-/** O término que conta para a RN-21: o contrato precisa ter vigência e não ser por prazo indeterminado. */
+/**
+ * O término que conta para a RN-21: o contrato precisa ter vigência e não ser por prazo indeterminado. O contrato
+ * encerrado ou cancelado continua com o término dele, e o aviso vale do mesmo jeito.
+ */
 const terminoParaAviso = (c: ContratoDetalhado | undefined) =>
   c && c.vigencia !== null && c.tipoVigencia !== 'Prazo indeterminado' ? c.termino : null
 
