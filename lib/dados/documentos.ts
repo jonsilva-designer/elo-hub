@@ -182,11 +182,19 @@ export async function documentoPrincipalDoContrato(contratoId: string): Promise<
 
 /**
  * Os documentos que podem ser o principal do contrato (F03): Contrato ou Proposta Comercial ligados a ele, ativos e
- * vigentes. O Superado e o Encerrado ficam de fora: o principal é a versão que vale.
+ * vigentes. O principal de hoje continua na lista mesmo Superado, Encerrado ou inativo, com o status no nome: assim
+ * editar outro campo do contrato não trava, e quem edita vê que pode trocar pela versão nova.
  */
 export async function documentosPrincipaisPossiveis(contratoId: string): Promise<{ id: string; nome: string }[]> {
+  const principal = CONTRATOS.find((c) => c.id === contratoId)?.documentoPrincipalId
   const documentos = await lerDocumentos(
-    (d) => d.contratoId === contratoId && !d.inativo && d.status === 'Vigente' && CATEGORIAS_DO_PRINCIPAL.includes(d.categoria),
+    (d) =>
+      d.contratoId === contratoId &&
+      CATEGORIAS_DO_PRINCIPAL.includes(d.categoria) &&
+      ((!d.inativo && d.status === 'Vigente') || d.id === principal),
   )
-  return documentos.map((d) => ({ id: d.id, nome: d.nome }))
+  return documentos.map((d) => {
+    const valeHoje = !d.inativo && d.status === 'Vigente'
+    return { id: d.id, nome: valeHoje ? d.nome : `${d.nome} (${d.inativo ? 'Inativo' : d.status})` }
+  })
 }

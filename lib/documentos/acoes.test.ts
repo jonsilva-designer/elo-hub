@@ -145,7 +145,7 @@ describe('incluirDocumento como nova versão (DF-44, CA-12.4)', () => {
       substitui: 'doc-especialista-curriculo',
     }
     expect((await incluir(curriculo)).erros).toEqual({})
-    expect((await incluir({ ...curriculo, especialistaId: 'esp-esg' })).erros).toEqual({ clienteId: MENSAGENS_DOCUMENTO.mesmoDono })
+    expect((await incluir({ ...curriculo, especialistaId: 'esp-esg' })).erros).toEqual({ especialistaId: MENSAGENS_DOCUMENTO.mesmoEspecialista })
   })
 })
 

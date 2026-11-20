@@ -52,3 +52,15 @@ describe('AbasCliente', () => {
     expect(selecionada()).toBe('Resumo')
   })
 })
+
+describe('AbasCliente, revisão do código', () => {
+  it('trocar de aba mantém os outros parâmetros do endereço', async () => {
+    window.history.replaceState(null, '', '/clientes/cli-vertice?origem=alerta')
+    render(montar('resumo'))
+    await userEvent.click(screen.getByRole('tab', { name: 'Maturidade' }))
+    expect(new URLSearchParams(window.location.search).get('origem')).toBe('alerta')
+    expect(new URLSearchParams(window.location.search).get('aba')).toBe('maturidade')
+    await userEvent.click(screen.getByRole('tab', { name: 'Resumo' }))
+    expect(window.location.search).toBe('?origem=alerta')
+  })
+})

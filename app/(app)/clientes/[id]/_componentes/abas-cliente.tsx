@@ -29,8 +29,12 @@ export function AbasCliente({
 
   function aoTrocar(nova: string) {
     setAba(nova)
-    const caminho = window.location.pathname
-    window.history.replaceState(null, '', nova === 'resumo' ? caminho : `${caminho}?aba=${nova}`)
+    // Só a aba muda: os outros parâmetros do endereço ficam.
+    const params = new URLSearchParams(window.location.search)
+    if (nova === 'resumo') params.delete('aba')
+    else params.set('aba', nova)
+    const busca = params.toString()
+    window.history.replaceState(null, '', busca ? `${window.location.pathname}?${busca}` : window.location.pathname)
   }
 
   return (

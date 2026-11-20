@@ -16,6 +16,7 @@ import { cancelarContrato, encerrarContrato, excluirContrato, reabrirContrato } 
 import { STATUS_ABERTOS } from '@/lib/contratos/regras'
 import type { ContratoDetalhado, ItemQueImpede, StatusContrato } from '@/lib/dados/tipos'
 import type { ResultadoAcao } from '@/lib/resultado-acao'
+import { enderecoDosContratos } from '../../_componentes/voltar-para-contratos'
 
 type Janela = 'encerrar' | 'cancelar' | 'reabrir' | 'excluir' | null
 
@@ -193,7 +194,7 @@ export function AcoesContrato({
           comJustificativa('excluir', () =>
             executar(
               () => excluirContrato(contrato.id, justificativa),
-              () => router.push('/contratos'),
+              () => router.push(enderecoDosContratos()),
             ),
           )
         }

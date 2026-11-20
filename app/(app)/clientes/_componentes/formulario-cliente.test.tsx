@@ -97,3 +97,10 @@ describe('FormularioCliente (F02)', () => {
     expect(screen.getByRole('link', { name: 'Cancelar' })).toHaveAttribute('href', '/clientes/cli-vertice')
   })
 })
+
+describe('FormularioCliente, revisão do código', () => {
+  it('o segmento que saiu da lista oficial continua aparecendo como escolhido', () => {
+    render(<FormularioCliente cliente={{ ...vertice, segmento: 'Naval' }} segmentos={['Energia', 'Tecnologia']} />)
+    expect(screen.getByRole('combobox', { name: /Segmento/ })).toHaveTextContent('Naval')
+  })
+})

@@ -71,6 +71,11 @@ describe('salvarContrato (F03, matriz 4.3, critérios 5 e 9)', () => {
     expect((await salvar({ id: 'ctr-nao-existe' })).erroGeral).toBe(SEM_PERMISSAO)
   })
 
+  it('o contrato novo aberto pela lista de contratos volta à lista (revisão do código)', async () => {
+    entrarComo('usr-helena')
+    expect((await salvar({ origem: 'lista' })).sucesso?.destino).toBe('/contratos')
+  })
+
   it('um contrato novo válido responde como salvo e volta à aba Contratos do cliente', async () => {
     entrarComo('usr-helena')
     const r = await salvar({})

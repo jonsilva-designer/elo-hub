@@ -1,3 +1,5 @@
+import { listarAvaliacoesDoCliente } from '@/lib/dados/maturidade'
+import { maturidadeDoCliente } from '@/lib/maturidade/regras'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { somarDias } from '@/lib/formato'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
@@ -112,5 +114,24 @@ describe('leitura da Visão Executiva (F14, arquitetura 3.5)', () => {
     expect(outro.contrato).toBeNull()
     expect(outro.escopos.length).toBeGreaterThan(1)
     expect(outro.contratos.map((c) => c.id)).not.toContain('ctr-montareal-montagem')
+  })
+})
+
+describe('Visão Executiva, revisão do código', () => {
+  it('a maturidade traz as dimensões na mesma ordem da página do cliente', async () => {
+    entrarComo('usr-helena')
+    const visao = await vertice()
+    const comparacao = maturidadeDoCliente(await listarAvaliacoesDoCliente('cli-vertice'))
+    expect(visao.maturidade?.dimensoes).toEqual(comparacao?.dimensoes)
+  })
+
+  it('cada item de entregas, prazos e pendências tem um id próprio', async () => {
+    entrarComo('usr-helena')
+    const visao = await vertice()
+    for (const lista of [visao.entregas, visao.proximosPrazos, visao.pendencias]) {
+      const chaves = lista.map((i) => i.id)
+      expect(chaves.every(Boolean)).toBe(true)
+      expect(new Set(chaves).size).toBe(chaves.length)
+    }
   })
 })

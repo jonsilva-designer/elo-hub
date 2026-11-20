@@ -28,6 +28,8 @@ export function FormularioCliente({ cliente, segmentos }: { cliente: Cliente | n
   const [estado, enviar, enviando] = useActionState(salvarCliente, ESTADO_INICIAL_SALVAR_CLIENTE)
   const [status, setStatus] = useState<string>(cliente?.status ?? '')
   const [segmento, setSegmento] = useState(cliente?.segmento ?? '')
+  // O segmento que saiu da lista oficial continua como opção, para o campo não parecer vazio.
+  const opcoesDeSegmento = cliente?.segmento && !segmentos.includes(cliente.segmento) ? [...segmentos, cliente.segmento] : segmentos
   const [uf, setUf] = useState(cliente?.uf ?? '')
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export function FormularioCliente({ cliente, segmentos }: { cliente: Cliente | n
           </Campo>
           <Campo rotulo="Segmento">
             {(p) => (
-              <SelecaoDoFormulario nome="segmento" valor={segmento} aoMudar={setSegmento} opcoes={segmentos} rotuloVazio="Não informado" atributos={p} />
+              <SelecaoDoFormulario nome="segmento" valor={segmento} aoMudar={setSegmento} opcoes={opcoesDeSegmento} rotuloVazio="Não informado" atributos={p} />
             )}
           </Campo>
           <Campo rotulo="Cidade">

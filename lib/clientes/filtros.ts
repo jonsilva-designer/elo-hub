@@ -1,3 +1,4 @@
+import { normalizarCnpj } from '@/lib/cnpj'
 import type { Cliente, StatusCliente } from '@/lib/dados/tipos'
 import { normalizarBusca } from '@/lib/texto'
 
@@ -59,7 +60,11 @@ export function escreverFiltros(filtros: FiltrosClientes): string {
   return params.toString().replace(/%2C/g, ',')
 }
 
-const digitos = (texto: string) => texto.replace(/\D/g, '')
+/**
+ * A busca parece um CNPJ, ou um pedaço dele: sem espaço no meio, só letras, algarismos e a pontuação do CNPJ, com ao
+ * menos um algarismo. "Clínica 3" não parece: o 3 é do nome, e não acha cliente pelos algarismos do CNPJ.
+ */
+const pareceCnpj = (busca: string) => /^[0-9A-Za-z./-]+$/.test(busca) && /\d/.test(busca)
 
 /** Uma busca sem letra nem dígito ("   ", ".") conta como vazia. */
 function casaComBusca(cliente: Cliente, busca: string): boolean {
@@ -67,8 +72,8 @@ function casaComBusca(cliente: Cliente, busca: string): boolean {
   if (!/[\p{L}\p{N}]/u.test(termo)) return true
   const nomes = [cliente.nomeFantasia ?? '', cliente.razaoSocial].map(normalizarBusca)
   if (nomes.some((n) => n.includes(termo))) return true
-  const numeros = digitos(termo)
-  return numeros.length > 0 && digitos(cliente.cnpj).includes(numeros)
+  const bruta = busca.trim()
+  return pareceCnpj(bruta) && normalizarCnpj(cliente.cnpj).includes(normalizarCnpj(bruta))
 }
 
 /** Os clientes que passam na busca e nos filtros, ordenados pelo nome mostrado. */

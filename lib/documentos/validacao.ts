@@ -18,6 +18,7 @@ export const MENSAGENS_DOCUMENTO = {
   contrato: 'O contrato precisa ser do cliente.',
   escopo: 'O escopo precisa ser do cliente e do contrato escolhido.',
   etapa: 'A etapa precisa ser de um escopo escolhido.',
+  mesmoEspecialista: 'A nova versão precisa ser do mesmo especialista do documento anterior.',
   plano: 'O plano precisa ser do escopo escolhido.',
   atividade: 'A atividade precisa ser do plano escolhido.',
   demanda: 'A demanda precisa ser do cliente.',

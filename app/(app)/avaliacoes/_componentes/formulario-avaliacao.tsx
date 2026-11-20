@@ -124,7 +124,13 @@ export function FormularioAvaliacao({
                 nome="avaliadorId"
                 valor={avaliadorId}
                 aoMudar={setAvaliadorId}
-                opcoes={avaliadores.map((u) => ({ valor: u.id, rotulo: u.nome }))}
+                opcoes={[
+                  ...avaliadores.map((u) => ({ valor: u.id, rotulo: u.nome })),
+                  // O avaliador que já estava na avaliação continua como opção, mesmo fora da lista de hoje.
+                  ...(avaliacao && !avaliadores.some((u) => u.id === avaliacao.avaliadorId)
+                    ? [{ valor: avaliacao.avaliadorId, rotulo: avaliacao.nomeAvaliador }]
+                    : []),
+                ]}
                 atributos={p}
               />
             )}

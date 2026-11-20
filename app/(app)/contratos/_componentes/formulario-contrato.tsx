@@ -88,6 +88,8 @@ export function FormularioContrato({
   return (
     <form action={enviar} noValidate className="space-y-5">
       {contrato ? <input type="hidden" name="id" value={contrato.id} /> : null}
+      {/* O contrato novo aberto pela lista volta à lista; pelo cliente, volta ao cliente. */}
+      {!contrato && !clienteInicial ? <input type="hidden" name="origem" value="lista" /> : null}
       {servicosEscolhidos.map((s) => (
         <input key={s} type="hidden" name="servicos" value={s} />
       ))}

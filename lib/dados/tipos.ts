@@ -499,7 +499,7 @@ export type DemandaDaVisao = {
 }
 
 /** Uma linha das entregas, dos próximos prazos e das pendências. */
-export type ItemDaVisao = { tipo: 'Atividade' | 'Etapa' | 'Demanda' | 'Contrato'; descricao: string; data: string }
+export type ItemDaVisao = { id: string; tipo: 'Atividade' | 'Etapa' | 'Demanda' | 'Contrato'; descricao: string; data: string }
 
 export type AvaliacaoDaVisao = {
   data: string
@@ -523,6 +523,11 @@ export type VisaoExecutiva = {
   entregas: ItemDaVisao[]
   proximosPrazos: ItemDaVisao[]
   pendencias: ItemDaVisao[]
-  maturidade: { inicial: AvaliacaoDaVisao; atual: AvaliacaoDaVisao } | null
+  /** As dimensões vêm na ordem da comparação do cliente (a da atual; as que só a inicial tem, no fim). */
+  maturidade: {
+    inicial: AvaliacaoDaVisao
+    atual: AvaliacaoDaVisao
+    dimensoes: { dimensao: string; inicial: NivelDimensao; atual: NivelDimensao }[]
+  } | null
   textos: TextoExecutivo[]
 }

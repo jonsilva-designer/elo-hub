@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { listarAvaliacoesDoCliente, obterAvaliacao } from '@/lib/dados/maturidade'
+import { listarAvaliacoesDoCliente, listarAvaliadores, obterAvaliacao } from '@/lib/dados/maturidade'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { concluirAvaliacao, reabrirAvaliacao, salvarAvaliacao } from './acoes'
 import { ESTADO_INICIAL_SALVAR_AVALIACAO } from './estados'
@@ -9,7 +9,7 @@ vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso'))
 // Parcial: as leituras continuam as verdadeiras; um teste troca uma resposta de obterAvaliacao com mockResolvedValueOnce.
 vi.mock('@/lib/dados/maturidade', async (importOriginal) => {
   const original = await importOriginal<typeof import('@/lib/dados/maturidade')>()
-  return { ...original, obterAvaliacao: vi.fn(original.obterAvaliacao) }
+  return { ...original, obterAvaliacao: vi.fn(original.obterAvaliacao), listarAvaliadores: vi.fn(original.listarAvaliadores) }
 })
 
 beforeEach(() => limparCookies())
@@ -182,5 +182,22 @@ describe('concluirAvaliacao e reabrirAvaliacao (CA-20.2, RN-22, CA-20.5)', () =>
       ok: false,
       mensagem: 'Escreva a justificativa da reabertura.',
     })
+  })
+})
+
+describe('salvarAvaliacao, revisão do código', () => {
+  it('a recusa por avaliação concluída devolve o que foi digitado, para não se perder', async () => {
+    entrarComo('usr-rafael')
+    const r = await salvar({ avaliacaoId: 'ava-vertice-2', data: '2026-09-15', avaliadorId: 'usr-rafael', pontosFortes: 'Texto longo digitado' })
+    expect(r.valores?.pontosFortes).toBe('Texto longo digitado')
+  })
+
+  it('o avaliador que já estava na avaliação fica, mesmo fora da lista de hoje; outro de fora é recusado', async () => {
+    entrarComo('usr-helena')
+    const atual = (await obterAvaliacao('ava-vertice-3'))!
+    vi.mocked(listarAvaliadores).mockResolvedValueOnce([])
+    expect((await salvar({ avaliacaoId: 'ava-vertice-3', data: '2026-11-05', avaliadorId: atual.avaliadorId })).erros).toEqual({})
+    vi.mocked(listarAvaliadores).mockResolvedValueOnce([])
+    expect((await salvar({ avaliacaoId: 'ava-vertice-3', data: '2026-11-05', avaliadorId: 'usr-outro' })).erros.avaliadorId).toBeTruthy()
   })
 })

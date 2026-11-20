@@ -56,7 +56,11 @@ export async function incluirDocumento(_estado: EstadoDocumento, formData: FormD
   }
 
   const erros = validarDocumento(dados, { categorias, opcoes, semClientePermitido: ehAdmin(usuario) })
-  if (anterior && !erros.clienteId && !mesmoDono(dados, anterior)) erros.clienteId = MENSAGENS_DOCUMENTO.mesmoDono
+  if (anterior && !erros.clienteId && !mesmoDono(dados, anterior)) {
+    // Sem cliente, o dono é o especialista (DF-65): a mensagem vai no campo dele.
+    if (!anterior.clienteId) erros.especialistaId = MENSAGENS_DOCUMENTO.mesmoEspecialista
+    else erros.clienteId = MENSAGENS_DOCUMENTO.mesmoDono
+  }
   const erroArquivo = erroDoArquivo(arquivo)
   if (erroArquivo) erros.arquivo = erroArquivo
   if (Object.keys(erros).length > 0) return { erros, valores: dados }

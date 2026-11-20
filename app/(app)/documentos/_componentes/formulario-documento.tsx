@@ -103,7 +103,7 @@ export function FormularioDocumento({
     setEscopoId(valor)
     const escopo = opcoes.escopos.find((e) => e.id === valor)
     if (escopo) setContratoId(escopo.contratoId)
-    if (!valor) setEtapa('')
+    setEtapa('')
     setPlanoId('')
     setAtividadeId('')
   }

@@ -15,6 +15,12 @@ function filtrosGuardados(): string {
   }
 }
 
+/** A lista com os filtros guardados, para voltar a ela depois de uma ação (excluir, por exemplo). */
+export function enderecoDosDocumentos(): string {
+  const filtros = filtrosGuardados()
+  return filtros ? `/documentos?${filtros}` : '/documentos'
+}
+
 /** Caminho de volta para a lista de documentos, com os filtros que estavam aplicados (CA-16.2). */
 export function VoltarParaDocumentos() {
   const filtros = useSyncExternalStore(semAssinatura, filtrosGuardados, () => '')

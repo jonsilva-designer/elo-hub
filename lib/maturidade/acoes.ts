@@ -30,11 +30,16 @@ export async function salvarAvaliacao(
   const avaliacaoId = texto(formData.get('avaliacaoId'))
   let clienteId: string
   let dimensoes: string[]
+  let avaliadorDeAntes: string | null = null
 
   if (avaliacaoId) {
     const avaliacao = await obterAvaliacao(avaliacaoId)
     if (!avaliacao) return recusa(SEM_PERMISSAO)
-    if (avaliacao.status === 'Concluída') return recusa(MENSAGENS_AVALIACAO.concluida)
+    // Devolve o que foi digitado: a recusa não pode apagar os textos da avaliação.
+    if (avaliacao.status === 'Concluída') {
+      return { erros: {}, valores: lerDadosAvaliacao(formData, avaliacao.dimensoes.length), erroGeral: MENSAGENS_AVALIACAO.concluida }
+    }
+    avaliadorDeAntes = avaliacao.avaliadorId
     clienteId = avaliacao.clienteId
     dimensoes = avaliacao.dimensoes.map((d) => d.dimensao)
   } else {
@@ -55,7 +60,8 @@ export async function salvarAvaliacao(
   // O contrato de referência só pode ser do mesmo cliente; outro, ou um que não existe, conta como vazio (CA-20.3).
   const [contratos, avaliadores] = await Promise.all([listarContratosDoCliente(clienteId), listarAvaliadores(clienteId)])
   if (!contratos.some((c) => c.id === dados.contratoId)) dados.contratoId = ''
-  const permitidos = avaliadores.map((u) => u.id)
+  // O avaliador que já estava na avaliação fica, mesmo fora da lista de hoje (inativado ou sem vínculo).
+  const permitidos = [...avaliadores.map((u) => u.id), ...(avaliadorDeAntes ? [avaliadorDeAntes] : [])]
   const erros = validarAvaliacao(dados, permitidos)
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
 

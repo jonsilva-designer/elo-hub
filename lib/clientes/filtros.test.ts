@@ -124,3 +124,21 @@ describe('filtro da carteira (CA-13.4)', () => {
     expect(lerFiltros(new URLSearchParams('carteira=nao'), [])).toEqual({ busca: '', status: [], segmento: null })
   })
 })
+
+describe('busca, revisão do código', () => {
+  it('nome com número não acha cliente pelos algarismos do CNPJ', () => {
+    expect(filtrar({ busca: 'atlas 3' })).toEqual([])
+  })
+
+  it('a busca que parece CNPJ continua achando pelo CNPJ, com ou sem pontuação', () => {
+    expect(filtrar({ busca: '21.473' })).toEqual(['v'])
+    expect(filtrar({ busca: '21473509' })).toEqual(['v'])
+  })
+
+  it('CNPJ alfanumérico: acha pelas letras e pelos algarismos', () => {
+    const alfa: Cliente = { ...semFantasia, id: 'alfa', razaoSocial: 'Alfa Ltda', cnpj: '12.ABC.345/01DE-35' }
+    const achar = (busca: string) => ids(filtrarClientes([...TODOS, alfa], { ...SEM_FILTRO, busca }))
+    expect(achar('ABC345')).toEqual(['alfa'])
+    expect(achar('12.abc')).toEqual(['alfa'])
+  })
+})

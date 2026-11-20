@@ -1,11 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, type ReactNode } from 'react'
 import { BarraFiltros } from '@/components/elo/barra-filtros'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaCriticidade, EtiquetaPlanejamento, EtiquetaStatus, IndicadorPrioridade } from '@/components/elo/etiquetas'
+import { useFiltrosDaLista } from '@/components/elo/filtros-da-lista'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
@@ -153,7 +154,8 @@ export function ListaEscopos({
   semVinculo: boolean
 }) {
   const router = useRouter()
-  const [filtros, setFiltros] = useState(filtrosIniciais)
+  // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosEscopos)
   const linhas = useMemo(() => filtrarEscopos(escopos, filtros), [escopos, filtros])
   const contratos = useMemo(() => contratosDosEscopos(escopos), [escopos])
   const responsaveis = useMemo(() => responsaveisDosEscopos(escopos), [escopos])

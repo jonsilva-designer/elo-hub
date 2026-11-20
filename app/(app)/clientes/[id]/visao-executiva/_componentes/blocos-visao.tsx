@@ -18,7 +18,7 @@ import type {
   VisaoExecutiva,
 } from '@/lib/dados/tipos'
 import { CRITICIDADES } from '@/lib/escopos/regras'
-import { formatarData } from '@/lib/formato'
+import { formatarData, VAZIO } from '@/lib/formato'
 import { ETAPAS } from '@/lib/jornada/regras'
 import { TextoComNumeros } from '../../../../documentos/_componentes/texto-com-numeros'
 
@@ -175,7 +175,7 @@ export function TabelaDemandasDaVisao({ demandas }: { demandas: DemandaDaVisao[]
 
 export function TabelaItensDaVisao({ itens, vazio }: { itens: ItemDaVisao[]; vazio: string }) {
   return (
-    <TabelaDados colunas={COLUNAS_ITENS} linhas={itens} chave={(i) => `${i.tipo}:${i.descricao}:${i.data}`} vazio={<EstadoVazio titulo={vazio} />} />
+    <TabelaDados colunas={COLUNAS_ITENS} linhas={itens} chave={(i) => i.id} vazio={<EstadoVazio titulo={vazio} />} />
   )
 }
 
@@ -185,12 +185,11 @@ type LinhaMaturidade = { dimensao: string; inicial: Nivel; atual: Nivel }
 
 /** A maturidade inicial e a atual (RN-25): a geral, a prontidão e o nível por dimensão. */
 export function TabelaMaturidadeDaVisao({ maturidade }: { maturidade: NonNullable<VisaoExecutiva['maturidade']> }) {
-  const { inicial, atual } = maturidade
-  const dimensoes = [...new Set([...inicial.dimensoes, ...atual.dimensoes].map((d) => d.dimensao))]
-  const nivel = (lista: typeof inicial.dimensoes, dimensao: string) => lista.find((d) => d.dimensao === dimensao)?.nivel ?? 'Não avaliada'
+  // As dimensões na ordem da comparação do cliente, a mesma da aba Maturidade e do PDF.
+  const { inicial, atual, dimensoes } = maturidade
   const linhas: LinhaMaturidade[] = [
     { dimensao: 'Maturidade geral', inicial: inicial.maturidadeGeral, atual: atual.maturidadeGeral },
-    ...dimensoes.map((d) => ({ dimensao: d, inicial: nivel(inicial.dimensoes, d), atual: nivel(atual.dimensoes, d) })),
+    ...dimensoes,
   ]
   const colunas: Coluna<LinhaMaturidade>[] = [
     { id: 'dimensao', titulo: 'Dimensão', largura: 'w-1/3', celula: (l) => l.dimensao },
@@ -204,8 +203,8 @@ export function TabelaMaturidadeDaVisao({ maturidade }: { maturidade: NonNullabl
       </p>
       <TabelaDados colunas={colunas} linhas={linhas} chave={(l) => l.dimensao} vazio={null} />
       <p className="px-5 pb-4 text-sm text-foreground">
-        Prontidão: <span className="font-medium">{inicial.prontidao ?? '—'}</span> na inicial,{' '}
-        <span className="font-medium">{atual.prontidao ?? '—'}</span> na atual.
+        Prontidão: <span className="font-medium">{inicial.prontidao ?? VAZIO}</span> na inicial,{' '}
+        <span className="font-medium">{atual.prontidao ?? VAZIO}</span> na atual.
       </p>
     </div>
   )

@@ -104,6 +104,17 @@ describe('AcoesDocumento (parte 6, 4.4; PRD 6.1)', () => {
     expect(await janela.findByText('O documento já está inativo.')).toBeInTheDocument()
   })
 
+  it('excluir volta para a lista com os filtros que estavam aplicados (revisão do código)', async () => {
+    sessionStorage.setItem('elo:filtros-documentos', 'categoria=Contrato')
+    vi.mocked(excluirDocumento).mockResolvedValue(SUCESSO)
+    montar()
+    const janela = await escolher('Excluir')
+    await userEvent.type(janela.getByRole('textbox', { name: /Justificativa/ }), 'Arquivo errado.')
+    await userEvent.click(janela.getByRole('button', { name: 'Excluir' }))
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/documentos?categoria=Contrato'))
+    sessionStorage.clear()
+  })
+
   it('excluir pede a justificativa e volta para a lista (DF-33)', async () => {
     vi.mocked(excluirDocumento).mockResolvedValue(SUCESSO)
     montar()

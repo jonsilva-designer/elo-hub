@@ -93,6 +93,19 @@ describe('documento principal do contrato (F03)', () => {
     expect(ids).not.toContain('doc-superado-teste')
     expect(ids).not.toContain('doc-encerrado-teste')
   })
+
+  it('o principal de hoje continua na lista, mesmo Superado, marcado: editar o contrato não trava (revisão do código)', async () => {
+    const base = DOCUMENTOS.find((d) => d.contratoId && d.categoria === 'Contrato' && d.status === 'Vigente')!
+    incluir(DOCUMENTOS, { ...base, id: 'doc-principal-superado', nome: 'Contrato antigo', status: 'Superado' })
+    const contrato = CONTRATOS.find((c) => c.id === base.contratoId)!
+    const antes = contrato.documentoPrincipalId
+    contrato.documentoPrincipalId = 'doc-principal-superado'
+    desfazer.push(() => {
+      contrato.documentoPrincipalId = antes
+    })
+    const possiveis = await documentosPrincipaisPossiveis(contrato.id)
+    expect(possiveis).toContainEqual({ id: 'doc-principal-superado', nome: 'Contrato antigo (Superado)' })
+  })
 })
 
 describe('as leituras devolvem cópias', () => {

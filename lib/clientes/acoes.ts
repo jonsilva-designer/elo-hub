@@ -26,8 +26,10 @@ export async function salvarCliente(_estado: EstadoSalvarCliente, formData: Form
   // Não diz se o cliente existe.
   if (id && !atual) return { erros: {}, valores: dados, erroGeral: SEM_PERMISSAO }
 
-  // Segmento fora da lista oficial e UF que não existe contam como vazios.
-  if (!(await listarSegmentos()).includes(dados.segmento)) dados.segmento = ''
+  // Segmento fora da lista oficial e UF que não existe contam como vazios. O segmento que já estava no cliente fica,
+  // mesmo que tenha saído da lista: editar outro campo não o apaga.
+  const segmentoDeAntes = atual !== null && dados.segmento === atual.segmento
+  if (!segmentoDeAntes && !(await listarSegmentos()).includes(dados.segmento)) dados.segmento = ''
   if (!UFS.includes(dados.uf)) dados.uf = ''
 
   const comMesmoCnpj = dados.cnpj ? await obterClientePorCnpj(dados.cnpj) : null

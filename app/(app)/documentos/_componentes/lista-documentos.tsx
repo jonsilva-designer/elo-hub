@@ -3,10 +3,11 @@
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { BarraFiltros } from '@/components/elo/barra-filtros'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
+import { useFiltrosDaLista } from '@/components/elo/filtros-da-lista'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
@@ -128,7 +129,8 @@ export function ListaDocumentos({
   semVinculo: boolean
 }) {
   const router = useRouter()
-  const [filtros, setFiltros] = useState(filtrosIniciais)
+  // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosDocumentos)
   const linhas = useMemo(() => filtrarDocumentos(documentos, filtros), [documentos, filtros])
 
   // Quem chega pelo endereço com filtros também tem a volta garantida.
@@ -141,7 +143,8 @@ export function ListaDocumentos({
     guardar(q)
   }
 
-  const vazio = semVinculo ? (
+  // Sem vínculo, a Equipe ainda vê os Documentos do Especialista (DF-65): a mensagem só vale com a lista vazia.
+  const vazio = semVinculo && documentos.length === 0 ? (
     <EstadoVazio titulo="Você ainda não tem clientes vinculados." descricao="Fale com o Administrador da ELO." />
   ) : documentos.length === 0 ? (
     <EstadoVazio titulo="Nenhum documento incluído." />

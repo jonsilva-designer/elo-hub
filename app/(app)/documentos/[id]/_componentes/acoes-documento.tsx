@@ -16,6 +16,7 @@ import type { StatusDocumento } from '@/lib/dados/tipos'
 import { excluirDocumento, inativarDocumento, mudarStatusDocumento, reativarDocumento } from '@/lib/documentos/acoes'
 import { acoesDeStatus } from '@/lib/documentos/regras'
 import type { ResultadoAcao } from '@/lib/resultado-acao'
+import { enderecoDosDocumentos } from '../../_componentes/voltar-para-documentos'
 
 type Janela = 'encerrar' | 'marcar-superado' | 'voltar-a-vigente' | 'inativar' | 'reativar' | 'excluir' | null
 
@@ -214,7 +215,7 @@ export function AcoesDocumento({
           exigindo(justificativa, MENSAGENS.excluir, () =>
             executar(
               () => excluirDocumento(documentoId, justificativa),
-              () => router.push('/documentos'),
+              () => router.push(enderecoDosDocumentos()),
             ),
           )
         }

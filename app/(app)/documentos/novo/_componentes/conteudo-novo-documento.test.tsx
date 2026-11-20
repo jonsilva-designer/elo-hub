@@ -60,6 +60,13 @@ describe('incluir documento (parte 6, 4.2 e 4.4)', () => {
     expect(screen.getByRole('combobox', { name: /Atividade/ })).toHaveTextContent('Protocolar a renovação da licença de operação')
   })
 
+  it('trocar o escopo limpa a etapa escolhida para o anterior (revisão do código)', async () => {
+    entrarComo('usr-helena')
+    render(await novo({ escopo: 'esc-vertice-documental', etapa: 'Monitorar' }))
+    await escolher(/Escopo Contratado/, 'Programa de qualidade')
+    expect(screen.getByRole('combobox', { name: /Etapa da Jornada/ })).toHaveTextContent('Nenhuma')
+  })
+
   it('aberta pelo escopo com a etapa, a etapa vem escolhida', async () => {
     entrarComo('usr-helena')
     render(await novo({ escopo: 'esc-vertice-documental', etapa: 'Monitorar' }))

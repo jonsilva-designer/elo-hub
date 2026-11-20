@@ -15,6 +15,12 @@ function filtrosGuardados(): string {
   }
 }
 
+/** A lista com os filtros guardados, para voltar a ela depois de uma ação (excluir, por exemplo). */
+export function enderecoDosContratos(): string {
+  const filtros = filtrosGuardados()
+  return filtros ? `/contratos?${filtros}` : '/contratos'
+}
+
 /**
  * Caminho de volta para a lista de contratos, com os filtros que estavam aplicados (parte 3, 5.6). Funciona pelo
  * link, e não só pelo botão de voltar do navegador. No servidor, o link vai para a lista sem filtros.

@@ -7,6 +7,7 @@ import { BarraFiltros } from '@/components/elo/barra-filtros'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { CampoData } from '@/components/elo/campo-data'
 import { EstadoVazio } from '@/components/elo/estados'
+import { useFiltrosDaLista } from '@/components/elo/filtros-da-lista'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
 import { SelecaoMultipla } from '@/components/elo/selecao-multipla'
@@ -104,7 +105,8 @@ export function FilaDemandas({
   ehAdmin: boolean
   semVinculo: boolean
 }) {
-  const [filtros, setFiltros] = useState(filtrosIniciais)
+  // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosDemandas)
   // A cada limpeza, os campos de data voltam vazios, mesmo com uma data digitada pela metade (o valor já era null).
   const [limpezas, setLimpezas] = useState(0)
   const linhas = useMemo(() => filtrarDemandas(demandas, filtros), [demandas, filtros])

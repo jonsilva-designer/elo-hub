@@ -3,11 +3,12 @@
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { BarraFiltros } from '@/components/elo/barra-filtros'
 import { CabecalhoPagina } from '@/components/elo/cabecalho-pagina'
 import { EstadoVazio } from '@/components/elo/estados'
 import { EtiquetaPlanejamento, EtiquetaStatus } from '@/components/elo/etiquetas'
+import { useFiltrosDaLista } from '@/components/elo/filtros-da-lista'
 import { IndicadorVigencia } from '@/components/elo/indicador-vigencia'
 import { Num } from '@/components/elo/num'
 import { Painel } from '@/components/elo/painel'
@@ -137,7 +138,8 @@ export function ListaContratos({
   ehAdmin: boolean
 }) {
   const router = useRouter()
-  const [filtros, setFiltros] = useState(filtrosIniciais)
+  // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosContratos)
   const linhas = useMemo(() => filtrarContratos(contratos, filtros), [contratos, filtros])
   const texto = escreverFiltrosContratos(filtros)
 

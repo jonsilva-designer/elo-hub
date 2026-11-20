@@ -52,12 +52,13 @@ export async function ConteudoCliente({
   if (!cliente) notFound()
 
   // O cadastro da ELO não tem maturidade, contratos nem escopos (DF-40).
-  const [avaliacoes, contratos, escopos, historico, demandas] = await Promise.all([
+  const [avaliacoes, contratos, escopos, historico, demandas, documentos] = await Promise.all([
     cliente.ehCadastroElo ? Promise.resolve([]) : listarAvaliacoesDoCliente(cliente.id),
     cliente.ehCadastroElo ? Promise.resolve([]) : listarContratosDoCliente(cliente.id),
     cliente.ehCadastroElo ? Promise.resolve([]) : listarEscoposDoCliente(cliente.id),
     listarHistorico('cliente', cliente.id),
     listarDemandasDoCliente(cliente.id),
+    listarDocumentosLigados({ clienteId: cliente.id }),
   ])
   const comparacao = maturidadeDoCliente(avaliacoes)
   const admin = ehAdmin(usuario)
@@ -67,7 +68,6 @@ export async function ConteudoCliente({
     ? await Promise.all([itensQueImpedemInativar(cliente.id), temItensLigados(cliente.id)])
     : [[], true]
 
-  const documentos = await listarDocumentosLigados({ clienteId: cliente.id })
   const paineis: Record<AbaCliente, React.ReactNode> = {
     resumo: <AbaResumo cliente={cliente} atual={comparacao?.atual ?? null} historico={historico} />,
     maturidade: <AbaMaturidade cliente={cliente} avaliacoes={avaliacoes} comparacao={comparacao} />,

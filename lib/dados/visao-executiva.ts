@@ -82,33 +82,33 @@ export async function obterVisaoExecutiva(clienteId: string, contratoId?: string
   const entregas: ItemDaVisao[] = [
     ...atividadesDosPlanos
       .filter((a) => a.status === 'Concluída' && nosUltimosDias(a.conclusao, hoje))
-      .map((a) => ({ tipo: 'Atividade' as const, descricao: a.nome, data: a.conclusao! })),
+      .map((a) => ({ id: `atividade:${a.id}`, tipo: 'Atividade' as const, descricao: a.nome, data: a.conclusao! })),
     ...escopos.flatMap((e) =>
       e.etapas
         .filter((l) => l.status === 'Concluída' && nosUltimosDias(l.conclusao, hoje))
-        .map((l) => ({ tipo: 'Etapa' as const, descricao: `${e.nome} · ${l.etapa}`, data: l.conclusao! })),
+        .map((l) => ({ id: `etapa:${e.id}:${l.etapa}`, tipo: 'Etapa' as const, descricao: `${e.nome} · ${l.etapa}`, data: l.conclusao! })),
     ),
   ].sort(porData)
 
   const proximosPrazos: ItemDaVisao[] = [
     ...atividadesDosPlanos
       .filter((a) => (a.status === 'Não iniciada' || a.status === 'Em andamento') && nosProximosDias(a.prazo, hoje))
-      .map((a) => ({ tipo: 'Atividade' as const, descricao: a.nome, data: a.prazo })),
+      .map((a) => ({ id: `atividade:${a.id}`, tipo: 'Atividade' as const, descricao: a.nome, data: a.prazo })),
     ...demandas
       .filter((d) => aberta(d.status) && nosProximosDias(d.prazo, hoje))
-      .map((d) => ({ tipo: 'Demanda' as const, descricao: `${d.numero} · ${d.assunto}`, data: d.prazo! })),
+      .map((d) => ({ id: `demanda:${d.numero}`, tipo: 'Demanda' as const, descricao: `${d.numero} · ${d.assunto}`, data: d.prazo! })),
     ...(contrato ? [contrato] : contratos)
       .filter((c) => (c.status === 'Ativo' || c.status === 'Suspenso') && nosProximosDias(c.termino, hoje))
-      .map((c) => ({ tipo: 'Contrato' as const, descricao: c.codigo, data: c.termino! })),
+      .map((c) => ({ id: `contrato:${c.id}`, tipo: 'Contrato' as const, descricao: c.codigo, data: c.termino! })),
   ].sort(porData)
 
   const pendencias: ItemDaVisao[] = [
     ...atividadesDosPlanos
       .filter((a) => a.situacao === 'Atrasada')
-      .map((a) => ({ tipo: 'Atividade' as const, descricao: a.nome, data: a.prazo })),
+      .map((a) => ({ id: `atividade:${a.id}`, tipo: 'Atividade' as const, descricao: a.nome, data: a.prazo })),
     ...demandas
       .filter((d) => d.vencida)
-      .map((d) => ({ tipo: 'Demanda' as const, descricao: `${d.numero} · ${d.assunto}`, data: d.prazo! })),
+      .map((d) => ({ id: `demanda:${d.numero}`, tipo: 'Demanda' as const, descricao: `${d.numero} · ${d.assunto}`, data: d.prazo! })),
   ].sort(porData)
 
   // A maturidade do filtro: as avaliações com o contrato de referência escolhido (RN-25).
@@ -161,7 +161,9 @@ export async function obterVisaoExecutiva(clienteId: string, contratoId?: string
     entregas,
     proximosPrazos,
     pendencias,
-    maturidade: comparacao ? { inicial: resumoDaAvaliacao(comparacao.inicial), atual: resumoDaAvaliacao(comparacao.atual) } : null,
+    maturidade: comparacao
+      ? { inicial: resumoDaAvaliacao(comparacao.inicial), atual: resumoDaAvaliacao(comparacao.atual), dimensoes: comparacao.dimensoes }
+      : null,
     textos,
   }
 }

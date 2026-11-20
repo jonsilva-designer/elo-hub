@@ -160,6 +160,18 @@ describe('AcoesContrato (parte 3, 5.6)', () => {
     expect(reabrirContrato).toHaveBeenCalledWith('ctr-x', 'Ativo', 'Retomada')
   })
 
+  it('Excluir volta para a lista com os filtros que estavam aplicados (revisão do código)', async () => {
+    sessionStorage.setItem('elo:filtros-contratos', 'status=Cancelado')
+    vi.mocked(excluirContrato).mockResolvedValue(SUCESSO)
+    montar('Proposta', [], true)
+    await escolher('Excluir')
+    const janela = within(await screen.findByRole('alertdialog'))
+    await userEvent.type(janela.getByRole('textbox', { name: /Justificativa/ }), 'Duplicado')
+    await userEvent.click(janela.getByRole('button', { name: 'Excluir' }))
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/contratos?status=Cancelado'))
+    sessionStorage.clear()
+  })
+
   it('Excluir com sucesso volta para a lista de contratos', async () => {
     vi.mocked(excluirContrato).mockResolvedValue(SUCESSO)
     montar('Proposta', [], true)

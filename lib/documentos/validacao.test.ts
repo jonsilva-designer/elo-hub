@@ -125,3 +125,9 @@ describe('validação do documento (CA-12.1, RN-02, DF-65)', () => {
     expect(destinoDaInclusao({ ...BASE, origem: 'demanda', demandaNumero: 'ELO-1' })).toBe('/central/ELO-1')
   })
 })
+
+describe('mensagem da nova versão sem cliente, revisão do código', () => {
+  it('o documento do especialista sem cliente tem a mensagem do especialista, e não a do cliente', () => {
+    expect(MENSAGENS_DOCUMENTO.mesmoEspecialista).toBe('A nova versão precisa ser do mesmo especialista do documento anterior.')
+  })
+})

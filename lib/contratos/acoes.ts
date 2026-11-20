@@ -67,7 +67,12 @@ export async function salvarContrato(_estado: EstadoSalvarContrato, formData: Fo
     valores: dados,
     sucesso: {
       mensagem: mensagemDeSucesso('Contrato salvo.'),
-      destino: atual ? `/contratos/${atual.id}` : `/clientes/${dados.clienteId}?aba=contratos`,
+      // O contrato novo volta para onde foi aberto: a lista de contratos ou a aba Contratos do cliente.
+      destino: atual
+        ? `/contratos/${atual.id}`
+        : formData.get('origem') === 'lista'
+          ? '/contratos'
+          : `/clientes/${dados.clienteId}?aba=contratos`,
     },
   }
 }

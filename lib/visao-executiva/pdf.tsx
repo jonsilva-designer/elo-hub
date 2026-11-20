@@ -240,11 +240,8 @@ export function DocumentoVisaoExecutiva({ visao, logo }: { visao: VisaoExecutiva
               linhas={[
                 ['Maturidade geral', visao.maturidade.inicial.maturidadeGeral ?? '—', visao.maturidade.atual.maturidadeGeral ?? '—'],
                 ['Prontidão', visao.maturidade.inicial.prontidao ?? '—', visao.maturidade.atual.prontidao ?? '—'],
-                ...visao.maturidade.atual.dimensoes.map((d) => [
-                  d.dimensao,
-                  visao.maturidade!.inicial.dimensoes.find((x) => x.dimensao === d.dimensao)?.nivel ?? 'Não avaliada',
-                  d.nivel,
-                ]),
+                // As dimensões na ordem da comparação do cliente, com as que só a inicial tem, como na tela.
+                ...visao.maturidade.dimensoes.map((d) => [d.dimensao, d.inicial, d.atual]),
               ]}
               vazio=""
             />

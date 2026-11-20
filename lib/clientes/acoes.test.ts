@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { listarClientes, obterCliente } from '@/lib/dados/clientes'
+import { listarSegmentos } from '@/lib/dados/listas'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { excluirCliente, inativarCliente, reativarCliente, salvarCliente } from './acoes'
 import { ESTADO_INICIAL_SALVAR_CLIENTE } from './estados'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
 vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
+vi.mock('@/lib/dados/listas', async (original) => {
+  const real = await original<typeof import('@/lib/dados/listas')>()
+  return { ...real, listarSegmentos: vi.fn(real.listarSegmentos) }
+})
 
 beforeEach(() => limparCookies())
 
@@ -153,3 +158,14 @@ describe('inativar, reativar e excluir (RN-18, DF-33, matriz 4.3)', () => {
   })
 })
 
+describe('segmento fora da lista, revisão do código', () => {
+  it('na edição, o segmento que já estava no cliente fica, mesmo fora da lista oficial; outro de fora vira vazio', async () => {
+    entrarComo('usr-helena')
+    const atual = (await obterCliente('cli-vertice'))!
+    const base = { id: 'cli-vertice', razaoSocial: atual.razaoSocial, cnpj: atual.cnpj, status: atual.status }
+    vi.mocked(listarSegmentos).mockResolvedValueOnce([])
+    expect((await salvar({ ...base, segmento: atual.segmento ?? '' })).valores?.segmento).toBe(atual.segmento)
+    vi.mocked(listarSegmentos).mockResolvedValueOnce([])
+    expect((await salvar({ ...base, segmento: 'Inventado' })).valores?.segmento).toBe('')
+  })
+})
