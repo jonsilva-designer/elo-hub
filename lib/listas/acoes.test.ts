@@ -73,3 +73,15 @@ describe('listas oficiais (DF-01, DF-38, CA-18.5, CA-18.6)', () => {
     expect(await renomearItem('categoriasDeDocumento', 'Proposta Comercial', 'Proposta')).toEqual(nao(MENSAGENS_LISTA.fixo))
   })
 })
+
+describe('listas oficiais, revisão do código', () => {
+  it('espaços repetidos no meio não fazem um nome novo, e o nome precisa de letra ou número', () => {
+    expect(mesmoNome('Porto  do Açu', 'Porto do Açu')).toBe(true)
+  })
+
+  it('incluir só pontuação é recusado; renomear para o mesmo nome também', async () => {
+    entrarComo('usr-helena')
+    expect((await incluirItem('contratantes', '-')).ok).toBe(false)
+    expect(await renomearItem('contratantes', 'Petrobras', 'Petrobras')).toEqual(nao('O nome não mudou.'))
+  })
+})

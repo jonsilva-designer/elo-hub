@@ -28,6 +28,16 @@ async function opcoesDe(campo: RegExp) {
   return opcoes
 }
 
+describe('nova demanda, revisão do código', () => {
+  it('Cancelar volta para a Central com os filtros guardados', async () => {
+    entrarComo('usr-helena')
+    sessionStorage.setItem('elo:filtros-demandas', 'status=Nova')
+    render(await ConteudoNovaDemanda())
+    expect(screen.getByRole('link', { name: 'Cancelar' })).toHaveAttribute('href', '/central?status=Nova')
+    sessionStorage.clear()
+  })
+})
+
 describe('nova demanda (parte 5, 5.9)', () => {
   it('tem o título da aba', () => {
     expect(metadata.title).toBe('Nova demanda | Plataforma ELO')

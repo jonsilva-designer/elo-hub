@@ -12,6 +12,7 @@ import {
   semCliente,
   STATUS_DOCUMENTO,
   TAMANHO_MAXIMO,
+  nomeNoCabecalho,
 } from './regras'
 
 const ADMIN: Usuario = { id: 'usr-helena', nome: 'Helena', email: 'h@x', perfil: 'Administrador', status: 'Ativo' }
@@ -74,5 +75,11 @@ describe('acesso ao documento (RN-01, RN-16, DF-65)', () => {
     expect(acoesDeStatus('Vigente')).toEqual(['encerrar', 'marcar-superado'])
     expect(acoesDeStatus('Superado')).toEqual(['voltar-a-vigente'])
     expect(acoesDeStatus('Encerrado')).toEqual(['voltar-a-vigente'])
+  })
+})
+
+describe('nomeNoCabecalho, revisão do código', () => {
+  it("codifica também ' ( ) * no filename*, como pede a RFC 8187", () => {
+    expect(nomeNoCabecalho("Parecer D'Ávila (v2)*.pdf")).toBe('Parecer%20D%27%C3%81vila%20%28v2%29%2A.pdf')
   })
 })

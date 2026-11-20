@@ -12,17 +12,24 @@ import { lerCandidatura, lerDiagnostico, validarCandidatura, validarDiagnostico 
 // armadilha e pelo limite por IP (CA-19.4); o Turnstile entra na Etapa 3. No protótipo, nada é gravado e nenhum e-mail
 // sai; a resposta é a que a pessoa veria.
 
-/** O IP de quem envia, pelo primeiro endereço do x-forwarded-for, como a Vercel entrega. */
-async function ipDoEnvio(): Promise<string> {
-  const encaminhado = (await headers()).get('x-forwarded-for')
-  return encaminhado?.split(',')[0]?.trim() || 'local'
+/**
+ * O IP de quem envia: o x-real-ip que a Vercel põe, ou o primeiro endereço do x-forwarded-for. Sem IP, null: o limite
+ * não junta todos os visitantes num balde só (revisão do código).
+ */
+async function ipDoEnvio(): Promise<string | null> {
+  const cabecalhos = await headers()
+  return cabecalhos.get('x-real-ip')?.trim() || cabecalhos.get('x-forwarded-for')?.split(',')[0]?.trim() || null
 }
 
-/** O que vale para os dois formulários antes da validação: o robô recebe a confirmação sem nada gravado. */
-async function protecao(formData: FormData, confirmacao: string): Promise<EstadoSite | null> {
-  if (ehRobo(formData)) return { erros: {}, valores: null, confirmacao }
-  if (!dentroDoLimite(await ipDoEnvio(), Date.now())) return { erros: {}, valores: null, erroGeral: MENSAGEM_LIMITE }
-  return null
+/** O robô recebe a confirmação sem nada gravado (CA-19.4). */
+function ehEnvioDeRobo(formData: FormData, confirmacao: string): EstadoSite | null {
+  return ehRobo(formData) ? { erros: {}, valores: null, confirmacao } : null
+}
+
+/** O limite por IP conta só o envio que passou na validação: quem errou alguns campos não fica bloqueado. */
+async function foraDoLimite(): Promise<EstadoSite | null> {
+  const ip = await ipDoEnvio()
+  return ip && !dentroDoLimite(ip, Date.now()) ? { erros: {}, valores: null, erroGeral: MENSAGEM_LIMITE } : null
 }
 
 const aceite = () => ({ versao: TEXTOS_SITE.versao, aceitoEm: new Date().toISOString() })
@@ -34,11 +41,13 @@ const aceite = () => ({ versao: TEXTOS_SITE.versao, aceitoEm: new Date().toISOSt
  */
 export async function enviarDiagnostico(_estado: EstadoSite, formData: FormData): Promise<EstadoSite> {
   const confirmacao = TEXTOS_SITE.diagnostico.confirmacao
-  const bloqueio = await protecao(formData, confirmacao)
-  if (bloqueio) return bloqueio
+  const robo = ehEnvioDeRobo(formData, confirmacao)
+  if (robo) return robo
   const dados = lerDiagnostico(formData)
   const erros = validarDiagnostico(dados, await listarSegmentos())
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
+  const limite = await foraDoLimite()
+  if (limite) return limite
   // Só decide para onde o pedido iria: cliente novo ou observações do existente. A resposta é a mesma.
   await cnpjJaCadastrado(dados.cnpj)
   return { erros: {}, valores: null, confirmacao, consentimento: aceite() }
@@ -50,11 +59,13 @@ export async function enviarDiagnostico(_estado: EstadoSite, formData: FormData)
  */
 export async function enviarCandidatura(_estado: EstadoSite, formData: FormData): Promise<EstadoSite> {
   const confirmacao = TEXTOS_SITE.especialista.confirmacao
-  const bloqueio = await protecao(formData, confirmacao)
-  if (bloqueio) return bloqueio
+  const robo = ehEnvioDeRobo(formData, confirmacao)
+  if (robo) return robo
   const dados = lerCandidatura(formData)
   const erros = validarCandidatura(dados, await listarEspecialidades())
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
+  const limite = await foraDoLimite()
+  if (limite) return limite
   // Só decide a marca da candidatura nova (DF-50). A resposta é a mesma.
   await emailDeEspecialistaJaCadastrado(dados.email)
   return { erros: {}, valores: null, confirmacao, consentimento: aceite() }

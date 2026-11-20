@@ -105,13 +105,13 @@ export async function especialistaTemItensLigados(id: string): Promise<boolean> 
 }
 
 /**
- * O especialista está ligado a algum escopo aberto ou demanda não resolvida, de qualquer cliente: ao inativá-lo, o vínculo
- * fica para troca (DF-51). A demanda conta como no alerta "Especialista inativo" (CA-15.6).
+ * O especialista está ligado a algum escopo ou demanda aberta, de qualquer cliente: ao inativá-lo, o vínculo fica para
+ * troca (DF-51). A demanda aberta é a que não está Encerrada, como no alerta "Especialista inativo" (CA-15.6).
  */
 export async function especialistaTemVinculoAberto(id: string): Promise<boolean> {
   await obterUsuarioAtual()
   return (
     ESCOPOS.some((e) => e.especialistaIds.includes(id) && !escopoFechado(e.status)) ||
-    DEMANDAS.some((d) => d.status !== 'Resolvida' && d.status !== 'Encerrada' && d.especialistas.some((x) => x.id === id))
+    DEMANDAS.some((d) => d.status !== 'Encerrada' && d.especialistas.some((x) => x.id === id))
   )
 }

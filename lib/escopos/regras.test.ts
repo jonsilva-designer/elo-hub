@@ -70,13 +70,36 @@ describe('ciclosAnterioresPossiveis (DF-57, CA-05.10)', () => {
     { id: 'e-avulso', cicloAnteriorId: null },
   ]
 
-  it('no cadastro, qualquer escopo do cliente', () => {
-    expect(ciclosAnterioresPossiveis(ESCOPOS, null)).toEqual(['e-2024', 'e-2025', 'e-2026', 'e-avulso'])
+  it('no cadastro, qualquer escopo do cliente que ainda não tem ciclo seguinte (a cadeia não se divide)', () => {
+    expect(ciclosAnterioresPossiveis(ESCOPOS, null)).toEqual(['e-2026', 'e-avulso'])
   })
 
   it('na edição, nem o próprio escopo nem os ciclos que vêm depois dele', () => {
     expect(ciclosAnterioresPossiveis(ESCOPOS, 'e-2024')).toEqual(['e-avulso'])
     expect(ciclosAnterioresPossiveis(ESCOPOS, 'e-2025')).toEqual(['e-2024', 'e-avulso'])
-    expect(ciclosAnterioresPossiveis(ESCOPOS, 'e-2026')).toEqual(['e-2024', 'e-2025', 'e-avulso'])
+    // O 2024 já tem o 2025 como seguinte: apontar o 2026 para ele dividiria a cadeia.
+    expect(ciclosAnterioresPossiveis(ESCOPOS, 'e-2026')).toEqual(['e-2025', 'e-avulso'])
+  })
+})
+
+describe('ciclosAnterioresPossiveis, revisão do código', () => {
+  it('com dois ciclos seguintes do mesmo escopo, nenhum deles vira o anterior dele (CA-05.10)', () => {
+    const escopos = [
+      { id: 'a', cicloAnteriorId: null },
+      { id: 'b', cicloAnteriorId: 'a' },
+      { id: 'c', cicloAnteriorId: 'a' },
+      { id: 'd', cicloAnteriorId: 'c' },
+    ]
+    expect(ciclosAnterioresPossiveis(escopos, 'a')).toEqual([])
+  })
+
+  it('o escopo que já tem ciclo seguinte não vira anterior de mais um; o seguinte dele continua podendo apontar para ele', () => {
+    const escopos = [
+      { id: 'a', cicloAnteriorId: null },
+      { id: 'b', cicloAnteriorId: 'a' },
+      { id: 'x', cicloAnteriorId: null },
+    ]
+    expect(ciclosAnterioresPossiveis(escopos, null)).toEqual(['b', 'x'])
+    expect(ciclosAnterioresPossiveis(escopos, 'b')).toEqual(['a', 'x'])
   })
 })

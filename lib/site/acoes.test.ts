@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cnpjJaCadastrado, emailDeEspecialistaJaCadastrado } from '@/lib/dados/site'
 import { enviarCandidatura, enviarDiagnostico } from './acoes'
 import { ESTADO_INICIAL_SITE } from './estados'
-import { MENSAGEM_LIMITE, reiniciarLimite } from './protecao'
+import { CAMPO_ARMADILHA, MENSAGEM_LIMITE, reiniciarLimite } from './protecao'
 import { TEXTOS_SITE } from './textos'
 import { MENSAGENS_SITE } from './validacao'
 
@@ -76,9 +76,21 @@ describe('enviarDiagnostico (F19, DF-56, DF-76; CA-19.3)', () => {
   })
 
   it('o campo armadilha preenchido recebe a confirmação, sem consentimento gravado (CA-19.4)', async () => {
-    const estado = await enviarDiagnostico(ESTADO_INICIAL_SITE, formulario({ ...DIAGNOSTICO, site: 'http://spam' }))
+    const estado = await enviarDiagnostico(ESTADO_INICIAL_SITE, formulario({ ...DIAGNOSTICO, [CAMPO_ARMADILHA]: 'http://spam' }))
     expect(estado.confirmacao).toBe(TEXTOS_SITE.diagnostico.confirmacao)
     expect(estado.consentimento).toBeUndefined()
+  })
+
+  it('o envio recusado pela validação não gasta o limite: quem errou alguns campos ainda envia (revisão do código)', async () => {
+    for (let i = 0; i < 5; i++) {
+      expect((await enviarDiagnostico(ESTADO_INICIAL_SITE, formulario({ ...DIAGNOSTICO, cnpj: '123' }))).erros.cnpj).toBeDefined()
+    }
+    expect((await enviarDiagnostico(ESTADO_INICIAL_SITE, formulario(DIAGNOSTICO))).confirmacao).toBeDefined()
+  })
+
+  it('sem o IP de quem envia, não há um balde só para todos os visitantes (revisão do código)', async () => {
+    ip.valor = ''
+    for (let i = 0; i < 6; i++) expect((await enviarDiagnostico(ESTADO_INICIAL_SITE, formulario(DIAGNOSTICO))).confirmacao).toBeDefined()
   })
 
   it('o sexto envio do mesmo IP em 10 minutos é recusado (CA-19.4)', async () => {

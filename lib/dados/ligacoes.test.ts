@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { corrigirStatusDemanda } from '@/lib/demandas/acoes'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { listarClientes, obterCliente } from './clientes'
 import { contratoTemItensLigados } from './contratos'
@@ -12,6 +13,7 @@ import { COMENTARIOS, DEMANDAS } from './mock/demandas'
 import { DOCUMENTOS } from './mock/documentos'
 import { ESCOPOS } from './mock/escopos'
 import { ESPECIALISTAS } from './mock/especialistas'
+import { listarAlertas } from './alertas'
 
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
 vi.mock('next/navigation', async () => (await import('@/lib/testes/next-falso')).moduloNavigation)
@@ -75,11 +77,26 @@ describe('vínculo em aberto do especialista inativado (DF-51, CA-15.6)', () => 
     expect(await especialistaTemVinculoAberto(livre.id)).toBe(true)
   })
 
-  it('a demanda resolvida ou encerrada não conta', async () => {
+  it('a demanda Resolvida ainda conta: só a Encerrada é status final (RN-17, CA-15.6; revisão do código)', async () => {
+    const livre = await primeiroQue(ESPECIALISTAS, async (e) => !(await especialistaTemVinculoAberto(e.id)))
+    const resolvida = DEMANDAS.find((d) => d.status === 'Resolvida')!
+    incluir(DEMANDAS, { ...resolvida, numero: 'ELO-2099-0003', especialistas: [{ id: livre.id, principal: true }] })
+    expect(await especialistaTemVinculoAberto(livre.id)).toBe(true)
+  })
+
+  it('a demanda Encerrada não conta', async () => {
     const livre = await primeiroQue(ESPECIALISTAS, async (e) => !(await especialistaTemVinculoAberto(e.id)))
     const fechada = DEMANDAS.find((d) => d.status === 'Encerrada')!
     incluir(DEMANDAS, { ...fechada, numero: 'ELO-2099-0002', especialistas: [{ id: livre.id, principal: true }] })
     expect(await especialistaTemVinculoAberto(livre.id)).toBe(false)
+  })
+
+  it('a demanda Resolvida com especialista inativo gera o alerta (CA-15.6)', async () => {
+    const inativo = ESPECIALISTAS.find((e) => e.status === 'Inativo')!
+    const resolvida = DEMANDAS.find((d) => d.status === 'Resolvida')!
+    incluir(DEMANDAS, { ...resolvida, numero: 'ELO-2099-0004', especialistas: [{ id: inativo.id, principal: true }] })
+    const { alertas } = await listarAlertas()
+    expect(alertas.some((a) => a.tipo === 'Especialista inativo' && a.registro.includes('ELO-2099-0004'))).toBe(true)
   })
 })
 
@@ -114,5 +131,17 @@ describe('as leituras devolvem cópias', () => {
     const status = primeiro.status
     primeiro.status = status === 'Ativo' ? 'Inativo' : 'Ativo'
     expect((await obterCliente(primeiro.id))!.status).toBe(status)
+  })
+})
+
+describe('Central ELO, revisão do código', () => {
+  it('corrigir o status para Resolvida também pede a triagem completa', async () => {
+    const emTriagem = DEMANDAS.find((d) => d.status === 'Em triagem' && !d.categoria)!
+    const solucao = emTriagem.solucao
+    emTriagem.solucao = 'Resolvido por telefone.'
+    desfazer.push(() => {
+      emTriagem.solucao = solucao
+    })
+    expect((await corrigirStatusDemanda(emTriagem.numero, 'Resolvida', 'Correção.')).ok).toBe(false)
   })
 })

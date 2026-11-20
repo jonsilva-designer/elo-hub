@@ -58,6 +58,9 @@ export function FormularioDemanda({
   especialistas: Opcao[]
   referencias: Partial<Record<Criticidade, number>>
 }) {
+  // Quem responde hoje continua nas opções, mesmo sem vínculo, para o campo não parecer vazio (revisão do código).
+  const comResponsavelDeHoje = (id: string | null, nome: string) =>
+    id && !responsaveis.some((r) => r.valor === id) ? [...responsaveis, { valor: id, rotulo: `${nome} (sem vínculo)` }] : responsaveis
   const router = useRouter()
   const [estado, enviar, enviando] = useActionState(salvarDemanda, ESTADO_INICIAL_SALVAR_DEMANDA)
   const [contratoId, setContratoId] = useState(demanda.contratoId ?? '')
@@ -189,7 +192,7 @@ export function FormularioDemanda({
                   nome="responsavelTriagemId"
                   valor={triagem}
                   aoMudar={setTriagem}
-                  opcoes={responsaveis}
+                  opcoes={comResponsavelDeHoje(demanda.responsavelTriagemId, demanda.nomeTriagem)}
                   atributos={p}
                 />
               )}
@@ -200,7 +203,7 @@ export function FormularioDemanda({
                   nome="responsavelAtendimentoId"
                   valor={atendimento}
                   aoMudar={setAtendimento}
-                  opcoes={responsaveis}
+                  opcoes={comResponsavelDeHoje(demanda.responsavelAtendimentoId, demanda.nomeAtendimento)}
                   rotuloVazio="Sem atendente"
                   placeholder="Sem atendente"
                   atributos={p}

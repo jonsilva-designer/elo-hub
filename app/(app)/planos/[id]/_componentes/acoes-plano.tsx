@@ -27,11 +27,15 @@ const MENSAGENS = {
 }
 
 /** Recusa do servidor, dentro da janela. */
-function Recusa({ mensagem }: { mensagem: string | null }) {
+/** A recusa do servidor, com o que impede quando ele manda a lista (DF-59, revisão do código). */
+function Recusa({ mensagem, impedimentos = [] }: { mensagem: string | null; impedimentos?: ItemQueImpede[] }) {
   return mensagem ? (
-    <Alert variant="destructive">
-      <AlertDescription>{mensagem}</AlertDescription>
-    </Alert>
+    <div className="space-y-3">
+      <Alert variant="destructive">
+        <AlertDescription>{mensagem}</AlertDescription>
+      </Alert>
+      {impedimentos.length > 0 ? <ListaImpedimentos itens={impedimentos} /> : null}
+    </div>
   ) : null
 }
 
@@ -57,6 +61,7 @@ export function AcoesPlano({
   const [janela, setJanela] = useState<Janela>(null)
   const [pendente, iniciar] = useTransition()
   const [recusa, setRecusa] = useState<string | null>(null)
+  const [impedimentosDaRecusa, setImpedimentosDaRecusa] = useState<ItemQueImpede[]>([])
   const [erro, setErro] = useState<string | undefined>()
   const [justificativa, setJustificativa] = useState('')
   const [statusDeVolta, setStatusDeVolta] = useState<StatusPlano>('Aberto')
@@ -82,14 +87,22 @@ export function AcoesPlano({
 
   function executar(acao: () => Promise<ResultadoAcao>, depois?: () => void) {
     setRecusa(null)
+    setImpedimentosDaRecusa([])
     iniciar(async () => {
-      const resultado = await acao()
+      let resultado: ResultadoAcao
+      try {
+        resultado = await acao()
+      } catch {
+        // Sessão expirada ou rede: a recusa aparece na janela, e não na página de erro.
+        resultado = { ok: false, mensagem: 'Não foi possível concluir a ação. Tente de novo.' }
+      }
       if (resultado.ok) {
         avisarSalvo(resultado.mensagem)
         setJanela(null)
         depois?.()
       } else {
         setRecusa(resultado.mensagem)
+        setImpedimentosDaRecusa(resultado.impedimentos ?? [])
       }
     })
   }
@@ -150,7 +163,7 @@ export function AcoesPlano({
           descricao="O plano passa a Concluído. Só o Administrador reabre."
           rotuloConfirmar="Concluir"
           onConfirmar={() => executar(() => concluirPlano(plano.id))}
-          conteudo={recusa ? <Recusa mensagem={recusa} /> : undefined}
+          conteudo={recusa ? <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} /> : undefined}
           aberto={janela === 'concluir'}
           aoMudarAberto={aoMudarAberto}
           carregando={pendente}
@@ -164,7 +177,7 @@ export function AcoesPlano({
           // O botão que fecha a janela já se chama "Cancelar".
           rotuloConfirmar="Cancelar plano"
           onConfirmar={() => executar(() => cancelarPlano(plano.id))}
-          conteudo={recusa ? <Recusa mensagem={recusa} /> : undefined}
+          conteudo={recusa ? <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} /> : undefined}
           aberto={janela === 'cancelar'}
           aoMudarAberto={aoMudarAberto}
           carregando={pendente}
@@ -202,7 +215,7 @@ export function AcoesPlano({
                 )}
               </Campo>
               {campoJustificativa}
-              <Recusa mensagem={recusa} />
+              <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} />
             </div>
           }
           aberto={janela === 'reabrir'}
@@ -227,7 +240,7 @@ export function AcoesPlano({
         conteudo={
           <div className="space-y-3">
             {campoJustificativa}
-            <Recusa mensagem={recusa} />
+            <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} />
           </div>
         }
         aberto={janela === 'excluir'}

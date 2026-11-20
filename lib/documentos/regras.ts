@@ -83,3 +83,8 @@ export type AcaoStatusDocumento = 'encerrar' | 'marcar-superado' | 'voltar-a-vig
 export function acoesDeStatus(status: StatusDocumento): AcaoStatusDocumento[] {
   return status === 'Vigente' ? ['encerrar', 'marcar-superado'] : ['voltar-a-vigente']
 }
+
+/** O nome do arquivo para o `filename*` do cabeçalho: codifica também ' ( ) * (RFC 8187; revisão do código). */
+export function nomeNoCabecalho(nome: string): string {
+  return encodeURIComponent(nome).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)
+}

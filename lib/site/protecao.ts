@@ -3,7 +3,8 @@
 // memória, por processo: na Etapa 3, num armazenamento que sobrevive entre as funções.
 
 /** O nome do campo armadilha: escondido de quem enxerga e de leitores de tela; só um robô o preenche. */
-export const CAMPO_ARMADILHA = 'site'
+// Um nome que o preenchimento automático do navegador não usa (site, url, website seriam preenchidos: revisão do código).
+export const CAMPO_ARMADILHA = 'elo_verificacao'
 
 export const LIMITE_DE_ENVIOS = 5
 
@@ -21,6 +22,8 @@ const envios = new Map<string, number[]>()
 
 /** Conta o envio do IP e diz se ele ainda cabe no limite da janela. */
 export function dentroDoLimite(ip: string, agora: number): boolean {
+  // Sai do mapa o IP sem envio recente: o mapa não cresce sem fim (revisão do código).
+  for (const [chave, tempos] of envios) if (tempos.every((t) => agora - t >= JANELA_DO_LIMITE_EM_MS)) envios.delete(chave)
   const recentes = (envios.get(ip) ?? []).filter((t) => agora - t < JANELA_DO_LIMITE_EM_MS)
   if (recentes.length >= LIMITE_DE_ENVIOS) {
     envios.set(ip, recentes)

@@ -26,6 +26,7 @@ import { AcoesEspecialista } from './acoes-especialista'
 import { TabelaCandidaturas, TabelaLigacoes } from './tabelas-especialista'
 import { PainelDocumentos } from '../../../documentos/_componentes/painel-documentos'
 import { listarDocumentosLigados } from '@/lib/dados/documentos'
+import { cidadeUf } from '@/lib/especialistas/regras'
 
 
 const naoInformado = <Apagado>Não informado</Apagado>
@@ -39,7 +40,7 @@ function camposDoEspecialista(e: EspecialistaDetalhado): { rotulo: string; valor
     { rotulo: 'Telefone', valor: <Num>{e.telefone}</Num> },
     { rotulo: 'Subespecialidade', valor: ou(e.subespecialidade) },
     { rotulo: 'Data de nascimento', valor: e.dataNascimento ? <Num>{formatarData(e.dataNascimento)}</Num> : naoInformado },
-    { rotulo: 'Cidade/UF', valor: e.cidade ? `${e.cidade}${e.uf ? `/${e.uf}` : ''}` : naoInformado },
+    { rotulo: 'Cidade/UF', valor: cidadeUf(e.cidade, e.uf) || naoInformado },
     { rotulo: 'Empresa', valor: ou(e.empresa) },
     {
       rotulo: 'Currículo ou LinkedIn',

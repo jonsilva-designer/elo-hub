@@ -22,6 +22,7 @@ import { avisarSalvo } from '@/lib/avisos'
 import type { AtividadeDetalhada, Perfil, StatusAtividade } from '@/lib/dados/tipos'
 import { PRIORIDADES } from '@/lib/escopos/regras'
 import { formatarData } from '@/lib/formato'
+import { enderecoDasMinhasAtividades, useEnderecoDasMinhasAtividades } from './voltar-para-minhas-atividades'
 
 type Opcao = { valor: string; rotulo: string }
 
@@ -68,7 +69,8 @@ export function FormularioAtividade({
   useEffect(() => {
     if (!estado.sucesso) return
     avisarSalvo(estado.sucesso.mensagem)
-    router.push(estado.sucesso.destino)
+    // Volta para Minhas atividades com os filtros que estavam aplicados (CA-16.2, revisão do código).
+    router.push(estado.sucesso.destino === '/minhas-atividades' ? enderecoDasMinhasAtividades() : estado.sucesso.destino)
   }, [estado, router])
 
   // Depois de um erro ou do aviso, o React limpa o formulário: o valor padrão devolve o que foi digitado.
@@ -78,7 +80,8 @@ export function FormularioAtividade({
   const atual = atividade?.status ?? null
   const reabre = atual !== null && reaberturaDaAtividade(atual, status as StatusAtividade)
   const mostrarAviso = estado.aviso !== undefined && avisoRevisado !== estado
-  const destino = origem === 'minhas-atividades' ? '/minhas-atividades' : `/planos/${plano.id}`
+  const enderecoDaLista = useEnderecoDasMinhasAtividades()
+  const destino = origem === 'minhas-atividades' ? enderecoDaLista : `/planos/${plano.id}`
 
   /** "Salvar mesmo assim": envia de novo o que está na tela, agora com a confirmação (RN-21). */
   function confirmarAviso() {
@@ -146,7 +149,15 @@ export function FormularioAtividade({
             <Campo rotulo="Prazo" obrigatorio erro={erros.prazo}>
               {(p) => (
                 <>
-                  <CampoData {...p} valor={prazo} onChange={setPrazo} />
+                  <CampoData
+                    {...p}
+                    valor={prazo}
+                    onChange={(novo) => {
+                      setPrazo(novo)
+                      // O prazo mudou depois do aviso: o aviso sai, e o prazo novo é conferido de novo ao salvar (RN-21).
+                      if (mostrarAviso) setAvisoRevisado(estado)
+                    }}
+                  />
                   <input type="hidden" name="prazo" value={prazo ?? ''} />
                 </>
               )}

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { CHAVE_FILTROS_DOS_ESPECIALISTAS } from '@/lib/especialistas/filtros'
-import { VoltarParaEspecialistas } from './voltar-para-especialistas'
+import { enderecoDosEspecialistas, VoltarParaEspecialistas } from './voltar-para-especialistas'
 
 beforeEach(() => sessionStorage.clear())
 
@@ -17,5 +17,14 @@ describe('VoltarParaEspecialistas (parte 5, 5.4)', () => {
     sessionStorage.setItem(CHAVE_FILTROS_DOS_ESPECIALISTAS, 'origem=Site')
     render(<VoltarParaEspecialistas />)
     expect(link()).toHaveAttribute('href', '/especialistas?origem=Site')
+  })
+})
+
+describe('enderecoDosEspecialistas, revisão do código', () => {
+  it('a lista com os filtros guardados, para voltar depois de excluir ou cadastrar', () => {
+    sessionStorage.setItem(CHAVE_FILTROS_DOS_ESPECIALISTAS, 'origem=Site')
+    expect(enderecoDosEspecialistas()).toBe('/especialistas?origem=Site')
+    sessionStorage.clear()
+    expect(enderecoDosEspecialistas()).toBe('/especialistas')
   })
 })

@@ -2,6 +2,7 @@ import { cnpjValido } from '@/lib/cnpj'
 import { dataValida } from '@/lib/escopos/validacao'
 import { UFS } from '@/lib/ufs'
 import { emailValido } from '@/lib/usuarios/regras'
+import { linkValido } from '@/lib/especialistas/regras'
 
 // Validação dos formulários do site (parte 9, 4.1 e 4.2; F19, DF-76, DF-27), no servidor. As mensagens são provisórias
 // (DT-03).
@@ -96,7 +97,7 @@ export function validarCandidatura(d: DadosCandidatura, especialidades: readonly
   if (!emailValido(d.email)) erros.email = MENSAGENS_SITE.email
   if (!d.telefone) erros.telefone = MENSAGENS_SITE.telefone
   if (d.uf && !UFS.includes(d.uf)) erros.uf = MENSAGENS_SITE.uf
-  if (d.curriculo && !/^https?:\/\/\S+$/i.test(d.curriculo)) erros.curriculo = MENSAGENS_SITE.curriculo
+  if (d.curriculo && !linkValido(d.curriculo)) erros.curriculo = MENSAGENS_SITE.curriculo
   if (!marcado(d.aviso)) erros.aviso = MENSAGENS_SITE.aviso
   if (!marcado(d.consentimento)) erros.consentimento = MENSAGENS_SITE.consentimento
   return erros

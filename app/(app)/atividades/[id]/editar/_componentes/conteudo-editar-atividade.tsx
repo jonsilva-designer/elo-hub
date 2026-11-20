@@ -45,7 +45,7 @@ export async function ConteudoEditarAtividade({
       </div>
       <CabecalhoPagina
         titulo="Editar atividade"
-        acoes={podeExcluir ? <ExcluirAtividade atividadeId={atividade.id} planoId={plano.id} /> : null}
+        acoes={podeExcluir ? <ExcluirAtividade atividadeId={atividade.id} planoId={plano.id} origem={origem} /> : null}
       />
     </>
   )

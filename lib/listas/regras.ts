@@ -41,6 +41,12 @@ export function ehLista(chave: string): chave is ChaveLista {
 }
 
 /** O mesmo nome na lista: sem diferenciar maiúsculas, acentos e espaços nas pontas (CA-18.6, DF-69). */
+/** O nome como fica guardado: sem espaços nas pontas nem repetidos no meio (revisão do código). */
+export const nomeLimpo = (nome: string) => nome.trim().replace(/\s+/g, ' ')
+
+/** O nome tem ao menos uma letra ou um número: só pontuação não é nome. */
+export const nomeComConteudo = (nome: string) => /[\p{L}\p{N}]/u.test(nome)
+
 export function mesmoNome(a: string, b: string): boolean {
-  return normalizarBusca(a.trim()) === normalizarBusca(b.trim())
+  return normalizarBusca(nomeLimpo(a)) === normalizarBusca(nomeLimpo(b))
 }

@@ -77,19 +77,20 @@ export async function listarAlertas(): Promise<{ ativos: boolean; alertas: Alert
   }
 
   for (const d of demandas) {
+    // A Resolvida ainda está aberta (só a Encerrada é final): o especialista inativo nela gera alerta (CA-15.6).
+    if (d.status !== 'Encerrada' && (ehAdmin(usuario) || responsavelDaDemanda(d) === usuario.id)) {
+      for (const especialista of d.especialistasLigados.filter((x) => x.status === 'Inativo')) {
+        incluir(
+          { cliente: d.nomeCliente, criticidade: d.criticidade, href: `/central/${d.numero}`, tipo: 'Especialista inativo', registro: `${especialista.nome} em ${d.numero} · ${d.assunto}`, data: null, tom: 'problema' },
+          `${d.numero}:${especialista.id}`,
+        )
+      }
+    }
     if (!naoResolvida(d)) continue
     const registro = `${d.numero} · ${d.assunto}`
     const base = { cliente: d.nomeCliente, criticidade: d.criticidade, href: `/central/${d.numero}` }
     if (d.criticidade === 'Crítica') incluir({ ...base, tipo: 'Demanda crítica', registro, data: d.prazo, tom: 'atencao' }, d.numero)
     if (d.vencida) incluir({ ...base, tipo: 'Demanda vencida', registro, data: d.prazo, tom: 'problema' }, d.numero)
-    if (ehAdmin(usuario) || responsavelDaDemanda(d) === usuario.id) {
-      for (const especialista of d.especialistasLigados.filter((x) => x.status === 'Inativo')) {
-        incluir(
-          { ...base, tipo: 'Especialista inativo', registro: `${especialista.nome} em ${registro}`, data: null, tom: 'problema' },
-          `${d.numero}:${especialista.id}`,
-        )
-      }
-    }
   }
 
   return { ativos: true, alertas: ordenarAlertas(alertas) }

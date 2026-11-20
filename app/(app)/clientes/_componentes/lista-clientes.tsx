@@ -86,7 +86,7 @@ export function ListaClientes({
 }) {
   const router = useRouter()
   // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
-  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltros)
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais)
   const linhas = useMemo(() => filtrarClientes(clientes, filtros), [clientes, filtros])
   const texto = escreverFiltros(filtros)
 

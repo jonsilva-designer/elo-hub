@@ -26,7 +26,7 @@ import {
   STATUS_DEMANDA_ABERTOS,
   type AcaoDemanda,
 } from './regras'
-import { lerDadosDemanda, lerDadosNovaDemanda, validarDemanda, validarNovaDemanda } from './validacao'
+import { lerDadosDemanda, lerDadosNovaDemanda, MENSAGENS_DEMANDA, validarDemanda, validarNovaDemanda } from './validacao'
 
 // Ações da demanda da Central ELO (parte 5, 5.9 a 5.11). O Administrador e a Equipe registram, triam e atendem
 // (matriz 4.3); a regra de vínculo vem das leituras. Conferem tudo no servidor. No protótipo, nada é gravado e
@@ -139,7 +139,8 @@ export async function reabrirDemanda(numero: string, status: string, justificati
   if (!demandaFechada(demanda.status)) return recusa('Só uma demanda Encerrada pode ser reaberta.')
   if (!(STATUS_DEMANDA_ABERTOS as string[]).includes(status)) return recusa('Escolha o status de volta.')
   if (!temTexto(justificativa)) return recusa('Escreva a justificativa da reabertura.')
-  if (status === 'Em atendimento' || status === 'Aguardando retorno') {
+  // Resolvida também pede a triagem completa: a edição da Resolvida exige categoria, criticidade e atendente.
+  if (status === 'Em atendimento' || status === 'Aguardando retorno' || status === 'Resolvida') {
     const falta = faltaParaAtendimento(demanda)
     if (falta.length > 0) return recusa(faltaParaAtender(falta))
   }
@@ -159,7 +160,7 @@ export async function corrigirStatusDemanda(numero: string, status: string, just
   if (demandaFechada(demanda.status)) return recusa('A demanda Encerrada volta por Reabrir.')
   if (!(correcoesDaDemanda(demanda.status) as string[]).includes(status)) return recusa('Escolha um dos status da correção.')
   if (!temTexto(justificativa)) return recusa('Escreva a justificativa da correção.')
-  if (status === 'Aguardando retorno') {
+  if (status === 'Aguardando retorno' || status === 'Resolvida') {
     const falta = faltaParaAtendimento(demanda)
     if (falta.length > 0) return recusa(faltaParaAtender(falta))
   }
@@ -200,9 +201,22 @@ export async function salvarDemanda(_estado: EstadoSalvarDemanda, formData: Form
     ehCadastroElo: cliente?.ehCadastroElo === true,
     contratos,
     escopos,
-    responsaveis: responsaveis.map((u) => u.id),
+    // Quem já responde pela triagem ou pelo atendimento continua aceito sem troca (revisão do código).
+    responsaveis: [
+      ...responsaveis.map((u) => u.id),
+      demanda.responsavelTriagemId,
+      ...(demanda.responsavelAtendimentoId ? [demanda.responsavelAtendimentoId] : []),
+    ],
     categorias,
   })
+  // A Encerrada não perde a triagem que já tinha: a reabertura para o atendimento depende dela (revisão do código).
+  if (demanda.status === 'Encerrada') {
+    if (demanda.categoria && !dados.categoria) erros.categoria = MENSAGENS_DEMANDA.categoria
+    if (demanda.criticidade && !dados.criticidade) erros.criticidade = MENSAGENS_DEMANDA.criticidade
+    if (demanda.responsavelAtendimentoId && !dados.responsavelAtendimentoId) {
+      erros.responsavelAtendimentoId = MENSAGENS_DEMANDA.atendimento
+    }
+  }
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
   return {
     erros: {},

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { excluirAtividade } from '@/lib/atividades/acoes'
 import { avisarSalvo } from '@/lib/avisos'
+import { enderecoDasMinhasAtividades } from './voltar-para-minhas-atividades'
 
 const SEM_JUSTIFICATIVA = 'Escreva a justificativa da exclusão.'
 
@@ -17,7 +18,16 @@ const SEM_JUSTIFICATIVA = 'Escreva a justificativa da exclusão.'
  * "Excluir atividade", só do Administrador, na edição (parte 4, 5.7; DF-33). A exclusão é definitiva e pede a
  * justificativa. No protótipo, nada é gravado: depois do aviso, volta ao plano.
  */
-export function ExcluirAtividade({ atividadeId, planoId }: { atividadeId: string; planoId: string }) {
+export function ExcluirAtividade({
+  atividadeId,
+  planoId,
+  origem = null,
+}: {
+  atividadeId: string
+  planoId: string
+  /** Aberta a partir de Minhas atividades, a exclusão volta para a lista, com os filtros (revisão do código). */
+  origem?: 'minhas-atividades' | null
+}) {
   const router = useRouter()
   const [aberto, setAberto] = useState(false)
   const [pendente, iniciar] = useTransition()
@@ -46,7 +56,7 @@ export function ExcluirAtividade({ atividadeId, planoId }: { atividadeId: string
       if (resultado.ok) {
         avisarSalvo(resultado.mensagem)
         setAberto(false)
-        router.push(`/planos/${planoId}`)
+        router.push(origem === 'minhas-atividades' ? enderecoDasMinhasAtividades() : `/planos/${planoId}`)
       } else {
         setRecusa(resultado.mensagem)
       }

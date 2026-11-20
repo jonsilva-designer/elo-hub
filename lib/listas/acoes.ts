@@ -4,7 +4,7 @@ import { listarItensDaLista, type ItemDaLista } from '@/lib/dados/listas-configu
 import { ehAdmin } from '@/lib/dados/regras'
 import { obterUsuarioAtual } from '@/lib/dados/sessao'
 import { mensagemDeSucesso, SEM_PERMISSAO, type ResultadoAcao } from '@/lib/resultado-acao'
-import { ehLista, MENSAGENS_LISTA, mesmoNome } from './regras'
+import { ehLista, MENSAGENS_LISTA, mesmoNome, nomeComConteudo, nomeLimpo } from './regras'
 
 // Ações das listas oficiais (parte 8, 4.2; DF-01, DF-38, CA-18.5, CA-18.6). Só o Administrador. Conferem tudo no
 // servidor. No protótipo, nada é gravado.
@@ -24,7 +24,7 @@ const texto = (valor: unknown) => (typeof valor === 'string' ? valor.trim() : ''
 export async function incluirItem(lista: string, nome: string): Promise<ResultadoAcao> {
   const itens = await itensDoAdministrador(lista)
   if (!itens) return recusa(SEM_PERMISSAO)
-  if (!texto(nome)) return recusa(MENSAGENS_LISTA.nome)
+  if (!nomeComConteudo(texto(nome))) return recusa(MENSAGENS_LISTA.nome)
   if (itens.some((i) => mesmoNome(i.nome, texto(nome)))) return recusa(MENSAGENS_LISTA.repetido)
   return sucesso('Item incluído.')
 }
@@ -35,7 +35,8 @@ export async function renomearItem(lista: string, nomeAtual: string, novoNome: s
   const item = itens?.find((i) => i.nome === nomeAtual)
   if (!itens || !item) return recusa(SEM_PERMISSAO)
   if (item.fixo) return recusa(MENSAGENS_LISTA.fixo)
-  if (!texto(novoNome)) return recusa(MENSAGENS_LISTA.nome)
+  if (!nomeComConteudo(texto(novoNome))) return recusa(MENSAGENS_LISTA.nome)
+  if (nomeLimpo(texto(novoNome)) === nomeLimpo(item.nome)) return recusa('O nome não mudou.')
   if (itens.some((i) => i !== item && mesmoNome(i.nome, texto(novoNome)))) return recusa(MENSAGENS_LISTA.repetido)
   return sucesso(MENSAGENS_LISTA.renomeado)
 }

@@ -66,7 +66,8 @@ const COLUNAS: Coluna<EscopoDetalhado>[] = [
     id: 'status',
     titulo: 'Status',
     largura: 'w-1/8',
-    ordenarPor: (e) => e.status,
+    // Pelo ciclo de vida, e não pela ordem alfabética (revisão do código).
+    ordenarPor: (e) => STATUS_ESCOPO.indexOf(e.status),
     celula: (e) => <EtiquetaStatus status={e.status} />,
   },
   {
@@ -155,7 +156,7 @@ export function ListaEscopos({
 }) {
   const router = useRouter()
   // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
-  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosEscopos)
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais)
   const linhas = useMemo(() => filtrarEscopos(escopos, filtros), [escopos, filtros])
   const contratos = useMemo(() => contratosDosEscopos(escopos), [escopos])
   const responsaveis = useMemo(() => responsaveisDosEscopos(escopos), [escopos])

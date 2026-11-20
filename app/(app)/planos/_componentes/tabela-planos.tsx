@@ -43,7 +43,8 @@ const COLUNAS: Record<'escopo' | 'avaliacao', Coluna<PlanoDetalhado>[]> = {
     {
       id: 'prazo',
       titulo: 'Prazo',
-      ordenarPor: (p) => p.prazo ?? '',
+      // Sem prazo vai para o fim, como na ordem padrão dos planos (revisão do código).
+      ordenarPor: (p) => p.prazo ?? '9999-12-31',
       celula: (p) => (p.prazo ? <Num>{formatarData(p.prazo)}</Num> : <Apagado>Sem prazo</Apagado>),
     },
     STATUS,

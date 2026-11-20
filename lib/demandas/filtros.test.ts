@@ -110,3 +110,13 @@ describe('filtros da fila de demandas (CA-09.7, CA-16.2)', () => {
     expect(numeros(filtrarDemandas(demandas, { ...SEM_FILTRO, busca: 'CERTIDOES' }))).toEqual(['ELO-2026-0003', 'ELO-2026-0002'])
   })
 })
+
+describe('filtrarDemandas, revisão do código', () => {
+  it('com "Aberta de" depois de "Aberta até", o período é lido na ordem certa, e não esvazia a lista', async () => {
+    const demandas = await daHelena()
+    const certa = filtrarDemandas(demandas, { ...SEM_FILTRO, de: '2026-01-01', ate: '2026-12-31' })
+    const invertida = filtrarDemandas(demandas, { ...SEM_FILTRO, de: '2026-12-31', ate: '2026-01-01' })
+    expect(certa.length).toBeGreaterThan(0)
+    expect(numeros(invertida)).toEqual(numeros(certa))
+  })
+})

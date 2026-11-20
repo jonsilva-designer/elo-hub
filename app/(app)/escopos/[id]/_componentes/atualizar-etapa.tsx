@@ -28,6 +28,11 @@ type Props = {
 
 /** O formulário da janela. Fica dentro dela para começar limpo a cada abertura. */
 function FormularioEtapa({ escopoId, etapa, perfil, destinos, motivo, responsaveis, aoSalvar }: Props & { aoSalvar: () => void }) {
+  // Quem responde pela etapa hoje continua nas opções, mesmo sem vínculo, para o campo não parecer vazio.
+  const opcoesDeResponsavel =
+    etapa.responsavelId && !responsaveis.some((r) => r.valor === etapa.responsavelId)
+      ? [...responsaveis, { valor: etapa.responsavelId, rotulo: `${etapa.nomeResponsavel} (sem vínculo)` }]
+      : responsaveis
   const [estado, enviar, enviando] = useActionState(atualizarEtapa, ESTADO_INICIAL_ATUALIZAR_ETAPA)
   const [status, setStatus] = useState<string>(etapa.status)
   const [responsavel, setResponsavel] = useState(etapa.responsavelId ?? '')
@@ -72,7 +77,7 @@ function FormularioEtapa({ escopoId, etapa, perfil, destinos, motivo, responsave
               nome="responsavelId"
               valor={responsavel}
               aoMudar={setResponsavel}
-              opcoes={responsaveis}
+              opcoes={opcoesDeResponsavel}
               rotuloVazio="Sem responsável"
               placeholder="Sem responsável"
               atributos={p}

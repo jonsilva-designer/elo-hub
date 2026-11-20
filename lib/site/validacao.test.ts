@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { dentroDoLimite, ehRobo, LIMITE_DE_ENVIOS, reiniciarLimite } from './protecao'
 import { TEXTOS_SITE } from './textos'
 import { lerDiagnostico, lerCandidatura, MENSAGENS_SITE, validarCandidatura, validarDiagnostico } from './validacao'
+import { CAMPO_ARMADILHA } from './protecao'
 
 function formulario(campos: Record<string, string>): FormData {
   const fd = new FormData()
@@ -82,9 +83,9 @@ describe('validação da candidatura (F11, DF-27, CA-19.2)', () => {
 
 describe('proteção contra envio automatizado (CA-19.4, DA-03)', () => {
   it('o campo armadilha preenchido é de robô', () => {
-    expect(ehRobo(formulario({ site: '' }))).toBe(false)
+    expect(ehRobo(formulario({ [CAMPO_ARMADILHA]: '' }))).toBe(false)
     expect(ehRobo(formulario({}))).toBe(false)
-    expect(ehRobo(formulario({ site: 'http://spam.example' }))).toBe(true)
+    expect(ehRobo(formulario({ [CAMPO_ARMADILHA]: 'http://spam.example' }))).toBe(true)
   })
 
   it('até 5 envios por IP em 10 minutos; depois da janela, de novo', () => {
@@ -94,5 +95,11 @@ describe('proteção contra envio automatizado (CA-19.4, DA-03)', () => {
     expect(dentroDoLimite('1.2.3.4', agora + 10)).toBe(false)
     expect(dentroDoLimite('5.6.7.8', agora + 10)).toBe(true)
     expect(dentroDoLimite('1.2.3.4', agora + 10 * 60 * 1000 + 1)).toBe(true)
+  })
+})
+
+describe('campo armadilha, revisão do código', () => {
+  it('tem um nome que o preenchimento automático do navegador não usa', () => {
+    expect(CAMPO_ARMADILHA).not.toMatch(/site|url|web|home|link/i)
   })
 })

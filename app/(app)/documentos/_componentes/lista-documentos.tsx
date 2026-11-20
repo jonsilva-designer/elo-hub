@@ -130,7 +130,7 @@ export function ListaDocumentos({
 }) {
   const router = useRouter()
   // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
-  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosDocumentos)
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais)
   const linhas = useMemo(() => filtrarDocumentos(documentos, filtros), [documentos, filtros])
 
   // Quem chega pelo endereço com filtros também tem a volta garantida.

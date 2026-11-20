@@ -44,13 +44,13 @@ export async function atualizarEtapa(_estado: EstadoAtualizarEtapa, formData: Fo
   // A Equipe mantém o responsável que a etapa já tem (conferido acima).
   const responsaveisPermitidos =
     usuario.perfil === 'Administrador'
-      ? (await listarResponsaveis(escopo.clienteId)).map((u) => u.id)
+      ? [...(await listarResponsaveis(escopo.clienteId)).map((u) => u.id), ...(atual.responsavelId ? [atual.responsavelId] : [])]
       : [atual.responsavelId ?? '']
+  // Reabrir uma Concluída apaga a data de conclusão (CN-22.2), antes de conferir as datas: a conclusão que vai ser
+  // apagada não pode barrar o início novo (revisão do código).
+  if (atual.status === 'Concluída' && dados.status !== 'Concluída') dados.conclusao = ''
   const erros = validarEtapa(dados, { atual, destinos, motivo, responsaveisPermitidos })
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
-
-  // 7. Reabrir uma Concluída apaga a data de conclusão (CN-22.2).
-  if (atual.status === 'Concluída' && dados.status !== 'Concluída') dados.conclusao = ''
 
   return { erros: {}, valores: dados, sucesso: { mensagem: mensagemDeSucesso('Etapa atualizada.') } }
 }

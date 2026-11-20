@@ -46,6 +46,11 @@ export function FormularioEscopo({
   /** Os especialistas Ativos e, na edição, os já ligados, mesmo Inativos (CA-11.2, DF-51). */
   especialistas: Opcao[]
 }) {
+  // Quem responde pelo escopo hoje continua nas opções, mesmo sem vínculo, para o campo não parecer vazio.
+  const opcoesDeResponsavel =
+    escopo && !responsaveis.some((r) => r.valor === escopo.responsavelId)
+      ? [...responsaveis, { valor: escopo.responsavelId, rotulo: `${escopo.nomeResponsavel} (sem vínculo)` }]
+      : responsaveis
   const router = useRouter()
   const [estado, enviar, enviando] = useActionState(salvarEscopo, ESTADO_INICIAL_SALVAR_ESCOPO)
   const formulario = useRef<HTMLFormElement>(null)
@@ -119,7 +124,7 @@ export function FormularioEscopo({
                 nome="responsavelId"
                 valor={responsavel}
                 aoMudar={setResponsavel}
-                opcoes={responsaveis}
+                opcoes={opcoesDeResponsavel}
                 atributos={p}
               />
             )}

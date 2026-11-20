@@ -38,7 +38,8 @@ export function lerDadosParametros(formData: FormData): DadosParametros {
   return dados
 }
 
-const inteiro = (texto: string) => (/^\d+$/.test(texto) ? Number(texto) : null)
+// Inteiro de verdade: um número grande demais vira Infinity e não passa (revisão do código).
+const inteiro = (texto: string) => (/^\d+$/.test(texto) && Number.isSafeInteger(Number(texto)) ? Number(texto) : null)
 
 const doDominio = (email: string) => /^[^\s@]+@elogovernance\.com\.br$/i.test(email)
 

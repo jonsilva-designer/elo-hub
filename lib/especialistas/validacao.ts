@@ -2,6 +2,7 @@ import type { EspecialistaDetalhado, StatusEspecialista } from '@/lib/dados/tipo
 import { dataValida } from '@/lib/escopos/validacao'
 import { UFS } from '@/lib/ufs'
 import { STATUS_ESPECIALISTA } from './regras'
+import { linkValido } from './regras'
 
 // Validação do cadastro e da edição do especialista (parte 5, 5.5; F11, DF-27), no servidor. As mensagens são
 // provisórias (DT-03).
@@ -54,7 +55,6 @@ const CAMPOS = [
 ] as const
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const LINK = /^https?:\/\/\S+\.\S+$/
 
 /** Os campos do formulário, sem espaços nas pontas. */
 export function lerDadosEspecialista(formData: FormData): DadosEspecialista {
@@ -77,11 +77,13 @@ export function validarEspecialista(
 ): ErrosEspecialista {
   const erros: ErrosEspecialista = {}
   if (!dados.nome.trim()) erros.nome = MENSAGENS_ESPECIALISTA.nome
-  if (!contexto.especialidades.includes(dados.especialidade)) erros.especialidade = MENSAGENS_ESPECIALISTA.especialidade
+  // A especialidade que saiu da lista continua aceita sem troca, na edição (revisão do código).
+  const daLista = contexto.especialidades.includes(dados.especialidade) || dados.especialidade === contexto.atual?.especialidade
+  if (!daLista) erros.especialidade = MENSAGENS_ESPECIALISTA.especialidade
   if (!dados.email) erros.email = MENSAGENS_ESPECIALISTA.email
   else if (!EMAIL.test(dados.email)) erros.email = MENSAGENS_ESPECIALISTA.emailInvalido
   if (!dados.telefone) erros.telefone = MENSAGENS_ESPECIALISTA.telefone
-  if (dados.curriculo && !LINK.test(dados.curriculo)) erros.curriculo = MENSAGENS_ESPECIALISTA.curriculo
+  if (dados.curriculo && !linkValido(dados.curriculo)) erros.curriculo = MENSAGENS_ESPECIALISTA.curriculo
   if (dados.dataNascimento && !dataValida(dados.dataNascimento)) erros.dataNascimento = MENSAGENS_ESPECIALISTA.data
   if (dados.uf && !UFS.includes(dados.uf)) erros.uf = MENSAGENS_ESPECIALISTA.uf
 

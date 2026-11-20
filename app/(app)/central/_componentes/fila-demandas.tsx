@@ -106,7 +106,7 @@ export function FilaDemandas({
   semVinculo: boolean
 }) {
   // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
-  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosDemandas)
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais)
   // A cada limpeza, os campos de data voltam vazios, mesmo com uma data digitada pela metade (o valor já era null).
   const [limpezas, setLimpezas] = useState(0)
   const linhas = useMemo(() => filtrarDemandas(demandas, filtros), [demandas, filtros])

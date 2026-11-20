@@ -19,6 +19,7 @@ import { ESTADO_INICIAL_SALVAR_ESPECIALISTA } from '@/lib/especialistas/estados'
 import { STATUS_ESPECIALISTA } from '@/lib/especialistas/regras'
 import type { DadosEspecialista } from '@/lib/especialistas/validacao'
 import { UFS } from '@/lib/ufs'
+import { enderecoDosEspecialistas, useEnderecoDosEspecialistas } from './voltar-para-especialistas'
 
 /**
  * Cadastro e edição do especialista (parte 5, 5.5; F11, DF-27), só do Administrador. A origem é só leitura: o cadastro
@@ -32,6 +33,11 @@ export function FormularioEspecialista({
   especialista: EspecialistaDetalhado | null
   especialidades: string[]
 }) {
+  // A especialidade que saiu da lista continua como opção, para o campo não parecer vazio (revisão do código).
+  const opcoesDeEspecialidade =
+    especialista && especialista.especialidade && !especialidades.includes(especialista.especialidade)
+      ? [...especialidades, especialista.especialidade]
+      : especialidades
   const router = useRouter()
   const [estado, enviar, enviando] = useActionState(salvarEspecialista, ESTADO_INICIAL_SALVAR_ESPECIALISTA)
   const [especialidade, setEspecialidade] = useState(especialista?.especialidade ?? '')
@@ -42,13 +48,15 @@ export function FormularioEspecialista({
   useEffect(() => {
     if (!estado.sucesso) return
     avisarSalvo(estado.sucesso.mensagem)
-    router.push(estado.sucesso.destino)
+    // Volta para a lista com os filtros que estavam aplicados (CA-16.2, revisão do código).
+    router.push(estado.sucesso.destino === '/especialistas' ? enderecoDosEspecialistas() : estado.sucesso.destino)
   }, [estado, router])
 
   // Depois de um erro, o React limpa o formulário: o valor padrão devolve o que foi digitado.
   const inicial = (campo: keyof DadosEspecialista, doCadastro?: string) => estado.valores?.[campo] ?? doCadastro ?? ''
   const erros = estado.erros
-  const destino = especialista ? `/especialistas/${especialista.id}` : '/especialistas'
+  const enderecoDaLista = useEnderecoDosEspecialistas()
+  const destino = especialista ? `/especialistas/${especialista.id}` : enderecoDaLista
   const statusPossiveis = especialista ? STATUS_ESPECIALISTA : STATUS_ESPECIALISTA.filter((s) => s !== 'Inativo')
 
   return (
@@ -72,7 +80,7 @@ export function FormularioEspecialista({
                   nome="especialidade"
                   valor={especialidade}
                   aoMudar={setEspecialidade}
-                  opcoes={especialidades}
+                  opcoes={opcoesDeEspecialidade}
                   atributos={p}
                 />
               )}

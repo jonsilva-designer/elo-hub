@@ -176,6 +176,18 @@ describe('AcoesEscopo (parte 3, 5.9)', () => {
     expect(excluirEscopo).toHaveBeenCalledWith('esc-vertice-qualidade', 'Duplicado')
   })
 
+  it('a recusa do servidor com o que impede lista os itens na janela (revisão do código)', async () => {
+    vi.mocked(cancelarEscopo).mockResolvedValue({
+      ok: false,
+      mensagem: 'Não é possível cancelar enquanto houver itens abertos.',
+      impedimentos: [{ tipo: 'Plano', descricao: 'Plano de teste aberto', status: 'Em andamento', href: '/planos/p' } as ItemQueImpede],
+    })
+    montar(await escopo('esc-vertice-qualidade'))
+    const janela = await escolher('Cancelar')
+    await userEvent.click(janela.getByRole('button', { name: 'Cancelar escopo' }))
+    expect(await janela.findByText(/Plano de teste aberto/)).toBeInTheDocument()
+  })
+
   it('a recusa do servidor aparece dentro da janela', async () => {
     vi.mocked(cancelarEscopo).mockResolvedValue({ ok: false, mensagem: 'Só um escopo aberto pode ser cancelado.' })
     montar(await escopo('esc-vertice-qualidade'))

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mesmoEmail, opcoesDeVinculo, ORIGENS_ESPECIALISTA, STATUS_ESPECIALISTA } from './regras'
+import { cidadeUf } from './regras'
 
 describe('regras do especialista (F11, PRD 6.1)', () => {
   it('as listas na ordem do PRD', () => {
@@ -22,5 +23,14 @@ describe('opcoesDeVinculo (CA-11.2, DF-51)', () => {
       { valor: 'b', rotulo: 'Ana · Jurídico (Inativo)' },
       { valor: 'a', rotulo: 'Zélia · Financeiro' },
     ])
+  })
+})
+
+describe('cidadeUf, revisão do código', () => {
+  it('mostra o que foi preenchido: a UF aparece mesmo sem a cidade', () => {
+    expect(cidadeUf('Macaé', 'RJ')).toBe('Macaé/RJ')
+    expect(cidadeUf('', 'RJ')).toBe('RJ')
+    expect(cidadeUf('Macaé', '')).toBe('Macaé')
+    expect(cidadeUf('', '')).toBe('')
   })
 })

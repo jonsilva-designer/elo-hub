@@ -32,11 +32,15 @@ const MENSAGENS = {
 }
 
 /** Recusa do servidor, dentro da janela. */
-function Recusa({ mensagem }: { mensagem: string | null }) {
+/** A recusa do servidor, com o que impede quando ele manda a lista (DF-59, revisão do código). */
+function Recusa({ mensagem, impedimentos = [] }: { mensagem: string | null; impedimentos?: ItemQueImpede[] }) {
   return mensagem ? (
-    <Alert variant="destructive">
-      <AlertDescription>{mensagem}</AlertDescription>
-    </Alert>
+    <div className="space-y-3">
+      <Alert variant="destructive">
+        <AlertDescription>{mensagem}</AlertDescription>
+      </Alert>
+      {impedimentos.length > 0 ? <ListaImpedimentos itens={impedimentos} /> : null}
+    </div>
   ) : null
 }
 
@@ -63,6 +67,7 @@ export function AcoesEscopo({
   const [janela, setJanela] = useState<Janela>(null)
   const [pendente, iniciar] = useTransition()
   const [recusa, setRecusa] = useState<string | null>(null)
+  const [impedimentosDaRecusa, setImpedimentosDaRecusa] = useState<ItemQueImpede[]>([])
   const [erro, setErro] = useState<string | undefined>()
   const [justificativa, setJustificativa] = useState('')
   const [dataEfetiva, setDataEfetiva] = useState<string | null>(null)
@@ -85,14 +90,22 @@ export function AcoesEscopo({
 
   function executar(acao: () => Promise<ResultadoAcao>, depois?: () => void) {
     setRecusa(null)
+    setImpedimentosDaRecusa([])
     iniciar(async () => {
-      const resultado = await acao()
+      let resultado: ResultadoAcao
+      try {
+        resultado = await acao()
+      } catch {
+        // Sessão expirada ou rede: a recusa aparece na janela, e não na página de erro.
+        resultado = { ok: false, mensagem: 'Não foi possível concluir a ação. Tente de novo.' }
+      }
       if (resultado.ok) {
         avisarSalvo(resultado.mensagem)
         setJanela(null)
         depois?.()
       } else {
         setRecusa(resultado.mensagem)
+        setImpedimentosDaRecusa(resultado.impedimentos ?? [])
       }
     })
   }
@@ -167,7 +180,7 @@ export function AcoesEscopo({
               <Campo rotulo="Data efetiva de conclusão" obrigatorio erro={erro}>
                 {(p) => <CampoData {...p} valor={dataEfetiva} onChange={setDataEfetiva} />}
               </Campo>
-              <Recusa mensagem={recusa} />
+              <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} />
             </div>
           }
           aberto={janela === 'concluir'}
@@ -183,7 +196,7 @@ export function AcoesEscopo({
           // O botão que fecha a janela já se chama "Cancelar".
           rotuloConfirmar="Cancelar escopo"
           onConfirmar={() => executar(() => cancelarEscopo(escopo.id))}
-          conteudo={recusa ? <Recusa mensagem={recusa} /> : undefined}
+          conteudo={recusa ? <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} /> : undefined}
           aberto={janela === 'cancelar'}
           aoMudarAberto={aoMudarAberto}
           carregando={pendente}
@@ -223,7 +236,7 @@ export function AcoesEscopo({
                 )}
               </Campo>
               {campoJustificativa}
-              <Recusa mensagem={recusa} />
+              <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} />
             </div>
           }
           aberto={janela === 'reabrir'}
@@ -261,7 +274,7 @@ export function AcoesEscopo({
                 />
               )}
             </Campo>
-            <Recusa mensagem={recusa} />
+            <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} />
           </div>
         }
         aberto={janela === 'mover'}
@@ -285,7 +298,7 @@ export function AcoesEscopo({
         conteudo={
           <div className="space-y-3">
             {campoJustificativa}
-            <Recusa mensagem={recusa} />
+            <Recusa mensagem={recusa} impedimentos={impedimentosDaRecusa} />
           </div>
         }
         aberto={janela === 'excluir'}

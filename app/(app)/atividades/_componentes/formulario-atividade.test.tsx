@@ -96,3 +96,32 @@ describe('FormularioAtividade (parte 4, 5.7)', () => {
     expect(enviado().get('status')).toBe('Não iniciada')
   })
 })
+
+describe('FormularioAtividade, revisão do código', () => {
+  it('salva a partir de Minhas atividades e volta para a lista com os filtros guardados', async () => {
+    sessionStorage.setItem('elo:filtros-atividades', 'status=Em+andamento')
+    vi.mocked(salvarAtividade).mockResolvedValue({
+      erros: {},
+      valores: DIGITADO,
+      sucesso: { mensagem: 'Atividade salva.', destino: '/minhas-atividades' },
+    })
+    render(
+      <FormularioAtividade atividade={null} plano={PLANO} perfil="Equipe" responsaveis={RESPONSAVEIS} origem="minhas-atividades" />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/minhas-atividades?status=Em+andamento'))
+    expect(screen.getByRole('link', { name: 'Cancelar' })).toHaveAttribute('href', '/minhas-atividades?status=Em+andamento')
+    sessionStorage.clear()
+  })
+
+  it('mudar o prazo depois do aviso tira o aviso: o prazo novo é conferido de novo ao salvar', async () => {
+    vi.mocked(salvarAtividade).mockResolvedValueOnce({ erros: {}, valores: DIGITADO, aviso: AVISO })
+    montar()
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    expect(await screen.findByText(/O prazo é depois do prazo do plano/)).toBeInTheDocument()
+    const prazo = screen.getByRole('textbox', { name: /Prazo/ })
+    await userEvent.clear(prazo)
+    await userEvent.type(prazo, '10052027')
+    expect(screen.queryByRole('button', { name: 'Salvar mesmo assim' })).not.toBeInTheDocument()
+  })
+})

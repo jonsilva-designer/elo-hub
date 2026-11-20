@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { hojeEmBrasilia, somarDias } from '@/lib/formato'
+import { obterEscopo } from '@/lib/dados/escopos'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import {
   cancelarEscopo,
@@ -434,5 +435,14 @@ describe('excluirEscopo (RN-13, DF-33; critério 19)', () => {
       ok: true,
       mensagem: 'Escopo excluído. No protótipo, os dados não são gravados.',
     })
+  })
+})
+
+describe('revisão do código', () => {
+  it('reclassificar para a mesma criticidade é recusado: nada mudaria', async () => {
+    entrarComo('usr-helena')
+    const escopo = (await obterEscopo('esc-vertice-qualidade'))!
+    const r = await reclassificarCriticidade(escopo.id, escopo.criticidade, 'Revisão')
+    expect(r.ok).toBe(false)
   })
 })

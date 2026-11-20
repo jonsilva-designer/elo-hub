@@ -98,7 +98,7 @@ export function ListaAtividades({
   semVinculo: boolean
 }) {
   // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
-  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, (f) => escreverFiltrosAtividades(f, usuarioId))
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais)
   const linhas = useMemo(() => filtrarAtividades(atividades, filtros), [atividades, filtros])
   const texto = escreverFiltrosAtividades(filtros, usuarioId)
 

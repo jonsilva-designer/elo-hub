@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
-import { obterDemanda } from '@/lib/dados/demandas'
+import { listarDemandas, obterDemanda } from '@/lib/dados/demandas'
 import { obterInicioDaOperacao } from '@/lib/dados/parametros'
 import {
   comentarDemanda,
@@ -211,9 +211,10 @@ describe('corrigirStatusDemanda (RN-22, CA-17.4)', () => {
       ok: false,
       mensagem: 'Falta para iniciar o atendimento: Categoria, Criticidade, Responsável pelo atendimento.',
     })
+    // Resolvida também pede a triagem completa (revisão do código), antes da solução.
     expect(await corrigirStatusDemanda('ELO-2026-0009', 'Resolvida', 'Já tinha sido resolvida por telefone.')).toEqual({
       ok: false,
-      mensagem: 'Para passar a Resolvida, a demanda precisa ter a solução.',
+      mensagem: 'Falta para iniciar o atendimento: Categoria, Criticidade, Responsável pelo atendimento.',
     })
   })
 
@@ -371,5 +372,13 @@ describe('comentarDemanda (CA-09.6, CA-09.13; DF-30)', () => {
     expect(await comentar({ numero: 'ELO-2026-0001' })).toMatchObject({ erroGeral: 'A demanda encerrada não recebe comentários.' })
     entrarComo('usr-rafael')
     expect(await comentar({ numero: 'ELO-2026-0011' })).toMatchObject({ erroGeral: SEM_PERMISSAO })
+  })
+})
+
+describe('revisão do código', () => {
+  it('o Administrador não apaga a triagem de uma demanda Encerrada ao editar', async () => {
+    entrarComo('usr-helena')
+    const encerrada = (await listarDemandas()).find((d) => d.status === 'Encerrada' && d.criticidade)!
+    expect((await edicao(encerrada.numero, { criticidade: '' })).erros.criticidade).toBe(MENSAGENS_DEMANDA.criticidade)
   })
 })

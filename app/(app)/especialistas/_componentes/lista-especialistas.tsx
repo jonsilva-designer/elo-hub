@@ -24,6 +24,7 @@ import {
   type FiltrosEspecialistas,
 } from '@/lib/especialistas/filtros'
 import { ORIGENS_ESPECIALISTA, STATUS_ESPECIALISTA } from '@/lib/especialistas/regras'
+import { cidadeUf } from '@/lib/especialistas/regras'
 
 const TODOS = 'todos'
 const SEM_FILTRO: FiltrosEspecialistas = { busca: '', status: [], especialidade: null, origem: null }
@@ -54,7 +55,7 @@ const COLUNAS: Coluna<EspecialistaDetalhado>[] = [
     titulo: 'Cidade/UF',
     ordenarPor: (e) => e.cidade,
     celula: (e) =>
-      e.cidade ? `${e.cidade}${e.uf ? `/${e.uf}` : ''}` : <Apagado>Não informada</Apagado>,
+      cidadeUf(e.cidade, e.uf) || <Apagado>Não informada</Apagado>,
   },
   { id: 'origem', titulo: 'Origem', ordenarPor: (e) => e.origem, celula: (e) => e.origem },
   { id: 'status', titulo: 'Status', ordenarPor: (e) => e.status, celula: (e) => <EtiquetaStatus status={e.status} /> },
@@ -87,7 +88,7 @@ export function ListaEspecialistas({
 }) {
   const router = useRouter()
   // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
-  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosEspecialistas)
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais)
   const linhas = useMemo(() => filtrarEspecialistas(especialistas, filtros), [especialistas, filtros])
 
   // Quem chega pelo endereço com filtros também tem a volta garantida.

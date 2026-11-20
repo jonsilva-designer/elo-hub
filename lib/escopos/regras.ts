@@ -38,16 +38,22 @@ export function jornadaMexida(etapas: LinhaEtapa[]): boolean {
 
 /**
  * Os escopos que podem ser o ciclo anterior (DF-57, CA-05.10): no cadastro, qualquer um do cliente; na edição, nem o
- * próprio escopo nem os ciclos que vêm depois dele, que fechariam a cadeia num círculo. A ordem é a recebida.
+ * próprio escopo nem os ciclos que vêm depois dele, que fechariam a cadeia num círculo. O escopo que já tem outro
+ * ciclo seguinte também fica de fora: a cadeia não se divide (revisão do código, 20/11/2026). A ordem é a recebida.
  */
 export function ciclosAnterioresPossiveis(
   escopos: readonly { id: string; cicloAnteriorId: string | null }[],
   atualId: string | null,
 ): string[] {
   const fora = new Set<string>()
-  // Anda para a frente na cadeia: o seguinte é o que aponta para o último que saiu.
-  for (let id = atualId; id && !fora.has(id); id = escopos.find((e) => e.cicloAnteriorId === id)?.id ?? null) {
+  // Anda para a frente na cadeia por todos os ciclos seguintes, e não só pelo primeiro.
+  const fila = atualId ? [atualId] : []
+  while (fila.length > 0) {
+    const id = fila.shift()!
+    if (fora.has(id)) continue
     fora.add(id)
+    for (const e of escopos) if (e.cicloAnteriorId === id) fila.push(e.id)
   }
-  return escopos.filter((e) => !fora.has(e.id)).map((e) => e.id)
+  const temOutroSeguinte = (id: string) => escopos.some((e) => e.cicloAnteriorId === id && e.id !== atualId)
+  return escopos.filter((e) => !fora.has(e.id) && !temOutroSeguinte(e.id)).map((e) => e.id)
 }

@@ -64,3 +64,17 @@ describe('lerDadosEspecialista', () => {
     expect(lerDadosEspecialista(fd)).toMatchObject({ nome: 'Helena', email: 'h@exemplo.com.br', telefone: '' })
   })
 })
+
+describe('revisão do código', () => {
+  it('o link do currículo segue a mesma regra do site: maiúsculas e endereço sem ponto passam', () => {
+    expect(validar({ curriculo: 'HTTPS://linkedin.com/in/x' }).curriculo).toBeUndefined()
+    expect(validar({ curriculo: 'https://lnkd' }).curriculo).toBeUndefined()
+    expect(validar({ curriculo: 'linkedin.com/in/x' }).curriculo).toBe(MENSAGENS_ESPECIALISTA.curriculo)
+  })
+
+  it('a especialidade que saiu da lista continua aceita na edição, sem troca', () => {
+    const atual = { especialidade: 'Gestão de contratos' } as EspecialistaDetalhado
+    expect(validar({ especialidade: 'Gestão de contratos' }, atual).especialidade).toBeUndefined()
+    expect(validar({ especialidade: 'Gestão de contratos' }).especialidade).toBe(MENSAGENS_ESPECIALISTA.especialidade)
+  })
+})

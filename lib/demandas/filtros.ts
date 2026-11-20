@@ -130,6 +130,8 @@ function casaComBusca(d: DemandaDetalhada, busca: string): boolean {
 
 /** As demandas que passam na busca e nos filtros, na ordem inicial da fila. */
 export function filtrarDemandas(demandas: readonly DemandaDetalhada[], f: FiltrosDemandas): DemandaDetalhada[] {
+  // "Aberta de" depois de "Aberta até": o período vale na ordem certa, em vez de esvaziar a lista (revisão do código).
+  const [de, ate] = f.de && f.ate && f.de > f.ate ? [f.ate, f.de] : [f.de, f.ate]
   return ordenarDemandas(
     demandas.filter(
       (d) =>
@@ -140,8 +142,8 @@ export function filtrarDemandas(demandas: readonly DemandaDetalhada[], f: Filtro
         (!f.responsavel || d.responsavelTriagemId === f.responsavel || d.responsavelAtendimentoId === f.responsavel) &&
         (f.status.length === 0 || f.status.includes(d.status)) &&
         (f.criticidade.length === 0 || (d.criticidade !== null && f.criticidade.includes(d.criticidade))) &&
-        (!f.de || d.abertaEm >= f.de) &&
-        (!f.ate || d.abertaEm <= f.ate),
+        (!de || d.abertaEm >= de) &&
+        (!ate || d.abertaEm <= ate),
     ),
   )
 }

@@ -63,7 +63,9 @@ export async function salvarEscopo(_estado: EstadoSalvarEscopo, formData: FormDa
     dados.cicloAnteriorId = ''
   }
 
-  const erros = validarEscopo(dados, { atual, responsaveisPermitidos: responsaveis.map((u) => u.id) })
+  // Quem já responde pelo escopo continua aceito sem troca, mesmo sem vínculo hoje (revisão do código).
+  const responsaveisPermitidos = [...responsaveis.map((u) => u.id), ...(atual ? [atual.responsavelId] : [])]
+  const erros = validarEscopo(dados, { atual, responsaveisPermitidos })
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
 
   // RN-21: só o contrato com vigência e término dá o aviso, e só depois do término (no próprio dia, não).
@@ -104,6 +106,7 @@ export async function reclassificarCriticidade(id: string, criticidade: string, 
   if (ehRecusa(escopo)) return escopo
   if (escopoFechado(escopo.status)) return recusa('A criticidade de um escopo fechado não muda.')
   if (!(CRITICIDADES as unknown[]).includes(criticidade)) return recusa(MENSAGENS_ESCOPO.criticidade)
+  if (criticidade === escopo.criticidade) return recusa('Escolha uma criticidade diferente da de hoje.')
   if (!temTexto(justificativa)) return recusa(MENSAGENS_ESCOPO.justificativaCriticidade)
   return { ok: true, mensagem: mensagemDeSucesso('Criticidade reclassificada.') }
 }

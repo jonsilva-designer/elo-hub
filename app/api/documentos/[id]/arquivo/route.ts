@@ -3,6 +3,7 @@ import { obterDocumento } from '@/lib/dados/documentos'
 import { obterSessao } from '@/lib/dados/sessao'
 import { nomeDeArquivoSeguro } from '@/lib/documentos/regras'
 import { formatarData, formatarTamanho } from '@/lib/formato'
+import { nomeNoCabecalho } from '@/lib/documentos/regras'
 
 // Download do documento (arquitetura 5 e 6; RN-16, CA-12.5). Confere a sessão e o acesso ao documento antes de
 // entregar. No protótipo, o arquivo não é guardado: a rota devolve um texto de exemplo com os dados do documento.
@@ -47,7 +48,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   return new Response(texto, {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${semAcento(nome)}"; filename*=UTF-8''${encodeURIComponent(nome)}`,
+      'Content-Disposition': `attachment; filename="${semAcento(nome)}"; filename*=UTF-8''${nomeNoCabecalho(nome)}`,
       'Cache-Control': 'no-store',
     },
   })

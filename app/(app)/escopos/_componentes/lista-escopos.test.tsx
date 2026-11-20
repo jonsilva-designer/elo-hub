@@ -6,6 +6,7 @@ import type { EscopoDetalhado } from '@/lib/dados/tipos'
 import type { FiltrosEscopos } from '@/lib/escopos/filtros'
 import { entrarComo, limparCookies } from '@/lib/testes/next-falso'
 import { ListaEscopos } from './lista-escopos'
+import { STATUS_ESCOPO } from '@/lib/escopos/regras'
 
 const { push } = vi.hoisted(() => ({ push: vi.fn() }))
 vi.mock('next/headers', async () => (await import('@/lib/testes/next-falso')).moduloHeaders)
@@ -124,5 +125,15 @@ describe('ListaEscopos', () => {
     await userEvent.click(screen.getByRole('combobox', { name: 'Responsável' }))
     const opcoes = (await screen.findAllByRole('option')).map((o) => o.textContent)
     expect(opcoes).toEqual(['Todos os responsáveis', 'Helena Prado', 'Rafael Souza'])
+  })
+})
+
+describe('ListaEscopos, revisão do código', () => {
+  it('ordenar pelo status segue o ciclo de vida, e não a ordem alfabética', async () => {
+    montar({ filtrosIniciais: { ...SEM_FILTRO, status: [...STATUS_ESCOPO] } })
+    await userEvent.click(screen.getByRole('button', { name: /^Status/ }))
+    const status = linhas().map((l) => STATUS_ESCOPO.find((s) => l.textContent?.includes(s)))
+    const posicoes = status.map((s) => STATUS_ESCOPO.indexOf(s!))
+    expect(posicoes).toEqual([...posicoes].sort((a, b) => a - b))
   })
 })

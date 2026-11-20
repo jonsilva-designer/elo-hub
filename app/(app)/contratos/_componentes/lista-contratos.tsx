@@ -139,7 +139,7 @@ export function ListaContratos({
 }) {
   const router = useRouter()
   // Acompanha os filtros do endereço quando só a busca muda (revisão do código).
-  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais, escreverFiltrosContratos)
+  const [filtros, setFiltros] = useFiltrosDaLista(filtrosIniciais)
   const linhas = useMemo(() => filtrarContratos(contratos, filtros), [contratos, filtros])
   const texto = escreverFiltrosContratos(filtros)
 

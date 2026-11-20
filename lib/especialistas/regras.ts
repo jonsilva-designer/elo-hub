@@ -28,3 +28,13 @@ export function opcoesDeVinculo(
     }))
     .sort((a, b) => a.rotulo.localeCompare(b.rotulo, 'pt-BR'))
 }
+
+/** O link do currículo: começa com http:// ou https://, sem espaço. A mesma regra no site e no cadastro (revisão do código). */
+export function linkValido(link: string): boolean {
+  return /^https?:\/\/\S+$/i.test(link)
+}
+
+/** A cidade e a UF como foram preenchidas: a UF aparece mesmo sem a cidade (revisão do código). */
+export function cidadeUf(cidade: string | null | undefined, uf: string | null | undefined): string {
+  return [cidade, uf].filter((x) => x && x.trim()).join('/')
+}

@@ -95,6 +95,26 @@ describe('AcoesPlano (parte 4, 5.5)', () => {
     expect(janela.getAllByRole('button').map((b) => b.textContent)).toEqual(['Fechar'])
   })
 
+  it('a recusa do servidor com o que impede lista os itens na janela (revisão do código)', async () => {
+    vi.mocked(concluirPlano).mockResolvedValueOnce({
+      ok: false,
+      mensagem: 'Não é possível concluir este plano enquanto houver atividades abertas.',
+      impedimentos: [{ tipo: 'Atividade', descricao: 'Atividade nova aberta', status: 'Não iniciada', href: '/atividades/a/editar' } as ItemQueImpede],
+    })
+    montar(await plano('pla-atlantica-indicadores'), { perfil: 'Equipe' })
+    const janela = await escolher('Concluir')
+    await userEvent.click(janela.getByRole('button', { name: 'Concluir' }))
+    expect(await janela.findByText(/Atividade nova aberta/)).toBeInTheDocument()
+  })
+
+  it('o erro inesperado do servidor vira recusa na janela, e não a página de erro (revisão do código)', async () => {
+    vi.mocked(concluirPlano).mockRejectedValueOnce(new Error('sessão expirada'))
+    montar(await plano('pla-atlantica-indicadores'), { perfil: 'Equipe' })
+    const janela = await escolher('Concluir')
+    await userEvent.click(janela.getByRole('button', { name: 'Concluir' }))
+    expect(await screen.findByText('Não foi possível concluir a ação. Tente de novo.')).toBeInTheDocument()
+  })
+
   it('sem atividade aberta, concluir chama o servidor e avisa', async () => {
     vi.mocked(concluirPlano).mockResolvedValue(SUCESSO)
     montar(await plano('pla-atlantica-indicadores'), { perfil: 'Equipe' })

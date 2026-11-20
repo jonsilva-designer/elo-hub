@@ -15,6 +15,7 @@ import { registrarDemanda } from '@/lib/demandas/acoes'
 import { ESTADO_INICIAL_REGISTRAR_DEMANDA } from '@/lib/demandas/estados'
 import { ORIGENS_DEMANDA } from '@/lib/demandas/regras'
 import type { DadosNovaDemanda } from '@/lib/demandas/validacao'
+import { enderecoDaCentral, useEnderecoDaCentral } from '../../_componentes/voltar-para-central'
 
 type Opcao = { valor: string; rotulo: string }
 
@@ -42,10 +43,12 @@ export function FormularioNovaDemanda({ clientes, usuarioId }: { clientes: Clien
   const [origem, setOrigem] = useState('')
   const [triagem, setTriagem] = useState('')
 
+  const enderecoDaFila = useEnderecoDaCentral()
   useEffect(() => {
     if (!estado.sucesso) return
     avisarSalvo(estado.sucesso.mensagem)
-    router.push(estado.sucesso.destino)
+    // Volta para a fila com os filtros que estavam aplicados (CA-16.2, revisão do código).
+    router.push(estado.sucesso.destino === '/central' ? enderecoDaCentral() : estado.sucesso.destino)
   }, [estado, router])
 
   const cliente = clientes.find((c) => c.id === clienteId) ?? null
@@ -157,7 +160,7 @@ export function FormularioNovaDemanda({ clientes, usuarioId }: { clientes: Clien
         <Button type="submit" carregando={enviando}>
           Registrar
         </Button>
-        <Link href="/central" className={buttonVariants({ variant: 'outline' })}>
+        <Link href={enderecoDaFila} className={buttonVariants({ variant: 'outline' })}>
           Cancelar
         </Link>
       </div>

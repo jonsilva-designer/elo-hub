@@ -104,7 +104,8 @@ export function ItensAbertos({
             )}
           </Campo>
         </div>
-        <Button type="button" onClick={redistribuir} carregando={pendente} disabled={escolhidos.length === 0}>
+        {/* Sem o novo responsável escolhido, não há o que redistribuir (revisão do código). */}
+        <Button type="button" onClick={redistribuir} carregando={pendente} disabled={escolhidos.length === 0 || !novo}>
           Redistribuir
         </Button>
       </div>

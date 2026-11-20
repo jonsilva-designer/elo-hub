@@ -108,6 +108,12 @@ describe('atualizarEtapa pelo Administrador (DF-49, RN-22, CN-22.2; pontos de at
     expect((await atualizar({ ...diagnosticar, justificativa: 'O contratante não fez o diagnóstico.' })).sucesso).toBeDefined()
   })
 
+  it('reabrir uma Concluída com início novo não esbarra na conclusão que a reabertura apaga (revisão do código)', async () => {
+    entrarComo('usr-helena')
+    const reabrir = { ...DIAGNOSTICAR_DOCUMENTAL, status: 'Em andamento', inicio: '2026-05-10', justificativa: 'Retomada.' }
+    expect((await atualizar(reabrir)).erros).toEqual({})
+  })
+
   it('reabrir uma Concluída pede a justificativa da reabertura e apaga a conclusão', async () => {
     entrarComo('usr-helena')
     const reabrir = { ...DIAGNOSTICAR_DOCUMENTAL, status: 'Em andamento' }

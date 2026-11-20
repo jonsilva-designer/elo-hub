@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Textarea } from '@/components/ui/textarea'
 import { avisarSalvo } from '@/lib/avisos'
 import { excluirEspecialista } from '@/lib/especialistas/acoes'
+import { enderecoDosEspecialistas } from '../../_componentes/voltar-para-especialistas'
 
 /**
  * Menu de ações do especialista, só do Administrador e só quando ele não tem vínculo (parte 5, 5.6): Excluir, com
@@ -42,7 +43,7 @@ export function AcoesEspecialista({ especialistaId }: { especialistaId: string }
       if (resultado.ok) {
         avisarSalvo(resultado.mensagem)
         setAberto(false)
-        router.push('/especialistas')
+        router.push(enderecoDosEspecialistas())
       } else {
         setRecusa(resultado.mensagem)
       }
