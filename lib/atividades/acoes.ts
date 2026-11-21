@@ -21,7 +21,8 @@ const texto = (valor: FormDataEntryValue | null) => (typeof valor === 'string' ?
 /**
  * Cadastro e edição da atividade. Com `id`, é edição: o plano e o cliente são os da atividade, e a Equipe não muda a
  * atividade fechada (RN-17). No cadastro, o plano vem do formulário e não pode estar fechado (RN-23). Com tudo certo,
- * o prazo depois do prazo do plano ou do término da vigência devolve o aviso da RN-21, até vir a confirmação.
+ * o prazo depois do prazo do plano ou do término da vigência devolve o aviso da RN-21, até vir a confirmação. Na
+ * edição, só quando o prazo muda.
  */
 export async function salvarAtividade(_estado: EstadoSalvarAtividade, formData: FormData): Promise<EstadoSalvarAtividade> {
   const usuario = await obterUsuarioAtual()
@@ -51,7 +52,9 @@ export async function salvarAtividade(_estado: EstadoSalvarAtividade, formData: 
     return recusa(MENSAGENS_ATIVIDADE.reabrirComPlanoFechado)
   }
 
-  if (!dados.confirmarAviso) {
+  // O aviso da RN-21 vem no cadastro e quando o prazo muda. A edição que mantém o prazo não avisa de novo, nem ao
+  // concluir ou cancelar (decisão do Jonathan na revisão do código, 20/11/2026).
+  if (!dados.confirmarAviso && (!atual || dados.prazo !== atual.prazo)) {
     const aviso = avisoDoPrazo(dados.prazo, { prazoDoPlano: plano.prazo, terminoDoContrato: plano.terminoDoContrato })
     if (aviso) return { erros: {}, valores: dados, aviso }
   }

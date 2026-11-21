@@ -159,6 +159,34 @@ describe('aviso da RN-21 (CA-05.8; ponto de atenção 3)', () => {
     }
   })
 
+  /** A edição da mobilização, com a conclusão prevista dela (depois do término da vigência). */
+  async function edicaoDaMobilizacao(campos: Record<string, string> = {}) {
+    const e = (await obterEscopo('esc-vertice-mobilizacao'))!
+    return salvar({
+      id: e.id,
+      nome: e.nome,
+      responsavelId: e.responsavelId,
+      status: e.status,
+      prioridade: e.prioridade,
+      inicio: e.inicio ?? '',
+      conclusaoPrevista: e.conclusaoPrevista ?? '',
+      ...campos,
+    })
+  }
+
+  it('a edição que não muda a conclusão prevista não avisa de novo (decisão da revisão do código)', async () => {
+    entrarComo('usr-helena')
+    const estado = await edicaoDaMobilizacao({ nome: 'Mobilização da equipe' })
+    expect(estado.aviso).toBeUndefined()
+    expect(estado.sucesso).toBeDefined()
+  })
+
+  it('a edição que muda a conclusão prevista para depois do término avisa', async () => {
+    entrarComo('usr-helena')
+    const estado = await edicaoDaMobilizacao({ conclusaoPrevista: somarDias(hoje, 51) })
+    expect(estado.aviso).toContain('A conclusão prevista é depois do término da vigência do contrato')
+  })
+
   it('o aviso só vem com o resto certo', async () => {
     entrarComo('usr-helena')
     const estado = await naMobilizacao({ conclusaoPrevista: somarDias(hoje, 21), nome: '' })

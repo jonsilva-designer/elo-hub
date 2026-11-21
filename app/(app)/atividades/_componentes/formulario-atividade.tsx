@@ -38,8 +38,8 @@ function ajudaDoStatus(atual: StatusAtividade | null, novo: string): string | un
 /**
  * Cadastro e edição da atividade (parte 4, 5.7). O plano e o cliente são só leitura: a atividade nasce no plano e
  * herda o cliente (RN-02). O status oferece só os destinos do perfil (6.1), e a reabertura do Administrador pede
- * justificativa (RN-22). O prazo depois do prazo do plano ou da vigência mostra o aviso da RN-21. Quem confere tudo é
- * o servidor; com `noValidate`, valem as mensagens da plataforma.
+ * justificativa (RN-22). O prazo depois do prazo do plano ou da vigência mostra o aviso da RN-21 (na edição, só quando
+ * o prazo muda). Quem confere tudo é o servidor; com `noValidate`, valem as mensagens da plataforma.
  */
 export function FormularioAtividade({
   atividade,

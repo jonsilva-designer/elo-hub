@@ -24,7 +24,7 @@ const texto = (valor: FormDataEntryValue | null) => (typeof valor === 'string' ?
  * Cadastro e edição do escopo. Com `id`, é edição: o contrato e o cliente são os do escopo, e a criticidade do
  * formulário é ignorada (muda só por Reclassificar). No cadastro, o contrato vem do formulário e não pode estar
  * fechado (RN-23). Com tudo certo, a conclusão prevista depois do término da vigência devolve o aviso da RN-21,
- * até vir a confirmação.
+ * até vir a confirmação. Na edição, só quando a conclusão prevista muda.
  */
 export async function salvarEscopo(_estado: EstadoSalvarEscopo, formData: FormData): Promise<EstadoSalvarEscopo> {
   const usuario = await obterUsuarioAtual()
@@ -68,9 +68,12 @@ export async function salvarEscopo(_estado: EstadoSalvarEscopo, formData: FormDa
   const erros = validarEscopo(dados, { atual, responsaveisPermitidos })
   if (Object.keys(erros).length > 0) return { erros, valores: dados }
 
-  // RN-21: só o contrato com vigência e término dá o aviso, e só depois do término (no próprio dia, não).
+  // RN-21: só o contrato com vigência e término dá o aviso, e só depois do término (no próprio dia, não). Vem no
+  // cadastro e quando a conclusão prevista muda; a edição que a mantém não avisa de novo (decisão do Jonathan na
+  // revisão do código, 20/11/2026).
   const termino = contrato.vigencia !== null && contrato.tipoVigencia !== 'Prazo indeterminado' ? contrato.termino : null
-  if (!dados.confirmarAviso && termino && dados.conclusaoPrevista && dados.conclusaoPrevista > termino) {
+  const conclusaoMudou = !atual || dados.conclusaoPrevista !== (atual.conclusaoPrevista ?? '')
+  if (!dados.confirmarAviso && conclusaoMudou && termino && dados.conclusaoPrevista && dados.conclusaoPrevista > termino) {
     return { erros: {}, valores: dados, aviso: avisoDaVigencia(termino) }
   }
 

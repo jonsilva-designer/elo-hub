@@ -49,6 +49,9 @@ async function edicao(id: string, campos: Record<string, string> = {}) {
   }
 }
 
+/** Um dia depois do prazo de hoje da atividade: o prazo muda, e continua do mesmo lado do limite. */
+const prazoSeguinte = async (id: string) => somarDias((await obterAtividade(id))!.prazo, 1)
+
 describe('salvarAtividade (parte 4, 5.7; critérios 6, 7, 9, 10, 11, 16 e 17)', () => {
   it('o Rafael cadastra num plano de cliente vinculado e volta ao plano, com o aviso de que nada foi gravado', async () => {
     entrarComo('usr-rafael')
@@ -92,7 +95,7 @@ describe('salvarAtividade (parte 4, 5.7; critérios 6, 7, 9, 10, 11, 16 e 17)', 
   it('prazo depois do prazo do plano: avisa e salva com a confirmação (RN-21, CA-08.7)', async () => {
     entrarComo('usr-rafael')
     const plano = (await obterPlano('pla-vertice-licencas'))!
-    const campos = await edicao('atv-licencas-auditoria')
+    const campos = await edicao('atv-licencas-auditoria', { prazo: await prazoSeguinte('atv-licencas-auditoria') })
     const estado = await salvar(campos)
     expect(estado.aviso).toContain('O prazo é depois do prazo do plano')
     expect(estado.sucesso).toBeUndefined()
@@ -100,10 +103,28 @@ describe('salvarAtividade (parte 4, 5.7; critérios 6, 7, 9, 10, 11, 16 e 17)', 
     expect((await salvar({ ...campos, confirmarAviso: 'sim' })).sucesso).toBeDefined()
   })
 
+  it('no cadastro, o prazo depois do prazo do plano avisa (CN-21.1)', async () => {
+    entrarComo('usr-rafael')
+    const plano = (await obterPlano('pla-vertice-licencas'))!
+    const estado = await salvar({ planoId: plano.id, prazo: somarDias(plano.prazo!, 1) })
+    expect(estado.aviso).toContain('O prazo é depois do prazo do plano')
+  })
+
   it('prazo depois do término da vigência: avisa (RN-21)', async () => {
     entrarComo('usr-helena')
-    const estado = await salvar(await edicao('atv-mobilizacao-treinamento'))
+    const id = 'atv-mobilizacao-treinamento'
+    const estado = await salvar(await edicao(id, { prazo: await prazoSeguinte(id) }))
     expect(estado.aviso).toContain('O prazo é depois do término da vigência do contrato')
+  })
+
+  it('a edição que não muda o prazo não avisa de novo, nem ao concluir (RN-21; decisão da revisão do código)', async () => {
+    entrarComo('usr-rafael')
+    const edicoes: Record<string, string>[] = [{}, { nome: 'Auditoria interna das licenças' }, { status: 'Concluída' }]
+    for (const campos of edicoes) {
+      const estado = await salvar(await edicao('atv-licencas-auditoria', campos))
+      expect(estado.aviso, JSON.stringify(campos)).toBeUndefined()
+      expect(estado.sucesso, JSON.stringify(campos)).toBeDefined()
+    }
   })
 
   it('contrato em Proposta não avisa pela vigência', async () => {
