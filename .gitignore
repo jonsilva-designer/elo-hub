@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ferramenta dos PDFs: mermaid.js baixado na primeira execução
+/docs/ferramentas/pdf/mermaid.min.js
