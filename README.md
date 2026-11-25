@@ -287,6 +287,7 @@ A ordem abaixo segue as dependências. Épicos sem dependência entre si podem a
 **Construir:**
 
 - **Supabase no repositório:** CLI configurada (`supabase/config.toml`), migrações em `supabase/migrations`, `supabase/seed.sql` com os personagens dos testes. Projeto de homologação no plano gratuito, numa organização separada da produção, região São Paulo (DA-06).
+- **Contas da homologação:** Supabase, Resend e Vercel, criadas pelo desenvolvedor em nome da ELO, e a lista de registros de DNS para o Osvaldo ([Contas](#contas)).
 - **Convenções do banco (4.1):** colunas `criado_em`, `criado_por`, `alterado_em` e `alterado_por` preenchidas por um gatilho genérico; tipos enumerados com os valores do PRD; função genérica do gatilho de herança do cliente (RN-02), ligada às tabelas filhas nos épicos delas.
 - **Tabelas de base:** `usuario` (mesmo id do Auth), `configuracao` com todas as chaves da 4.3 e os valores iniciais (5 e 30 dias, remetentes, referências de prazo vazias, início da operação vazio, e-mail da Central, formatos e 10 MB, 4 horas de sessão), `lista_item` com os valores do Apêndice C do PRD e o índice único sem diferenciar maiúsculas e acentos, `registro_alteracao`, `log_tecnico` e `transicao_permitida`, carregada das tabelas da seção 6.1 do PRD.
 - **Gatilhos genéricos:** o de histórico (grava em `registro_alteracao` o campo, o valor anterior, o novo, o usuário e a hora, só para os campos da DF-16 de cada tabela) e o de transição de status (4.4: recusa o que não está em `transicao_permitida` para o perfil, confere as exigências do destino, recebe a justificativa da ação numa variável da transação, preenche ou apaga as datas automáticas). Cada épico liga esses gatilhos às tabelas dele.
@@ -1171,15 +1172,15 @@ Da seção 7.1 do PRD. O número depois do caso de uso é a ordem da linha na ta
 
 **Objetivo:** a plataforma em produção, no endereço da ELO, com backup de 30 dias, e-mail no domínio e a documentação para operar.
 
-**Depende de:** E15 para a entrada em produção. Os itens de infraestrutura (DNS, domínio de e-mail, armazenamento do backup) podem começar junto com o E1.
+**Depende de:** E15 para a entrada em produção. Os registros de DNS e o domínio de e-mail vêm do E1, e o armazenamento do backup pode ser contratado antes ([Contas](#contas)).
 **Contrato:** 3.16 (rotina de backup), 3.18 (aplicação publicada), 4.6 (plataforma em produção).
 **Requisitos não funcionais:** RNF-04, RNF-05 (exclusão a pedido), RNF-08, RNF-10, RNF-12, RNF-13, RNF-14, RNF-16, RNF-17.
 **Base:** PRD, DF-18, DF-19, DF-46, DF-83; arquitetura, 7, 8 e 9, DA-01, DA-06, DA-07.
 
 **Construir:**
 
-- Produção: Supabase no plano Pro (DA-01) e a Vercel de produção, com as migrações aplicadas primeiro na homologação e depois na produção.
-- Subdomínio da ELO (sugestão app.elogovernance.com.br, com o nome definido pela ELO) e domínio de envio do Resend: a lista de registros de DNS vai para o Osvaldo criar no Registro.br (arquitetura, 8). Nenhum registro do site nem do e-mail atual muda.
+- Produção: organização do Supabase no plano Pro (DA-01) e a Vercel de produção ([Contas](#contas)), com as migrações aplicadas primeiro na homologação e depois na produção.
+- Subdomínio da ELO (sugestão app.elogovernance.com.br, com o nome definido pela ELO) e domínio de envio do Resend, com os registros de DNS pedidos no E1 (arquitetura, 8). Nenhum registro do site nem do e-mail atual muda.
 - **Cópia independente do backup** (DA-07): rotina diária no GitHub Actions que copia o banco e os arquivos para um armazenamento independente, no Brasil, em conta da ELO, cifrada, guardada por 30 dias, com aviso por e-mail quando falha. Credenciais nos segredos do GitHub.
 - **Restauração testada** antes da entrega, com o procedimento escrito na documentação de operação. A frequência dos testes periódicos depois da entrega está a alinhar com a Cleo (PRD, 14.3, DF-18).
 - **Exclusão de dados a pedido** (DF-19): procedimento documentado, com o registro no `log_tecnico` (solicitação, titular, data e resultado).
@@ -1210,7 +1211,7 @@ Itens do contrato que não são desenvolvimento e ficam com a Result, na Etapa 4
 - Transferência dos ativos digitais (4.5) e termo de transferência (4.9).
 - Relatório final com os testes realizados e os critérios validados (4.7).
 - Registro das aprovações de cada entrega no grupo oficial (3.20).
-- Repositório na conta da ELO (3.19): a transferência é decidida pelo Jonathan.
+- Repositório na conta da ELO (3.19): o desenvolvedor cria a organização da ELO no GitHub ([Contas](#contas)), e o Jonathan decide quando transferir.
 
 ---
 
@@ -1223,7 +1224,29 @@ Itens do contrato que não são desenvolvimento e ficam com a Result, na Etapa 4
 | Homologação | A Cleo aprova as entregas e faz os testes de aceite, sem dados reais | Supabase no plano gratuito, em organização separada da produção (DA-06). Único banco durante o desenvolvimento |
 | Produção | Uso real da ELO, a partir da entrada em produção (E16) | Vercel e Supabase Pro (DA-01) |
 
-As contas de hospedagem, banco, e-mail, Turnstile e backup são da ELO (RNF-13; arquitetura, 8). Acessos: pedir ao Jonathan Silva (Result).
+### Contas
+
+O desenvolvedor cria as contas. Todas ficam em nome da ELO desde o início (RNF-13; arquitetura, 8), para que a transferência dos ativos digitais na Etapa 4 (contrato, 4.5 e 4.9) seja só tirar os acessos da Result.
+
+**Regras para todas as contas:**
+
+1. Criada com o e-mail da ELO criado para as contas da plataforma, nunca com e-mail pessoal ou da Result. O código de confirmação chega nesse e-mail.
+2. O desenvolvedor entra como membro convidado, com o login dele. A ELO fica como dona.
+3. Verificação em duas etapas ligada.
+4. O que é pago, a ELO paga direto ao fornecedor, com o meio de pagamento dela (arquitetura, 9). Nada fica no cartão da Result nem no do desenvolvedor.
+5. Cada conta criada entra na lista da documentação de operação (E16): serviço, e-mail dono, plano, quem tem acesso e data de criação. Essa lista é a base do termo de transferência.
+
+| Conta | Quando | Plano | O que configurar |
+|---|---|---|---|
+| Supabase, organização da homologação | E1 | Gratuito | Projeto na região São Paulo. No Auth: autocadastro desligado, senha de no mínimo 8 caracteres, endereço do site e endereços de retorno da homologação e das pré-visualizações, SMTP do Resend com o remetente padrão (DF-21) e modelos do convite e da recuperação de senha em português. O projeto gratuito pausa depois de 1 semana sem uso (arquitetura, 9): conferir que está ativo antes de cada aprovação da Cleo |
+| Resend | E1 | Gratuito: 3.000 e-mails por mês e 100 por dia | Domínio elogovernance.com.br, com o envio num subdomínio próprio, sem mexer no e-mail atual. Uma chave para a homologação e, no E16, outra para a produção |
+| Vercel | E1 | Pro, pago pela ELO | Projeto ligado ao repositório, funções na região São Paulo (arquitetura, 2), variáveis por ambiente (abaixo). Até o E16, a publicação do `main` é a homologação |
+| Cloudflare | E14 | Gratuito | Turnstile, com os domínios da homologação e da produção. No computador e nos testes, as chaves de teste que a Cloudflare publica |
+| GitHub, organização da ELO | Quando o Jonathan decidir a transferência, ainda na Etapa 3 (contrato, 3.19) | Gratuito | O Jonathan entra como dono e transfere o repositório. Depois, religar a Vercel ao repositório transferido e cadastrar os segredos do GitHub Actions na organização |
+| Supabase, organização da produção | E16 | Pro, pago pela ELO (DA-01) | Separada da homologação (DA-06), com as mesmas configurações do Auth e os endereços da produção |
+| Armazenamento do backup | E16 | Pago pela ELO | Outro provedor, região no Brasil, cifrado, cópias guardadas por 30 dias (DA-07). O provedor e o custo vão ao Jonathan antes da contratação, porque a arquitetura deixou o valor a confirmar |
+
+**Registros de DNS.** Com o Resend e a Vercel configurados, o desenvolvedor monta a lista da arquitetura, seção 8 (CNAME do subdomínio, DKIM, MX e SPF do envio e DMARC, se o domínio não tiver), com os valores que os dois mostram, e a entrega ao Jonathan Silva, que pede ao Osvaldo para criá-los no Registro.br. Ninguém da Result entra no Registro.br, e nenhum registro do site nem do e-mail atual muda. O nome do subdomínio é definido pela ELO; a sugestão é app.elogovernance.com.br. Até os registros existirem, os e-mails do Auth na homologação não saem pelo domínio da ELO, e os testes usam o Mailpit local.
 
 **Variáveis de ambiente** (nunca no repositório; as do servidor nunca no navegador):
 
